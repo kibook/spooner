@@ -1,0 +1,83 @@
+<html>
+	<head>
+		<title>Spooner</title>
+		<link rel="stylesheet" href="style.css">
+		<script src="objects.js"></script>
+		<script src="script.js"></script>
+	</head>
+	<body>
+		<div id="hud">
+			<div id="crosshair" class="inactive">+</div>
+			<div id="info">
+				<div class="item" id="entity-info">
+					<div class="label">Entity</div>
+					<div class="value" id="entity-id"></div>
+				</div>
+				<div class="item" id="spawn-info">
+					<div class="label">Spawn</div>
+					<div class="value" id="spawn-id"></div>
+				</div>
+				<div class="item">
+					<div class="label">Speed</div>
+					<div class="value" id="speed"></div>
+				</div>
+				<div class="item">
+					<div class="label">Rotate</div>
+					<div class="value" id="rotate-mode"</div>
+				</div>
+				<div id="controls">W/A/S/D - Move, Spacebar/Shift - Up/Down, Left Click - Select/Spawn, Right Click - Delete, C/V - Rotate, B - Change Rotation, Q/Z/Arrow Keys - Adjust, F - Open Object Menu, X - Open Database, Enter - Open Properties Menu, Delete - Exit</div>
+			</div>
+		</div>
+		<div id="object-menu">
+			<div id="object-search">
+				<input type="text" id="search-filter" value="">
+			</div>
+			<div id="object-list"></div>
+			<button id="object-menu-close-btn">Close</button>
+		</div>
+		<div id="object-database">
+			<div id="object-database-list"></div>
+			<button id="object-database-remove-all-btn">Remove All</button>
+			<button id="object-database-close-btn">Close</button>
+		</div>
+		<div id="properties-menu">
+			<div id="properties-menu-entity">
+				<div class="label">Properties for entity</div>
+				<div class="value" id="properties-menu-entity-id"></div>
+			</div>
+			<div id="properties">
+				<div class="property">
+					<button id="properties-add-to-db">Add to DB</button>
+				</div>
+				<div class="property">
+					<button id="properties-remove-from-db">Remove from DB</button>
+				</div>
+				<div class="property">
+					<button id="properties-freeze">Freeze</button>
+				</div>
+				<div class="property">
+					<button id="properties-unfreeze">Unfreeze</button>
+				</div>
+				<div class="property">
+					<div class="label">Coords</div>
+					<input type="number" class="set-coords" id="properties-x" step="0.1">
+					<input type="number" class="set-coords" id="properties-y" step="0.1">
+					<input type="number" class="set-coords"id="properties-z" step="0.1">
+				</div>
+				<div class="property">
+					<div class="label">Rotation</div>
+					<input type="number" class="set-rotation" id="properties-pitch" min="-359" max="359" step="1">
+					<input type="number" class="set-rotation" id="properties-roll" min="-359" max="359" step="1">
+					<input type="number" class="set-rotation" id="properties-yaw" min="-359" max="359" step="1">
+				</div>
+				<div class="property">
+					<button id="properties-reset-rotation">Reset Rotation</button>
+				</div>
+				<div class="property">
+					<button id="properties-delete">Delete</button>
+				</div>
+			</div>
+			<button id="properties-menu-close-btn">Close</button>
+		</div>
+	</body>
+</html>

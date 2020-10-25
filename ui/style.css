@@ -1,0 +1,191 @@
+* {
+	font-size: inherit;
+	font-family: inherit;
+	user-select: none;
+}
+
+html, body {
+	background: none;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	margin: 0;
+	overflow: hidden;
+	font-family: Arial;
+}
+
+#hud {
+	display: none;
+	font-size: 1vw;
+}
+
+#info {
+	text-align: center;
+}
+
+#crosshair {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 2vw;
+	color: white;
+	font-family: Times;
+}
+
+#crosshair.inactive {
+	color: white;
+}
+
+#crosshair.active {
+	color: #0f0;
+}
+
+#info {
+	position: absolute;
+	bottom: 0;
+	left: 50%;
+	transform: translate(-50%, 0);
+	color: white;
+}
+
+#hud .item .label, #hud .item .value {
+	display: inline;
+}
+
+#hud .item .label::after {
+	content: ": ";
+}
+
+#controls {
+	font-size: 0.75vw;
+}
+
+#object-menu {
+	display: none;
+	position: absolute;
+	flex-flow: column;
+	top: 50%;
+	right: 1%;
+	height: 98%;
+	transform: translate(0, -50%);
+	background-color: rgba(0, 0, 0, 0.5);
+	color: white;
+	font-size: 1vw;
+	padding: 0.5vh 0.5vw;
+}
+
+#search-filter {
+	width: 100%;
+	border: solid 1px white;
+	background-color: rgba(0, 0, 0, 0.5);
+	color: white;
+}
+
+#object-list {
+	flex-grow: 1;
+	overflow-y: scroll;
+}
+
+::-webkit-scrollbar {
+	background: black;
+}
+
+::-webkit-scrollbar-thumb {
+	background-color: white;
+}
+
+.object {
+	padding: 0.25vh 0.25vw;
+}
+
+.object:hover {
+	background-color: white;
+	color: black;
+}
+
+.object.selected {
+	background-color: red;
+	color: white;
+}
+
+#object-database {
+	display: none;
+	position: absolute;
+	top: 50%;
+	right: 1%;
+	height: 98%;
+	transform: translate(0, -50%);
+	background-color: rgba(0, 0, 0, 0.5);
+	color: white;
+	font-size: 1vw;
+	padding: 0.5vh 0.5vw;
+}
+
+#object-database-list {
+	overflow-y: scroll;
+}
+
+button {
+	background-color: rgba(0, 0, 0, 0.5);
+	color: white;
+	border: solid 1px white;
+}
+
+button:hover {
+	background-color: rgba(255, 0, 0, 0.5);
+}
+
+button:active {
+	background-color: white;
+	color: black;
+}
+
+input {
+	background-color: rgba(0, 0, 0, 0.5);
+	color: white;
+	border: solid 1px white;
+}
+
+#properties-menu {
+	display: none;
+	position: absolute;
+	top: 50%;
+	right: 1%;
+	height: 98%;
+	transform: translate(0, -50%);
+	background-color: rgba(0, 0, 0, 0.5);
+	color: white;
+	font-size: 1vw;
+	padding: 0.5vh 0.5vw;
+}
+
+#properties-menu .label, #properties-menu .value {
+	display: inline;
+}
+
+#properties-menu .label::after {
+	content: ": ";
+}
+
+#properties {
+	padding: 0.5vh 0;
+}
+
+.property {
+	padding: 0.5vh 0;
+}
+
+.property label {
+	display: block;
+}
+
+.property button {
+	display: block;
+	width: 100%;
+}
+
+.property input {
+	display: block;
+	width: 100%;
+}
