@@ -107,12 +107,12 @@ function populateObjectList(filter) {
 	}
 }
 
-function deleteObject(object) {
+function deleteEntity(object) {
 	var handle = object.getAttribute('data-handle');
 
 	object.remove();
 
-	sendMessage('deleteObject', {
+	sendMessage('deleteEntity', {
 		handle: parseInt(handle)
 	});
 
@@ -139,7 +139,7 @@ function openDatabase(data) {
 			});
 		});
 		div.addEventListener('contextmenu', function(event) {
-			deleteObject(this);
+			deleteEntity(this);
 		});
 		objectList.appendChild(div);
 	});
