@@ -1,3 +1,5 @@
+var objects = [];
+
 function sendMessage(name, params) {
 	return fetch('https://' + GetParentResourceName() + '/' + name, {
 		method: 'POST',
@@ -246,7 +248,10 @@ window.addEventListener('message', function(event) {
 });
 
 window.addEventListener('load', function() {
-	populateObjectList();
+	sendMessage('getObjectList', {}).then(resp => resp.json()).then(function(resp) {
+		objects = JSON.parse(resp);
+		populateObjectList();
+	});
 
 	document.querySelector('#search-filter').addEventListener('input', function(event) {
 		populateObjectList(this.value);
