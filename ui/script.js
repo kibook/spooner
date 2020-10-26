@@ -1,5 +1,5 @@
 function sendMessage(name, params) {
-	fetch('https://' + GetParentResourceName() + '/' + name, {
+	return fetch('https://' + GetParentResourceName() + '/' + name, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
@@ -268,6 +268,13 @@ window.addEventListener('load', function() {
 	document.querySelector('#properties-place-here').addEventListener('click', function(event) {
 		sendMessage('placeEntityHere', {
 			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
+		}).then(resp => resp.json()).then(function(resp) {
+			document.querySelector('#properties-x').value = resp.x;
+			document.querySelector('#properties-y').value = resp.y;
+			document.querySelector('#properties-z').value = resp.z;
+			document.querySelector('#properties-pitch').value = resp.pitch;
+			document.querySelector('#properties-roll').value = resp.roll;
+			document.querySelector('#properties-yaw').value = resp.pitch;
 		});
 	});
 

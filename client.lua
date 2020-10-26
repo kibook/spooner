@@ -312,7 +312,17 @@ RegisterNUICallback('placeEntityHere', function(data, cb)
 	SetEntityCoordsNoOffset(data.handle, spawnPos.x, spawnPos.y, spawnPos.z)
 	PlaceObjectOnGroundProperly(data.handle)
 
-	cb({})
+	x, y, z = table.unpack(GetEntityCoords(data.handle))
+	pitch, roll, yaw = table.unpack(GetEntityRotation(data.handle, 2))
+
+	cb({
+		x = x,
+		y = y,
+		z = z,
+		pitch = pitch,
+		roll = roll,
+		yaw = yaw
+	})
 end)
 
 function IsUsingKeyboard(padIndex)
