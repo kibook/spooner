@@ -100,39 +100,62 @@ function GetInView(x1, y1, z1, pitch, roll, yaw)
 	return endCoords, entityHit, distance
 end
 
-function RemoveEntity(entity)
-	if IsPedAPlayer(entity) then
-		return
+function GetModelName(model)
+	for _, name in ipairs(Objects) do
+		if model == GetHashKey(name) then
+			return name
+		end
 	end
 
-	SetEntityAsMissionEntity(entity, true, true)
-	DeleteEntity(entity)
-
-	Database[entity] = nil
+	return '?'
 end
 
-function UpdateEntityProperties(entity)
+function GetLiveEntityProperties(entity)
+	local model = GetEntityModel(entity)
 	local x, y, z = table.unpack(GetEntityCoords(entity))
 	local pitch, roll, yaw = table.unpack(GetEntityRotation(entity, 2))
 
-	Database[entity].x = x
-	Database[entity].y = y
-	Database[entity].z = z
-	Database[entity].pitch = pitch
-	Database[entity].roll = yaw
-	Database[entity].yaw = yaw
+	return {
+		name = GetModelName(model),
+		model = model,
+		x = x,
+		y = y,
+		z = z,
+		pitch = pitch,
+		roll = roll,
+		yaw = yaw
+	}
 end
 
 function AddEntityToDatabase(entity, name)
-	Database[entity] = {
-		name = name
-	}
-	UpdateEntityProperties(entity)
+	Database[entity] = GetLiveEntityProperties(entity)
+
+	if name then
+		Database[entity].name = name
+	end
 end
 
-function SpawnObject(name, x, y, z)
-	local model = GetHashKey(name)
+function RemoveEntityFromDatabase(entity)
+	Database[entity] = nil
+end
 
+function GetEntityPropertiesFromDatabase(entity)
+	return Database[entity]
+end
+
+function EntityIsInDatabase(entity)
+	return Database[entity] ~= nil
+end
+
+function GetEntityProperties(entity)
+	if EntityIsInDatabase(entity) then
+		return GetEntityPropertiesFromDatabase(entity)
+	else
+		return GetLiveEntityProperties(entity)
+	end
+end
+
+function SpawnObject(name, model, x, y, z, pitch, roll, yaw)
 	if not IsModelInCdimage(model) then
 		return nil
 	end
@@ -142,13 +165,14 @@ function SpawnObject(name, x, y, z)
 		Wait(0)
 	end
 
-	local object = CreateObject(model, x, y, z, true, false, true)
+	local object = CreateObjectNoOffset(model, x, y, z, true, false, true)
 
 	if object < 1 then
 		return nil
 	end
 
-	PlaceObjectOnGroundProperly(object)
+	SetEntityRotation(object, pitch, roll, yaw, 2)
+
 	FreezeEntityPosition(object, true)
 
 	SetModelAsNoLongerNeeded(model)
@@ -156,6 +180,17 @@ function SpawnObject(name, x, y, z)
 	AddEntityToDatabase(object, name)
 
 	return object
+end
+
+function RemoveEntity(entity)
+	if IsPedAPlayer(entity) then
+		return
+	end
+
+	SetEntityAsMissionEntity(entity, true, true)
+	DeleteEntity(entity)
+
+	RemoveEntityFromDatabase(entity)
 end
 
 function RemoveAllFromDatabase()
@@ -205,13 +240,18 @@ RegisterNUICallback('closePropertiesMenu', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('closeSaveLoadDbMenu', function(data, cb)
+	SetNuiFocus(false, false)
+	cb({})
+end)
+
 RegisterNUICallback('addEntityToDatabase', function(data, cb)
-	AddEntityToDatabase(data.handle, GetModelName(data.handle))
+	AddEntityToDatabase(data.handle)
 	cb({})
 end)
 
 RegisterNUICallback('removeEntityFromDatabase', function(data, cb)
-	Database[data.handle] = nil
+	RemoveEntityFromDatabase(data.handle)
 	cb({})
 end)
 
@@ -250,40 +290,11 @@ RegisterNUICallback('resetRotation', function(data, cb)
 	cb({})
 end)
 
-function GetModelName(entity)
-	local model = GetEntityModel(entity)
-
-	for _, name in ipairs(Objects) do
-		if model == GetHashKey(name) then
-			return name
-		end
-	end
-
-	return '?'
-end
-
 function OpenPropertiesMenuForEntity(entity)
-	local properties = Database[entity]
-
-	if not properties then
-		local x, y, z = table.unpack(GetEntityCoords(entity))
-		local pitch, roll, yaw = table.unpack(GetEntityRotation(entity, 2))
-
-		properties = {
-			name = GetModelName(entity),
-			x = x,
-			y = y,
-			z = z,
-			pitch = pitch,
-			roll = roll,
-			yaw = yaw
-		}
-	end
-
 	SendNUIMessage({
 		type = 'openPropertiesMenu',
 		entity = entity,
-		properties = json.encode(properties)
+		properties = json.encode(GetEntityProperties(entity))
 	})
 	SetNuiFocus(true, true)
 end
@@ -325,6 +336,57 @@ RegisterNUICallback('placeEntityHere', function(data, cb)
 	})
 end)
 
+function SaveDatabase(name)
+	SetResourceKvp(name, json.encode(Database))
+end
+
+function LoadDatabase(name)
+	for entity, props in pairs(json.decode(GetResourceKvpString(name))) do
+		SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
+	end
+end
+
+function GetSavedDatabases()
+	local dbs = {}
+
+	local handle = StartFindKvp("")
+
+	while true do
+		local kvp = FindKvp(handle)
+
+		if kvp then
+			table.insert(dbs, kvp)
+		else
+			break
+		end
+	end
+
+	EndFindKvp(handle)
+
+	table.sort(dbs)
+
+	return dbs
+end
+
+function DeleteDatabase(name)
+	DeleteResourceKvp(name)
+end
+
+RegisterNUICallback('saveDb', function(data, cb)
+	SaveDatabase(data.name)
+	cb(json.encode(GetSavedDatabases()))
+end)
+
+RegisterNUICallback('loadDb', function(data, cb)
+	LoadDatabase(data.name)
+	cb({})
+end)
+
+RegisterNUICallback('deleteDb', function(data, cb)
+	DeleteDatabase(data.name)
+	cb({})
+end)
+
 function IsUsingKeyboard(padIndex)
 	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
 end
@@ -338,9 +400,9 @@ function UpdateDatabase()
 
 	for _, entity in ipairs(entities) do
 		if DoesEntityExist(entity) then
-			UpdateEntityProperties(entity)
+			AddEntityToDatabase(entity)
 		else
-			Database[entity] = nil
+			RemoveEntityFromDatabase(entity)
 		end
 	end
 end
@@ -440,7 +502,7 @@ CreateThread(function()
 				elseif entity then
 					AttachedEntity = entity
 				elseif CurrentObject then
-					SpawnObject(CurrentObject, spawnPos.x, spawnPos.y, spawnPos.z)
+					PlaceObjectOnGroundProperly(SpawnObject(CurrentObject, GetHashKey(CurrentObject), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, 0.0))
 				end
 			end
 
@@ -464,6 +526,14 @@ CreateThread(function()
 				SendNUIMessage({
 					type = 'openDatabase',
 					database = json.encode(Database)
+				})
+				SetNuiFocus(true, true)
+			end
+
+			if IsControlJustReleased(0, Config.SaveLoadDbMenuControl) then
+				SendNUIMessage({
+					type = 'openSaveLoadDbMenu',
+					databaseNames = json.encode(GetSavedDatabases())
 				})
 				SetNuiFocus(true, true)
 			end

@@ -25,22 +25,22 @@
 					<div class="label">Rotate</div>
 					<div class="value" id="rotate-mode"</div>
 				</div>
-				<div id="controls">W/A/S/D - Move, Spacebar/Shift - Up/Down, Left Click - Select/Spawn, Right Click - Delete, C/V - Rotate, B - Change Rotation, Q/Z/Arrow Keys - Adjust, F - Open Object Menu, X - Open Database, Enter - Open Properties Menu, Delete - Exit</div>
+				<div id="controls">W/A/S/D - Move, Spacebar/Shift - Up/Down, Left Click - Select/Spawn, Right Click - Delete, C/V - Rotate, B - Change Rotation, Q/Z/Arrow Keys - Adjust, F - Open Object Menu, X - Open Database, Enter - Open Properties Menu, J - Load/Save DB, Delete - Exit</div>
 			</div>
 		</div>
-		<div id="object-menu">
+		<div id="object-menu" class="menu">
 			<div id="object-search">
 				<input type="text" id="search-filter" value="">
 			</div>
-			<div id="object-list"></div>
+			<div id="object-list" class="list"></div>
 			<button id="object-menu-close-btn">Close</button>
 		</div>
-		<div id="object-database">
+		<div id="object-database" class="menu">
 			<div id="object-database-list"></div>
 			<button id="object-database-remove-all-btn">Remove All</button>
 			<button id="object-database-close-btn">Close</button>
 		</div>
-		<div id="properties-menu">
+		<div id="properties-menu" class="menu">
 			<div id="properties-menu-entity">
 				<div class="label">Properties for entity</div>
 				<div class="value" id="properties-menu-entity-id"></div>
@@ -91,6 +91,14 @@
 				</div>
 			</div>
 			<button id="properties-menu-close-btn">Close</button>
+		</div>
+		<div id="save-load-db-menu" class="menu">
+			<div id="db-list" class="list"></div>
+			<div id="save-db-options">
+				<input id="save-db-name" type="text">
+				<button id="save-db-btn">Save</button>
+			</div>
+			<button id="save-load-db-menu-close-btn">Close</button>
 		</div>
 	</body>
 </html>

@@ -184,6 +184,41 @@ function closePropertiesMenu() {
 	sendMessage('closePropertiesMenu', {});
 }
 
+function updateDbList(data) {
+	var databaseNames = JSON.parse(data);
+	var dbList = document.querySelector('#db-list');
+
+	dbList.innerHTML = '';
+
+	databaseNames.forEach(function(name) {
+		var div = document.createElement('div');
+		div.className = 'database';
+		div.innerHTML = name;
+		div.addEventListener('click', function(event) {
+			sendMessage('loadDb', {
+				name: this.innerHTML
+			});
+		});
+		div.addEventListener('contextmenu', function(event) {
+			sendMessage('deleteDb', {
+				name: this.innerHTML
+			});
+			this.remove();
+		});
+		dbList.appendChild(div);
+	});
+}
+
+function openSaveLoadDbMenu(databaseNames) {
+	updateDbList(databaseNames)
+	document.querySelector('#save-load-db-menu').style.display = 'block';
+}
+
+function closeSaveLoadDbMenu() {
+	document.querySelector('#save-load-db-menu').style.display = 'none';
+	sendMessage('closeSaveLoadDbMenu', {});
+}
+
 window.addEventListener('message', function(event) {
 	switch (event.data.type) {
 		case 'showSpoonerHud':
@@ -203,6 +238,9 @@ window.addEventListener('message', function(event) {
 			break;
 		case 'openPropertiesMenu':
 			openPropertiesMenu(event.data);
+			break;
+		case 'openSaveLoadDbMenu':
+			openSaveLoadDbMenu(event.data.databaseNames);
 			break;
 	}
 });
@@ -320,5 +358,15 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#properties-menu-close-btn').addEventListener('click', function(event) {
 		closePropertiesMenu();
+	});
+
+	document.querySelector('#save-db-btn').addEventListener('click', function(event) {
+		sendMessage('saveDb', {
+			name: document.querySelector('#save-db-name').value
+		}).then(resp => resp.json()).then(resp => updateDbList(resp));
+	});
+
+	document.querySelector('#save-load-db-menu-close-btn').addEventListener('click', function(event) {
+		closeSaveLoadDbMenu();
 	});
 });
