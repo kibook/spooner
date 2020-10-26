@@ -13,6 +13,7 @@ ui_page 'ui/index.html'
 
 client_scripts {
 	'config.lua',
+	'objects.lua',
 	'client.lua'
 }
 

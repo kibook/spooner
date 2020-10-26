@@ -159,9 +159,6 @@ function removeAllFromDatabase() {
 	closeDatabase()
 }
 
-function addEntityToDatabase(entity) {
-}
-
 function openPropertiesMenu(data) {
 	document.querySelector('#properties-menu').style.display = 'block';
 	var entity = document.querySelector('#properties-menu-entity-id');
@@ -169,6 +166,8 @@ function openPropertiesMenu(data) {
 	entity.innerHTML = data.entity.toString(16);
 
 	var properties = JSON.parse(data.properties)
+
+	document.querySelector('#properties-model').innerHTML = properties.name;
 
 	document.querySelector('#properties-x').value = properties.x;
 	document.querySelector('#properties-y').value = properties.y;
@@ -233,8 +232,7 @@ window.addEventListener('load', function() {
 		var id = parseInt(handle)
 
 		sendMessage('addEntityToDatabase', {
-			handle: id,
-			name: id.toString(16)
+			handle: id
 		});
 	});
 

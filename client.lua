@@ -206,7 +206,7 @@ RegisterNUICallback('closePropertiesMenu', function(data, cb)
 end)
 
 RegisterNUICallback('addEntityToDatabase', function(data, cb)
-	AddEntityToDatabase(data.handle, data.name)
+	AddEntityToDatabase(data.handle, GetModelName(data.handle))
 	cb({})
 end)
 
@@ -250,6 +250,18 @@ RegisterNUICallback('resetRotation', function(data, cb)
 	cb({})
 end)
 
+function GetModelName(entity)
+	local model = GetEntityModel(entity)
+
+	for _, name in ipairs(Objects) do
+		if model == GetHashKey(name) then
+			return name
+		end
+	end
+
+	return '?'
+end
+
 function OpenPropertiesMenuForEntity(entity)
 	local properties = Database[entity]
 
@@ -258,6 +270,7 @@ function OpenPropertiesMenuForEntity(entity)
 		local pitch, roll, yaw = table.unpack(GetEntityRotation(entity, 2))
 
 		properties = {
+			name = GetModelName(entity),
 			x = x,
 			y = y,
 			z = z,
