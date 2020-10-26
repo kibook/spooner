@@ -270,6 +270,16 @@ RegisterNUICallback('openPropertiesMenuForEntity', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('invincibleOn', function(data, cb)
+	SetEntityInvincible(data.handle, true)
+	cb({})
+end)
+
+RegisterNUICallback('invincibleOff', function(data, cb)
+	SetEntityInvincible(data.handle, false)
+	cb({})
+end)
+
 function IsUsingKeyboard(padIndex)
 	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
 end

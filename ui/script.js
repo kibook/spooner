@@ -287,6 +287,18 @@ window.addEventListener('load', function() {
 		document.querySelector('#properties-yaw').value = 0.0;
 	});
 
+	document.querySelector('#properties-invincible-on').addEventListener('click', function(event) {
+		sendMessage('invincibleOn', {
+			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
+		});
+	});
+
+	document.querySelector('#properties-invincible-off').addEventListener('click', function(event) {
+		sendMessage('invincibleOff', {
+			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
+		});
+	});
+
 	document.querySelector('#properties-delete').addEventListener('click', function(event) {
 		sendMessage('deleteEntity', {
 			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
