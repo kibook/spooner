@@ -226,12 +226,22 @@ RegisterNUICallback('unfreezeEntity', function(data, cb)
 end)
 
 RegisterNUICallback('setEntityRotation', function(data, cb)
-	SetEntityRotation(data.handle, data.pitch * 1.0, data.roll * 1.0, data.yaw * 1.0, 2)
+	local pitch = data.pitch and data.pitch * 1.0 or 0.0
+	local roll  = data.roll  and data.roll  * 1.0 or 0.0
+	local yaw   = data.yaw   and data.yaw   * 1.0 or 0.0
+
+	SetEntityRotation(data.handle, pitch, roll, yaw, 2)
+
 	cb({})
 end)
 
 RegisterNUICallback('setEntityCoords', function(data, cb)
-	SetEntityCoordsNoOffset(data.handle, data.x * 1.0, data.y * 1.0, data.z * 1.0)
+	local x = data.x and data.x * 1.0 or 0.0
+	local y = data.y and data.y * 1.0 or 0.0
+	local z = data.z and data.z * 1.0 or 0.0
+
+	SetEntityCoordsNoOffset(data.handle, x, y, z)
+
 	cb({})
 end)
 
