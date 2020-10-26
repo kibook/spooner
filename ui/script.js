@@ -134,7 +134,7 @@ function openDatabase(data) {
 		div.setAttribute('data-handle', handle);
 		div.addEventListener('click', function(event) {
 			document.querySelector('#object-database').style.display = 'none';
-			openPropertiesMenu({
+			sendMessage('openPropertiesMenuForEntity', {
 				entity: parseInt(handle)
 			});
 		});

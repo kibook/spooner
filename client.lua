@@ -190,7 +190,7 @@ RegisterNUICallback('closeDatabase', function(data, cb)
 	cb({})
 end)
 
-RegisterNUICallback('deleteObject', function(data, cb)
+RegisterNUICallback('deleteEntity', function(data, cb)
 	RemoveEntity(data.handle)
 	cb({})
 end)
@@ -237,6 +237,36 @@ end)
 
 RegisterNUICallback('resetRotation', function(data, cb)
 	SetEntityRotation(data.handle, 0.0, 0.0, 0.0, 2)
+	cb({})
+end)
+
+function OpenPropertiesMenuForEntity(entity)
+	local properties = Database[entity]
+
+	if not properties then
+		local x, y, z = table.unpack(GetEntityCoords(entity))
+		local pitch, roll, yaw = table.unpack(GetEntityRotation(entity, 2))
+
+		properties = {
+			x = x,
+			y = y,
+			z = z,
+			pitch = pitch,
+			roll = roll,
+			yaw = yaw
+		}
+	end
+
+	SendNUIMessage({
+		type = 'openPropertiesMenu',
+		entity = entity,
+		properties = json.encode(properties)
+	})
+	SetNuiFocus(true, true)
+end
+
+RegisterNUICallback('openPropertiesMenuForEntity', function(data, cb)
+	OpenPropertiesMenuForEntity(data.entity)
 	cb({})
 end)
 
@@ -388,6 +418,10 @@ CreateThread(function()
 			end
 
 			if entity then
+				if IsControlJustReleased(0, Config.PropMenuControl) then
+					OpenPropertiesMenuForEntity(entity)
+				end
+
 				local ex1, ey1, ez1 = table.unpack(GetEntityCoords(entity))
 				local epitch1, eroll1, eyaw1 = table.unpack(GetEntityRotation(entity, 2))
 				local ex2 = ex1
@@ -396,28 +430,6 @@ CreateThread(function()
 				local epitch2 = epitch1
 				local eroll2 = eroll1
 				local eyaw2 = eyaw1
-
-				if IsControlJustReleased(0, Config.PropMenuControl) then
-					local properties = Database[entity]
-
-					if not properties then
-						properties = {
-							x = ex2,
-							y = ey2,
-							z = ez2,
-							pitch = epitch2,
-							roll = eroll2,
-							yaw = eyaw2
-						}
-					end
-
-					SendNUIMessage({
-						type = 'openPropertiesMenu',
-						entity = entity,
-						properties = json.encode(properties)
-					})
-					SetNuiFocus(true, true)
-				end
 
 				if IsControlPressed(0, Config.RotateLeftControl) then
 					if RotateMode == 0 then
