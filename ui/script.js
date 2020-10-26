@@ -1,3 +1,13 @@
+function sendMessage(name, params) {
+	fetch('https://' + GetParentResourceName() + '/' + name, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(params)
+	});
+}
+
 function showSpoonerHud() {
 	document.querySelector('#hud').style.display = 'block';
 }
@@ -60,14 +70,8 @@ function closeObjectMenu(object) {
 	if (object) {
 		var name = object.innerHTML;
 
-		fetch('https://' + GetParentResourceName() + '/closeObjectMenu', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				object: name
-			})
+		sendMessage('closeObjectMenu', {
+			object: name
 		});
 
 		var objects = document.querySelectorAll('#object-list .object');
@@ -78,13 +82,7 @@ function closeObjectMenu(object) {
 
 		object.className = 'object selected';
 	} else {
-		fetch('https://' + GetParentResourceName() + '/closeObjectMenu', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: '{}'
-		});
+		sendMessage('closeObjectMenu', {});
 	}
 
 }
@@ -114,14 +112,8 @@ function deleteObject(object) {
 
 	object.remove();
 
-	fetch('https://' + GetParentResourceName() + '/deleteObject', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({
-			handle: parseInt(handle)
-		})
+	sendMessage('deleteObject', {
+		handle: parseInt(handle)
 	});
 
 	if (!document.querySelector('#object-database-list .object')) {
@@ -158,23 +150,11 @@ function openDatabase(data) {
 function closeDatabase() {
 	document.querySelector('#object-database').style.display = 'none';
 
-	fetch('https://' + GetParentResourceName() + '/closeDatabase', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({})
-	});
+	sendMessage('closeDatabase', {});
 }
 
 function removeAllFromDatabase() {
-	fetch('https://' + GetParentResourceName() + '/removeAllFromDatabase', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: '{}'
-	});
+	sendMessage('removeAllFromDatabase', {});
 
 	closeDatabase()
 }
@@ -202,13 +182,7 @@ function openPropertiesMenu(data) {
 function closePropertiesMenu() {
 	document.querySelector('#properties-menu').style.display = 'none';
 
-	fetch('https://' + GetParentResourceName() + '/closePropertiesMenu', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: '{}'
-	});
+	sendMessage('closePropertiesMenu', {});
 }
 
 window.addEventListener('message', function(event) {
@@ -233,16 +207,6 @@ window.addEventListener('message', function(event) {
 			break;
 	}
 });
-
-function sendMessage(name, params) {
-	fetch('https://' + GetParentResourceName() + '/' + name, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify(params)
-	});
-}
 
 window.addEventListener('load', function() {
 	populateObjectList();
@@ -275,41 +239,20 @@ window.addEventListener('load', function() {
 	});
 
 	document.querySelector('#properties-remove-from-db').addEventListener('click', function(event) {
-		var entity = document.querySelector('#properties-menu-entity-id');
-		var handle = entity.getAttribute('data-handle');
-
 		sendMessage('removeEntityFromDatabase', {
-			handle: parseInt(handle)
+			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
 		});
 	});
 
 	document.querySelector('#properties-freeze').addEventListener('click', function(event) {
-		var entity = document.querySelector('#properties-menu-entity-id');
-		var handle = entity.getAttribute('data-handle');
-
-		fetch('https://' + GetParentResourceName() + '/freezeEntity', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				handle: parseInt(handle)
-			})
+		sendMessage('freezeEntity', {
+			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
 		});
 	});
 
 	document.querySelector('#properties-unfreeze').addEventListener('click', function(event) {
-		var entity = document.querySelector('#properties-menu-entity-id');
-		var handle = entity.getAttribute('data-handle');
-
-		fetch('https://' + GetParentResourceName() + '/unfreezeEntity', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				handle: parseInt(handle)
-			})
+		sendMessage('unfreezeEntity', {
+			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
 		});
 	});
 
@@ -345,17 +288,8 @@ window.addEventListener('load', function() {
 	});
 
 	document.querySelector('#properties-delete').addEventListener('click', function(event) {
-		var entity = document.querySelector('#properties-menu-entity-id');
-		var handle = entity.getAttribute('data-handle');
-
-		fetch('https://' + GetParentResourceName() + '/deleteObject', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				handle: parseInt(handle)
-			})
+		sendMessage('deleteEntity', {
+			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
 		});
 
 		closePropertiesMenu();
