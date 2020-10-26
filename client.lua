@@ -421,23 +421,23 @@ CreateThread(function()
 
 				if IsControlPressed(0, Config.RotateLeftControl) then
 					if RotateMode == 0 then
-						epitch2 = epitch2 - Config.RotateSpeed
-					elseif RotateMode == 1 then
-						eroll2 = eroll2 - Config.RotateSpeed
-					elseif RotateMode == 2 then
-						eyaw2 = eyaw2 - Config.RotateSpeed
-					end
-
-				end
-
-				if IsControlPressed(0, Config.RotateRightControl) then
-					if RotateMode == 0 then
 						epitch2 = epitch2 + Config.RotateSpeed
 					elseif RotateMode == 1 then
 						eroll2 = eroll2 + Config.RotateSpeed
 					else
 						eyaw2 = eyaw2 + Config.RotateSpeed
 					end
+				end
+
+				if IsControlPressed(0, Config.RotateRightControl) then
+					if RotateMode == 0 then
+						epitch2 = epitch2 - Config.RotateSpeed
+					elseif RotateMode == 1 then
+						eroll2 = eroll2 - Config.RotateSpeed
+					else
+						eyaw2 = eyaw2 - Config.RotateSpeed
+					end
+
 				end
 
 				if IsControlPressed(0, Config.AdjustUpControl) then
