@@ -311,6 +311,8 @@ RegisterNUICallback('placeEntityHere', function(data, cb)
 
 	SetEntityCoordsNoOffset(data.handle, spawnPos.x, spawnPos.y, spawnPos.z)
 	PlaceObjectOnGroundProperly(data.handle)
+
+	cb({})
 end)
 
 function IsUsingKeyboard(padIndex)
