@@ -290,6 +290,16 @@ RegisterNUICallback('invincibleOff', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('placeEntityHere', function(data, cb)
+	local x, y, z = table.unpack(GetCamCoord(Cam))
+	local pitch, roll, yaw = table.unpack(GetCamRot(Cam, 2))
+
+	local spawnPos, entity, distance = GetInView(x, y, z, pitch, roll, yaw)
+
+	SetEntityCoordsNoOffset(data.handle, spawnPos.x, spawnPos.y, spawnPos.z)
+	PlaceObjectOnGroundProperly(data.handle)
+end)
+
 function IsUsingKeyboard(padIndex)
 	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
 end

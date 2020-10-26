@@ -267,6 +267,12 @@ window.addEventListener('load', function() {
 		});
 	});
 
+	document.querySelector('#properties-place-here').addEventListener('click', function(event) {
+		sendMessage('placeEntityHere', {
+			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
+		});
+	});
+
 	document.querySelectorAll('.set-rotation').forEach(function(e) {
 		e.addEventListener('input', function(event) {
 			sendMessage('setEntityRotation', {
