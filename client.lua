@@ -8,6 +8,11 @@ local Database = {}
 local AdjustSpeed = Config.AdjustSpeed
 local RotateSpeed = Config.RotateSpeed
 
+local AttachedEntity = nil
+
+local RotateMode = 0
+local AdjustMode = -1
+
 RegisterNetEvent('spooner:toggle')
 
 function EnableSpoonerMode()
@@ -432,10 +437,6 @@ function IsUsingKeyboard(padIndex)
 	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
 end
 
-local AttachedEntity = nil
-
-local RotateMode = 0
-
 CreateThread(function()
 	TriggerEvent('chat:addSuggestion', '/spooner', 'Toggle spooner mode', {})
 
@@ -447,10 +448,14 @@ CreateThread(function()
 		end
 
 		if Cam then
-			local x, y, z = table.unpack(GetCamCoord(Cam))
+			local x1, y1, z1 = table.unpack(GetCamCoord(Cam))
 			local pitch, roll, yaw = table.unpack(GetCamRot(Cam, 2))
 
-			local spawnPos, entity, distance = GetInView(x, y, z, pitch, roll, yaw)
+			local x2 = x1
+			local y2 = y1
+			local z2 = z1
+
+			local spawnPos, entity, distance = GetInView(x2, y2, z2, pitch, roll, yaw)
 
 			if AttachedEntity then
 				entity = AttachedEntity
@@ -461,7 +466,8 @@ CreateThread(function()
 				entity = entity,
 				speed = string.format('%.2f', Speed),
 				currentObject = CurrentObject,
-				rotateMode = RotateMode
+				rotateMode = RotateMode,
+				adjustMode = AdjustMode
 			})
 
 			if Speed < Config.MinSpeed then
@@ -480,11 +486,11 @@ CreateThread(function()
 			end
 
 			if IsControlPressed(0, Config.UpControl) then
-				z = z + Speed
+				z2 = z2 + Speed
 			end
 
 			if IsControlPressed(0, Config.DownControl) then
-				z = z - Speed
+				z2 = z2 - Speed
 			end
 
 			local axisX = GetDisabledControlNormal(0, 0xA987235F)
@@ -504,23 +510,23 @@ CreateThread(function()
 			local dy2 = Speed * math.cos(r2)
 
 			if IsControlPressed(0, Config.ForwardControl) then
-				x = x + dx1
-				y = y + dy1
+				x2 = x2 + dx1
+				y2 = y2 + dy1
 			end
 
 			if IsControlPressed(0, Config.BackwardControl) then
-				x = x - dx1
-				y = y - dy1
+				x2 = x2 - dx1
+				y2 = y2 - dy1
 			end
 
 			if IsControlPressed(0, Config.LeftControl) then
-				x = x + dx2
-				y = y + dy2
+				x2 = x2 + dx2
+				y2 = y2 + dy2
 			end
 
 			if IsControlPressed(0, Config.RightControl) then
-				x = x - dx2
-				y = y - dy2
+				x2 = x2 - dx2
+				y2 = y2 - dy2
 			end
 
 			if IsControlJustPressed(0, Config.SpawnSelectControl) then
@@ -567,6 +573,14 @@ CreateThread(function()
 
 			if IsControlJustPressed(0, Config.RotateModeControl) then
 				RotateMode = (RotateMode + 1) % 3
+			end
+
+			if IsControlJustPressed(0, Config.AdjustModeControl) then
+				AdjustMode = (AdjustMode + 1) % 3
+			end
+
+			if IsControlJustPressed(0, Config.ResetAdjustModeControl) then
+				AdjustMode = -1
 			end
 
 			if entity then
@@ -635,14 +649,22 @@ CreateThread(function()
 				if epitch2 ~= epitch1 or eroll2 ~= eroll1 or eyaw2 ~= eyaw1 then
 					SetEntityRotation(entity, epitch2, eroll2, eyaw2, 2)
 				end
+
+				if AttachedEntity then
+					if AdjustMode == -1 then
+						SetEntityCoordsNoOffset(AttachedEntity, spawnPos.x, spawnPos.y, spawnPos.z)
+						PlaceObjectOnGroundProperly(AttachedEntity)
+					elseif AdjustMode == 0 then
+						SetEntityCoordsNoOffset(AttachedEntity, ex2 - axisX, ey2, ez2)
+					elseif AdjustMode == 1 then
+						SetEntityCoordsNoOffset(AttachedEntity, ex2, ey2 - axisX, ez2)
+					elseif AdjustMode == 2 then
+						SetEntityCoordsNoOffset(AttachedEntity, ex2, ey2, ez2 - axisY)
+					end
+				end
 			end
 
-			if AttachedEntity then
-				SetEntityCoordsNoOffset(AttachedEntity, spawnPos.x, spawnPos.y, spawnPos.z)
-				PlaceObjectOnGroundProperly(AttachedEntity)
-			end
-
-			SetCamCoord(Cam, x, y, z)
+			SetCamCoord(Cam, x2, y2, z2)
 			SetCamRot(Cam, pitch, 0.0, yaw)
 		end
 	end

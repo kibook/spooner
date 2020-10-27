@@ -60,6 +60,21 @@ function updateSpoonerHud(data) {
 			document.querySelector('#rotate-mode').innerHTML = 'Yaw';
 			break;
 	}
+
+	switch(data.adjustMode) {
+		case -1:
+			document.querySelector('#adjust-mode').innerHTML = 'Ground';
+			break;
+		case 0:
+			document.querySelector('#adjust-mode').innerHTML = 'X';
+			break;
+		case 1:
+			document.querySelector('#adjust-mode').innerHTML = 'Y';
+			break;
+		case 2:
+			document.querySelector('#adjust-mode').innerHTML = 'Z';
+			break;
+	}
 }
 
 function openObjectMenu() {
