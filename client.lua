@@ -115,7 +115,7 @@ function GetModelName(model)
 		end
 	end
 
-	return '?'
+	return string.format('%x', model)
 end
 
 function GetLiveEntityProperties(entity)
