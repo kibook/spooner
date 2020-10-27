@@ -256,9 +256,19 @@ window.addEventListener('message', function(event) {
 });
 
 window.addEventListener('load', function() {
-	sendMessage('getObjectList', {}).then(resp => resp.json()).then(function(resp) {
-		objects = JSON.parse(resp);
+	sendMessage('init', {}).then(resp => resp.json()).then(function(resp) {
+		objects = JSON.parse(resp.objects);
 		populateObjectList();
+
+		document.querySelector('#position-step').value = resp.adjustSpeed;
+		document.querySelector('#properties-x').step = resp.adjustSpeed;
+		document.querySelector('#properties-y').step = resp.adjustSpeed;
+		document.querySelector('#properties-z').step = resp.adjustSpeed;
+
+		document.querySelector('#rotation-step').value = resp.rotateSpeed;
+		document.querySelector('#properties-pitch').step = resp.rotateSpeed;
+		document.querySelector('#properties-roll').step = resp.rotateSpeed;
+		document.querySelector('#properties-yaw').step = resp.rotateSpeed;
 	});
 
 	document.querySelector('#search-filter').addEventListener('input', function(event) {
@@ -383,5 +393,25 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#save-load-db-menu-close-btn').addEventListener('click', function(event) {
 		closeSaveLoadDbMenu();
+	});
+
+	document.querySelector('#position-step').addEventListener('input', function(event) {
+		document.querySelector('#properties-x').step = this.value;
+		document.querySelector('#properties-y').step = this.value;
+		document.querySelector('#properties-z').step = this.value;
+
+		sendMessage('setAdjustSpeed', {
+			speed: this.value
+		});
+	});
+
+	document.querySelector('#rotation-step').addEventListener('input', function(event) {
+		document.querySelector('#properties-pitch').step = this.value;
+		document.querySelector('#properties-roll').step = this.value;
+		document.querySelector('#properties-yaw').step = this.value;
+
+		sendMessage('setRotateSpeed', {
+			speed: this.value
+		});
 	});
 });

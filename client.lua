@@ -5,6 +5,9 @@ local ClearTasks = false
 
 local Database = {}
 
+local AdjustSpeed = Config.AdjustSpeed
+local RotateSpeed = Config.RotateSpeed
+
 RegisterNetEvent('spooner:toggle')
 
 function EnableSpoonerMode()
@@ -407,8 +410,22 @@ RegisterNUICallback('deleteDb', function(data, cb)
 	cb({})
 end)
 
-RegisterNUICallback('getObjectList', function(data, cb)
-	cb(json.encode(Objects))
+RegisterNUICallback('init', function(data, cb)
+	cb({
+		objects = json.encode(Objects),
+		adjustSpeed = AdjustSpeed,
+		rotateSpeed = RotateSpeed
+	})
+end)
+
+RegisterNUICallback('setAdjustSpeed', function(data, cb)
+	AdjustSpeed = data.speed * 1.0
+	cb({})
+end)
+
+RegisterNUICallback('setRotateSpeed', function(data, cb)
+	RotateSpeed = data.speed * 1.0
+	cb({})
 end)
 
 function IsUsingKeyboard(padIndex)
@@ -564,47 +581,47 @@ CreateThread(function()
 
 				if IsControlPressed(0, Config.RotateLeftControl) then
 					if RotateMode == 0 then
-						epitch2 = epitch2 + Config.RotateSpeed
+						epitch2 = epitch2 + RotateSpeed
 					elseif RotateMode == 1 then
-						eroll2 = eroll2 + Config.RotateSpeed
+						eroll2 = eroll2 + RotateSpeed
 					else
-						eyaw2 = eyaw2 + Config.RotateSpeed
+						eyaw2 = eyaw2 + RotateSpeed
 					end
 				end
 
 				if IsControlPressed(0, Config.RotateRightControl) then
 					if RotateMode == 0 then
-						epitch2 = epitch2 - Config.RotateSpeed
+						epitch2 = epitch2 - RotateSpeed
 					elseif RotateMode == 1 then
-						eroll2 = eroll2 - Config.RotateSpeed
+						eroll2 = eroll2 - RotateSpeed
 					else
-						eyaw2 = eyaw2 - Config.RotateSpeed
+						eyaw2 = eyaw2 - RotateSpeed
 					end
 
 				end
 
 				if IsControlPressed(0, Config.AdjustUpControl) then
-					ez2 = ez2 + Config.AdjustSpeed
+					ez2 = ez2 + AdjustSpeed
 				end
 
 				if IsControlPressed(0, Config.AdjustDownControl) then
-					ez2 = ez2 - Config.AdjustSpeed
+					ez2 = ez2 - AdjustSpeed
 				end
 
 				if IsControlPressed(0, Config.AdjustNorthControl) then
-					ey2 = ey2 + Config.AdjustSpeed
+					ey2 = ey2 + AdjustSpeed
 				end
 
 				if IsControlPressed(0, Config.AdjustSouthControl) then
-					ey2 = ey2 - Config.AdjustSpeed
+					ey2 = ey2 - AdjustSpeed
 				end
 
 				if IsControlPressed(0, Config.AdjustEastControl) then
-					ex2 = ex2 + Config.AdjustSpeed
+					ex2 = ex2 + AdjustSpeed
 				end
 
 				if IsControlPressed(0, Config.AdjustWestControl) then
-					ex2 = ex2 - Config.AdjustSpeed
+					ex2 = ex2 - AdjustSpeed
 				end
 
 				if ex2 ~= ex1 or ey2 ~= ey1 or ez2 ~= ez1 then
