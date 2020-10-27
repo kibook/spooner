@@ -576,7 +576,7 @@ CreateThread(function()
 			end
 
 			if IsControlJustPressed(0, Config.AdjustModeControl) then
-				AdjustMode = (AdjustMode + 1) % 3
+				AdjustMode = (AdjustMode + 1) % 4
 			end
 
 			if IsControlJustPressed(0, Config.ResetAdjustModeControl) then
@@ -596,6 +596,11 @@ CreateThread(function()
 				local epitch2 = epitch1
 				local eroll2 = eroll1
 				local eyaw2 = eyaw1
+
+				local edx1 = AdjustSpeed * math.sin(r1)
+				local edy1 = AdjustSpeed * math.cos(r1)
+				local edx2 = AdjustSpeed * math.cos(r2)
+				local edy2 = AdjustSpeed * math.cos(r2)
 
 				if IsControlPressed(0, Config.RotateLeftControl) then
 					if RotateMode == 0 then
@@ -626,20 +631,24 @@ CreateThread(function()
 					ez2 = ez2 - AdjustSpeed
 				end
 
-				if IsControlPressed(0, Config.AdjustNorthControl) then
-					ey2 = ey2 + AdjustSpeed
+				if IsControlPressed(0, Config.AdjustForwardControl) then
+					ex2 = ex2 + edx1
+					ey2 = ey2 + edy1
 				end
 
-				if IsControlPressed(0, Config.AdjustSouthControl) then
-					ey2 = ey2 - AdjustSpeed
+				if IsControlPressed(0, Config.AdjustBackwardControl) then
+					ex2 = ex2 - edx1
+					ey2 = ey2 - edy1
 				end
 
-				if IsControlPressed(0, Config.AdjustEastControl) then
-					ex2 = ex2 + AdjustSpeed
+				if IsControlPressed(0, Config.AdjustLeftControl) then
+					ex2 = ex2 + edx2
+					ey2 = ey2 + edy2
 				end
 
-				if IsControlPressed(0, Config.AdjustWestControl) then
-					ex2 = ex2 - AdjustSpeed
+				if IsControlPressed(0, Config.AdjustRightControl) then
+					ex2 = ex2 - edx2
+					ey2 = ey2 - edy2
 				end
 
 				if ex2 ~= ex1 or ey2 ~= ey1 or ez2 ~= ez1 then

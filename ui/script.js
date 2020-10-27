@@ -74,6 +74,10 @@ function updateSpoonerHud(data) {
 		case 2:
 			document.querySelector('#adjust-mode').innerHTML = 'Z';
 			break;
+		case 3:
+			document.querySelector('#adjust-mode').innerHTML = 'Off';
+			break;
+
 	}
 }
 
