@@ -133,6 +133,8 @@ function AddEntityToDatabase(entity, name)
 	if name then
 		Database[entity].name = name
 	end
+
+	return Database[entity]
 end
 
 function RemoveEntityFromDatabase(entity)
@@ -140,7 +142,7 @@ function RemoveEntityFromDatabase(entity)
 end
 
 function GetEntityPropertiesFromDatabase(entity)
-	return Database[entity]
+	return AddEntityToDatabase(entity)
 end
 
 function EntityIsInDatabase(entity)
@@ -290,11 +292,28 @@ RegisterNUICallback('resetRotation', function(data, cb)
 	cb({})
 end)
 
+function UpdateDatabase()
+	local entities = {}
+
+	for entity, properties in pairs(Database) do
+		table.insert(entities, entity)
+	end
+
+	for _, entity in ipairs(entities) do
+		if DoesEntityExist(entity) then
+			AddEntityToDatabase(entity)
+		else
+			RemoveEntityFromDatabase(entity)
+		end
+	end
+end
+
 function OpenPropertiesMenuForEntity(entity)
 	SendNUIMessage({
 		type = 'openPropertiesMenu',
 		entity = entity,
-		properties = json.encode(GetEntityProperties(entity))
+		properties = json.encode(GetEntityProperties(entity)),
+		inDb = EntityIsInDatabase(entity)
 	})
 	SetNuiFocus(true, true)
 end
@@ -337,6 +356,7 @@ RegisterNUICallback('placeEntityHere', function(data, cb)
 end)
 
 function SaveDatabase(name)
+	UpdateDatabase()
 	SetResourceKvp(name, json.encode(Database))
 end
 
@@ -395,22 +415,6 @@ function IsUsingKeyboard(padIndex)
 	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
 end
 
-function UpdateDatabase()
-	local entities = {}
-
-	for entity, properties in pairs(Database) do
-		table.insert(entities, entity)
-	end
-
-	for _, entity in ipairs(entities) do
-		if DoesEntityExist(entity) then
-			AddEntityToDatabase(entity)
-		else
-			RemoveEntityFromDatabase(entity)
-		end
-	end
-end
-
 local AttachedEntity = nil
 
 local RotateMode = 0
@@ -438,8 +442,6 @@ CreateThread(function()
 				currentObject = CurrentObject,
 				rotateMode = RotateMode
 			})
-
-			UpdateDatabase()
 
 			if Speed < Config.MinSpeed then
 				Speed = Config.MinSpeed

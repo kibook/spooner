@@ -178,6 +178,14 @@ function openPropertiesMenu(data) {
 	document.querySelector('#properties-pitch').value = properties.pitch;
 	document.querySelector('#properties-roll').value = properties.roll;
 	document.querySelector('#properties-yaw').value = properties.yaw;
+
+	if (data.inDb) {
+		document.querySelector('#properties-add-to-db').style.display = 'none';
+		document.querySelector('#properties-remove-from-db').style.display = 'block';
+	} else {
+		document.querySelector('#properties-add-to-db').style.display = 'block';
+		document.querySelector('#properties-remove-from-db').style.display = 'none';
+	}
 }
 
 function closePropertiesMenu() {
@@ -270,18 +278,20 @@ window.addEventListener('load', function() {
 	});
 
 	document.querySelector('#properties-add-to-db').addEventListener('click', function(event) {
-		var entity = document.querySelector('#properties-menu-entity-id');
-		var handle = entity.getAttribute('data-handle');
-		var id = parseInt(handle)
-
 		sendMessage('addEntityToDatabase', {
-			handle: id
+			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
+		}).then(resp => resp.json()).then(function(resp) {
+			document.querySelector('#properties-add-to-db').style.display = 'none';
+			document.querySelector('#properties-remove-from-db').style.display = 'block';
 		});
 	});
 
 	document.querySelector('#properties-remove-from-db').addEventListener('click', function(event) {
 		sendMessage('removeEntityFromDatabase', {
 			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
+		}).then(resp => resp.json()).then(function(resp) {
+			document.querySelector('#properties-add-to-db').style.display = 'block';
+			document.querySelector('#properties-remove-from-db').style.display = 'none';
 		});
 	});
 

@@ -166,6 +166,10 @@ input {
 	width: 100%;
 }
 
+.add-remove-db {
+	display: none;
+}
+
 #save-db-options {
 	padding: 1vh 0;
 }
