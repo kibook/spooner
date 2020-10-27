@@ -452,6 +452,10 @@ CreateThread(function()
 
 			local spawnPos, entity, distance = GetInView(x, y, z, pitch, roll, yaw)
 
+			if AttachedEntity then
+				entity = AttachedEntity
+			end
+
 			SendNUIMessage({
 				type = 'updateSpoonerHud',
 				entity = entity,
