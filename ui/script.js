@@ -146,7 +146,7 @@ function openDatabase(data) {
 		objectList.appendChild(div);
 	});
 
-	document.querySelector('#object-database').style.display = 'block';
+	document.querySelector('#object-database').style.display = 'flex';
 }
 
 function closeDatabase() {

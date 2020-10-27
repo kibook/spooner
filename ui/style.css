@@ -74,7 +74,7 @@ html, body {
 	padding: 0.5vh 0.5vw;
 }
 
-#object-menu {
+#object-menu, #object-database, #save-db-menu {
 	flex-flow: column;
 }
 
@@ -86,11 +86,8 @@ html, body {
 }
 
 .list {
-	overflow-y: scroll;
-}
-
-#object-list {
 	flex-grow: 1;
+	overflow-y: scroll;
 }
 
 ::-webkit-scrollbar {
