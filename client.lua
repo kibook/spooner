@@ -10,7 +10,7 @@ local RotateSpeed = Config.RotateSpeed
 
 local AttachedEntity = nil
 
-local RotateMode = 0
+local RotateMode = 2
 local AdjustMode = -1
 
 local PlaceOnGround = false
