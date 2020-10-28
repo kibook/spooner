@@ -462,6 +462,11 @@ RegisterNUICallback('cloneEntity', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('closeHelpMenu', function(data, cb)
+	SetNuiFocus(false, false)
+	cb({})
+end)
+
 function IsUsingKeyboard(padIndex)
 	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
 end
@@ -601,6 +606,13 @@ CreateThread(function()
 				SendNUIMessage({
 					type = 'openSaveLoadDbMenu',
 					databaseNames = json.encode(GetSavedDatabases())
+				})
+				SetNuiFocus(true, true)
+			end
+
+			if IsControlJustReleased(0, Config.HelpMenuControl) then
+				SendNUIMessage({
+					type = 'openHelpMenu'
 				})
 				SetNuiFocus(true, true)
 			end

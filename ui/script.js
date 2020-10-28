@@ -272,6 +272,15 @@ function goToEntity(handle) {
 	});
 }
 
+function openHelpMenu() {
+	document.querySelector('#help-menu').style.display = 'block';
+}
+
+function closeHelpMenu() {
+	document.querySelector('#help-menu').style.display = 'none';
+	sendMessage('closeHelpMenu', {});
+}
+
 window.addEventListener('message', function(event) {
 	switch (event.data.type) {
 		case 'showSpoonerHud':
@@ -294,6 +303,9 @@ window.addEventListener('message', function(event) {
 			break;
 		case 'openSaveLoadDbMenu':
 			openSaveLoadDbMenu(event.data.databaseNames);
+			break;
+		case 'openHelpMenu':
+			openHelpMenu();
 			break;
 	}
 });
@@ -474,5 +486,9 @@ window.addEventListener('load', function() {
 		sendMessage('setRotateSpeed', {
 			speed: this.value
 		});
+	});
+
+	document.querySelector('#help-menu-close-btn').addEventListener('click', function(event) {
+		closeHelpMenu();
 	});
 });

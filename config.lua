@@ -28,6 +28,7 @@ Config.SaveLoadDbMenuControl = 0xF3830D8E -- J
 Config.AdjustModeControl = 0xC1989F95 -- I
 Config.PlaceOnGroundControl = 0xD8F73058 -- U
 Config.FreeAdjustModeControl = 0x42385422 -- 8
+Config.HelpMenuControl = 0x24978A28 -- H
 
 -- Maximum movement speed
 Config.MaxSpeed = 1.00

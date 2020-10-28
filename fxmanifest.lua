@@ -5,7 +5,8 @@ rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aw
 files {
 	'ui/index.html',
 	'ui/style.css',
-	'ui/script.js'
+	'ui/script.js',
+	'ui/chineserocks.ttf'
 }
 
 ui_page 'ui/index.html'

@@ -1,7 +1,13 @@
+@font-face {
+	font-family: "Chinese Rocks";
+	src: url('chineserocks.ttf');
+}
+
 * {
 	font-size: inherit;
 	font-family: inherit;
 	user-select: none;
+	color: inherit;
 }
 
 html, body {
@@ -11,7 +17,7 @@ html, body {
 	padding: 0;
 	margin: 0;
 	overflow: hidden;
-	font-family: Arial;
+	font-family: Helvetica;
 }
 
 #hud {
@@ -63,6 +69,7 @@ html, body {
 
 #controls {
 	font-size: 0.75vw;
+	padding: 1vh 1vw;
 }
 
 .menu {
@@ -120,6 +127,7 @@ button {
 	background-color: rgba(0, 0, 0, 0.5);
 	color: white;
 	border: solid 1px white;
+	font-family: "Chinese Rocks";
 }
 
 button:hover {
@@ -182,4 +190,44 @@ input {
 .database:hover {
 	background-color: white;
 	color: black;
+}
+
+#help-menu {
+	display: none;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	background-color: rgba(0, 0, 0, 0.75);
+	color: white;
+	padding: 1vh 1vw;
+	font-size: 0.75vw;
+}
+
+td {
+	text-align: left;
+	vertical-align: top;
+	padding: 0.5vh 0.5vw;
+}
+
+#help-menu-close-btn {
+	width: 100%;
+	font-size: 1vw;
+}
+
+h1 {
+	font-size: 1.25vw;
+	color: #b00;
+	font-family: "Chinese Rocks";
+	font-weight: normal;
+}
+
+h2 {
+	font-size: 1vw;
+	font-family: "Chinese Rocks";
+	font-weight: normal;
+}
+
+strong {
+	color: #b00;
 }

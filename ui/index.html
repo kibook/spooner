@@ -33,7 +33,7 @@
 					<div class="label">Place on Ground</div>
 					<div class="value" id="place-on-ground"></div>
 				</div>
-				<div id="controls">W/A/S/D - Move, Spacebar/Shift - Up/Down, Left Click - Spawn/Attach/Detach, Right Click - Delete, C/V - Rotate, B - Change Rotation, Q/Z/Arrow Keys - Adjust, I - Mouse Adjust Mode, 8 - Free Mouse, U - Toggle Place On Ground, F - Open Object Menu, X - Open Database, Enter - Open Properties Menu, J - Load/Save DB, Delete - Exit</div>
+				<div id="controls">Press H for controls and help</div>
 			</div>
 		</div>
 		<div id="object-menu" class="menu">
@@ -114,6 +114,103 @@
 				<button id="save-db-btn">Save</button>
 			</div>
 			<button id="save-load-db-menu-close-btn">Close</button>
+		</div>
+		<div id="help-menu">
+			<h1>Object Spooner Help</h1>
+			<h2>Cursor colours</h2>
+			<table>
+				<tr>
+					<td style="color: #fff">+</td>
+					<td>No entity selected</td>
+				</tr>
+				<tr>
+					<td style="color: #0f0">+</td>
+					<td>Entity highlighted</td>
+				</tr>
+				<tr>
+					<td style="color: #0ff">+</td>
+					<td>Entity attached</td>
+				</tr>
+			</table>
+			<h2>Controls</h2>
+			<table>
+				<tr>
+					<td>W/A/S/D</td>
+					<td><strong>Move</strong></td>
+				</tr>
+				<tr>
+					<td>Spacebar/Shift</td>
+					<td><strong>Up</strong>/<strong>Down</strong></td>
+				</tr>
+				<tr>
+					<td>Left Click</td>
+					<td>
+						<ul>
+							<li>No entity highlighted: <strong>Spawn</strong></li>
+							<li>Entity highlighted: <strong>Attach</strong></li>
+							<li>Entity attached: <strong>Detach</strong></li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td>Right Click</td>
+					<td><strong>Delete</strong> selected entity</td>
+				</tr>
+				<tr>
+					<td>C/V</td>
+					<td><strong>Rotate</strong></td>
+				</tr>
+				<tr>
+					<td>B</td>
+					<td>Change rotation axis</td>
+				</tr>
+				<tr>
+					<td>Q/Z/Arrow Keys</td>
+					<td>Adjust selected entity position</td>
+				</tr>
+				<tr>
+					<td>I</td>
+					<td>
+						Cycle between controlled mouse adjustment modes:
+						<ul>
+							<li><strong>X</strong>: Moves attached entity on the X axis</li>
+							<li><strong>Y</strong>: Moves attached entity on the Y axis</li>
+							<li><strong>Z</strong>: Moves attached entity on the Z axis</li>
+							<li><strong>Rotate</strong>: Rotates the entity</li>
+							<li><strong>Off</strong>: Entity can only be adjusted with C/V/Q/Z/Arrow Keys</li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td>U</td>
+					<td>Toggle whether entities stick to the ground in controlled mouse adjustment modes</td>
+				</tr>
+				<tr>
+					<td>8</td>
+					<td>Return to <strong>Free</strong> mouse adjustment mode</td>
+				</tr>
+				<tr>
+					<td>F</td>
+					<td>Open the <strong>Spawn</strong> menu</td>
+				</tr>
+				<tr>
+					<td>X</td>
+					<td>Open the <strong>Database</strong> menu</td>
+				</tr>
+				<tr>
+					<td>Enter</td>
+					<td>Open the <strong>Properties</strong> menu for the selected entity</td>
+				</tr>
+				<tr>
+					<td>J</td>
+					<td>Open the <strong>Save/Load Database</strong> menu</td>
+				</tr>
+				<tr>
+					<td>Del</td>
+					<td><strong>Exit</strong> Object Spooner</td>
+				</tr>
+			</table>
+			<button id="help-menu-close-btn">Close</button>
 		</div>
 	</body>
 </html>
