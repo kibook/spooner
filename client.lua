@@ -451,12 +451,16 @@ RegisterNUICallback('goToEntity', function(data, cb)
 	cb({})
 end)
 
-RegisterNUICallback('cloneEntity', function(data, cb)
-	local props = GetLiveEntityProperties(data.handle)
-	local entity = SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
+function CloneEntity(entity)
+	local props = GetLiveEntityProperties(entity)
+	return SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
+end
 
-	if entity then
-		OpenPropertiesMenuForEntity(entity)
+RegisterNUICallback('cloneEntity', function(data, cb)
+	local clone = CloneEntity(data.handle)
+
+	if clone then
+		OpenPropertiesMenuForEntity(clone)
 	end
 
 	cb({})
@@ -636,6 +640,10 @@ CreateThread(function()
 			if entity then
 				if IsControlJustReleased(0, Config.PropMenuControl) then
 					OpenPropertiesMenuForEntity(entity)
+				end
+
+				if IsControlJustPressed(0, Config.CloneControl) then
+					AttachedEntity = CloneEntity(entity)
 				end
 
 				local ex1, ey1, ez1 = table.unpack(GetEntityCoords(entity))
