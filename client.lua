@@ -637,7 +637,7 @@ CreateThread(function()
 
 				local edx1 = AdjustSpeed * math.sin(r1)
 				local edy1 = AdjustSpeed * math.cos(r1)
-				local edx2 = AdjustSpeed * math.cos(r2)
+				local edx2 = AdjustSpeed * math.sin(r2)
 				local edy2 = AdjustSpeed * math.cos(r2)
 
 				if IsControlPressed(0, Config.RotateLeftControl) then
