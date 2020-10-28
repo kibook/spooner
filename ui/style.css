@@ -41,6 +41,10 @@ html, body {
 	color: #0f0;
 }
 
+#crosshair.attached {
+	color: #0ff;
+}
+
 #info {
 	position: absolute;
 	bottom: 0;

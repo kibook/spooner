@@ -21,7 +21,9 @@ function hideSpoonerHud() {
 function updateSpoonerHud(data) {
 	var crosshair = document.querySelector('#crosshair');
 
-	if (data.entity) {
+	if (data.attachedEntity) {
+		crosshair.className = 'attached';
+	} else if (data.entity) {
 		crosshair.className = 'active';
 	} else {
 		crosshair.className = 'inactive';
@@ -49,18 +51,6 @@ function updateSpoonerHud(data) {
 
 	document.querySelector('#speed').innerHTML = data.speed;
 
-	switch(data.rotateMode) {
-		case 0:
-			document.querySelector('#rotate-mode').innerHTML = 'Pitch';
-			break;
-		case 1:
-			document.querySelector('#rotate-mode').innerHTML = 'Roll';
-			break;
-		case 2:
-			document.querySelector('#rotate-mode').innerHTML = 'Yaw';
-			break;
-	}
-
 	switch(data.adjustMode) {
 		case -1:
 			document.querySelector('#adjust-mode').innerHTML = 'Ground';
@@ -75,9 +65,24 @@ function updateSpoonerHud(data) {
 			document.querySelector('#adjust-mode').innerHTML = 'Z';
 			break;
 		case 3:
+			document.querySelector('#adjust-mode').innerHTML = 'Rotate';
+			break;
+		case 4:
 			document.querySelector('#adjust-mode').innerHTML = 'Off';
 			break;
 
+	}
+
+	switch(data.rotateMode) {
+		case 0:
+			document.querySelector('#rotate-mode').innerHTML = 'Pitch';
+			break;
+		case 1:
+			document.querySelector('#rotate-mode').innerHTML = 'Roll';
+			break;
+		case 2:
+			document.querySelector('#rotate-mode').innerHTML = 'Yaw';
+			break;
 	}
 }
 

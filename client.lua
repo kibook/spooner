@@ -47,6 +47,7 @@ function DisableSpoonerMode()
 	DetachCam(Cam)
 	DestroyCam(Cam, true)
 	Cam = nil
+	AttachedEntity = nil
 
 	SendNUIMessage({
 		type = 'hideSpoonerHud'
@@ -475,13 +476,16 @@ CreateThread(function()
 
 		if Cam then
 			local x1, y1, z1 = table.unpack(GetCamCoord(Cam))
-			local pitch, roll, yaw = table.unpack(GetCamRot(Cam, 2))
+			local pitch1, roll1, yaw1 = table.unpack(GetCamRot(Cam, 2))
 
 			local x2 = x1
 			local y2 = y1
 			local z2 = z1
+			local pitch2 = pitch1
+			local roll2 = roll1
+			local yaw2 = yaw1
 
-			local spawnPos, entity, distance = GetInView(x2, y2, z2, pitch, roll, yaw)
+			local spawnPos, entity, distance = GetInView(x2, y2, z2, pitch2, roll2, yaw2)
 
 			if AttachedEntity then
 				entity = AttachedEntity
@@ -490,6 +494,7 @@ CreateThread(function()
 			SendNUIMessage({
 				type = 'updateSpoonerHud',
 				entity = entity,
+				attachedEntity = AttachedEntity,
 				speed = string.format('%.2f', Speed),
 				currentObject = CurrentObject,
 				rotateMode = RotateMode,
@@ -523,15 +528,15 @@ CreateThread(function()
 			local axisY = GetDisabledControlNormal(0, 0xD2047988)
 
 			if axisX ~= 0.0 or axisY ~= 0.0 then
-				yaw = yaw + axisX * -1.0 * Config.SpeedUd * 1.0
-				pitch = math.max(math.min(89.9, pitch + axisY * -1.0 * Config.SpeedLr * 1.0), -89.9)
+				yaw2 = yaw2 + axisX * -1.0 * Config.SpeedUd
+				pitch2 = math.max(math.min(89.9, pitch2 + axisY * -1.0 * Config.SpeedLr), -89.9)
 			end
 
-			local r1 = -yaw * math.pi / 180
+			local r1 = -yaw2 * math.pi / 180
 			local dx1 = Speed * math.sin(r1)
 			local dy1 = Speed * math.cos(r1)
 
-			local r2 = math.floor(yaw + 90.0) % 360 * -1.0 * math.pi / 180
+			local r2 = math.floor(yaw2 + 90.0) % 360 * -1.0 * math.pi / 180
 			local dx2 = Speed * math.sin(r2)
 			local dy2 = Speed * math.cos(r2)
 
@@ -602,7 +607,7 @@ CreateThread(function()
 			end
 
 			if IsControlJustPressed(0, Config.AdjustModeControl) then
-				AdjustMode = (AdjustMode + 1) % 4
+				AdjustMode = (AdjustMode + 1) % 5
 			end
 
 			if IsControlJustPressed(0, Config.ResetAdjustModeControl) then
@@ -689,18 +694,34 @@ CreateThread(function()
 					if AdjustMode == -1 then
 						SetEntityCoordsNoOffset(AttachedEntity, spawnPos.x, spawnPos.y, spawnPos.z)
 						PlaceObjectOnGroundProperly(AttachedEntity)
-					elseif AdjustMode == 0 then
-						SetEntityCoordsNoOffset(AttachedEntity, ex2 - axisX, ey2, ez2)
-					elseif AdjustMode == 1 then
-						SetEntityCoordsNoOffset(AttachedEntity, ex2, ey2 - axisX, ez2)
-					elseif AdjustMode == 2 then
-						SetEntityCoordsNoOffset(AttachedEntity, ex2, ey2, ez2 - axisY)
+					elseif AdjustMode ~= 4 then
+						x2 = x1
+						y2 = y1
+						z2 = z1
+						pitch2 = pitch1
+						yaw2 = yaw1
+
+						if AdjustMode == 0 then
+							SetEntityCoordsNoOffset(AttachedEntity, ex2 - axisX, ey2, ez2)
+						elseif AdjustMode == 1 then
+							SetEntityCoordsNoOffset(AttachedEntity, ex2, ey2 - axisX, ez2)
+						elseif AdjustMode == 2 then
+							SetEntityCoordsNoOffset(AttachedEntity, ex2, ey2, ez2 - axisY)
+						elseif AdjustMode == 3 then
+							if RotateMode == 0 then
+								SetEntityRotation(AttachedEntity, epitch2 - axisX * Config.SpeedLr, eroll2, eyaw2)
+							elseif RotateMode == 1 then
+								SetEntityRotation(AttachedEntity, epitch2, eroll2 - axisX * Config.SpeedLr, eyaw2)
+							else
+								SetEntityRotation(AttachedEntity, epitch2, eroll2, eyaw2 - axisX * Config.SpeedLr)
+							end
+						end
 					end
 				end
 			end
 
 			SetCamCoord(Cam, x2, y2, z2)
-			SetCamRot(Cam, pitch, 0.0, yaw)
+			SetCamRot(Cam, pitch2, 0.0, yaw2)
 		end
 	end
 end)
