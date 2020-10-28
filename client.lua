@@ -13,7 +13,7 @@ local AttachedEntity = nil
 local RotateMode = 0
 local AdjustMode = -1
 
-local PlaceOnGround = true
+local PlaceOnGround = false
 
 RegisterNetEvent('spooner:toggle')
 
