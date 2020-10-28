@@ -318,6 +318,14 @@ window.addEventListener('load', function() {
 		populateObjectList(this.value);
 	});
 
+	document.querySelector('#spawn-by-name').addEventListener('click', function(event) {
+		document.querySelector('#object-menu').style.display = 'none';
+
+		sendMessage('closeObjectMenu', {
+			object: document.querySelector('#search-filter').value
+		});
+	});
+
 	document.querySelector('#object-menu-close-btn').addEventListener('click', function(event) {
 		closeObjectMenu();
 	});
