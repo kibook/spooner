@@ -128,6 +128,7 @@ function GetLiveEntityProperties(entity)
 
 	return {
 		name = GetModelName(model),
+		type = GetEntityType(entity),
 		model = model,
 		x = x,
 		y = y,
@@ -442,7 +443,13 @@ end
 
 function LoadDatabase(name)
 	for entity, props in pairs(json.decode(GetResourceKvpString(name))) do
-		SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
+		if props.type == 1 then
+			SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
+		elseif props.type == 2 then
+			SpawnVehicle(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
+		elseif props.type == 3 then
+			SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
+		end
 	end
 end
 

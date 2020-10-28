@@ -199,11 +199,27 @@ function removeAllFromDatabase() {
 
 function openPropertiesMenu(data) {
 	document.querySelector('#properties-menu').style.display = 'block';
+
+	var properties = JSON.parse(data.properties)
+
+	switch (properties.type) {
+		case 1:
+			document.querySelector('#properties-menu-entity-type').innerHTML = 'ped';
+			break;
+		case 2:
+			document.querySelector('#properties-menu-entity-type').innerHTML = 'vehicle';
+			break;
+		case 3:
+			document.querySelector('#properties-menu-entity-type').innerHTML = 'object';
+			break;
+		default:
+			document.querySelector('#properties-menu-entity-type').innerHTML = 'entity';
+			break;
+	}
+
 	var entity = document.querySelector('#properties-menu-entity-id');
 	entity.setAttribute('data-handle', data.entity);
 	entity.innerHTML = data.entity.toString(16);
-
-	var properties = JSON.parse(data.properties)
 
 	document.querySelector('#properties-model').innerHTML = properties.name;
 
