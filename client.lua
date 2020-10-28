@@ -397,6 +397,22 @@ RegisterNUICallback('invincibleOff', function(data, cb)
 	cb({})
 end)
 
+function PlaceOnGroundProperly(entity)
+	local entityType = GetEntityType(entity)
+
+	local r1 = GetEntityRotation(entity, 2)
+
+	if entityType == 2 then
+		SetVehicleOnGroundProperly(entity)
+	elseif entityType == 3 then
+		PlaceObjectOnGroundProperly(entity)
+	end
+
+	local r2 = GetEntityRotation(entity, 2)
+
+	SetEntityRotation(entity, r2.x, r2.y, r1.z, 2)
+end
+
 RegisterNUICallback('placeEntityHere', function(data, cb)
 	local x, y, z = table.unpack(GetCamCoord(Cam))
 	local pitch, roll, yaw = table.unpack(GetCamRot(Cam, 2))
@@ -404,7 +420,7 @@ RegisterNUICallback('placeEntityHere', function(data, cb)
 	local spawnPos, entity, distance = GetInView(x, y, z, pitch, roll, yaw)
 
 	SetEntityCoordsNoOffset(data.handle, spawnPos.x, spawnPos.y, spawnPos.z)
-	PlaceObjectOnGroundProperly(data.handle)
+	PlaceOnGroundProperly(data.handle)
 
 	x, y, z = table.unpack(GetEntityCoords(data.handle))
 	pitch, roll, yaw = table.unpack(GetEntityRotation(data.handle, 2))
@@ -641,7 +657,7 @@ CreateThread(function()
 				elseif entity then
 					AttachedEntity = entity
 				elseif CurrentObject then
-					PlaceObjectOnGroundProperly(SpawnObject(CurrentObject, GetHashKey(CurrentObject), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, 0.0))
+					PlaceOnGroundProperly(SpawnObject(CurrentObject, GetHashKey(CurrentObject), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, 0.0))
 				end
 			end
 
@@ -783,7 +799,7 @@ CreateThread(function()
 				if AttachedEntity then
 					if AdjustMode == -1 then
 						SetEntityCoordsNoOffset(AttachedEntity, spawnPos.x, spawnPos.y, spawnPos.z)
-						PlaceObjectOnGroundProperly(AttachedEntity)
+						PlaceOnGroundProperly(AttachedEntity)
 					elseif AdjustMode ~= 4 then
 						x2 = x1
 						y2 = y1
@@ -808,7 +824,7 @@ CreateThread(function()
 						end
 
 						if PlaceOnGround then
-							PlaceObjectOnGroundProperly(AttachedEntity)
+							PlaceOnGroundProperly(AttachedEntity)
 						end
 					end
 				end
