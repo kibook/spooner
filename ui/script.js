@@ -403,6 +403,12 @@ window.addEventListener('load', function() {
 		});
 	});
 
+	document.querySelector('#properties-clone').addEventListener('click', function(event) {
+		sendMessage('cloneEntity', {
+			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
+		});
+	});
+
 	document.querySelector('#properties-delete').addEventListener('click', function(event) {
 		sendMessage('deleteEntity', {
 			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))

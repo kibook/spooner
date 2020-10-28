@@ -448,6 +448,17 @@ RegisterNUICallback('goToEntity', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('cloneEntity', function(data, cb)
+	local props = GetLiveEntityProperties(data.handle)
+	local entity = SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
+
+	if entity then
+		OpenPropertiesMenuForEntity(entity)
+	end
+
+	cb({})
+end)
+
 function IsUsingKeyboard(padIndex)
 	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
 end
