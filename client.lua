@@ -433,6 +433,21 @@ RegisterNUICallback('setRotateSpeed', function(data, cb)
 	cb({})
 end)
 
+function TeleportToCoords(x, y, z, h)
+	local ent = PlayerPedId()
+	FreezeEntityPosition(ent, true)
+	SetEntityCoords(ent, x, y, z, 0, 0, 0, 0, 0)
+	SetEntityHeading(ent, h)
+	FreezeEntityPosition(ent, false)
+end
+
+RegisterNUICallback('goToEntity', function(data, cb)
+	DisableSpoonerMode()
+	local x, y, z = table.unpack(GetEntityCoords(data.handle))
+	TeleportToCoords(x, y, z, 0.0)
+	cb({})
+end)
+
 function IsUsingKeyboard(padIndex)
 	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
 end

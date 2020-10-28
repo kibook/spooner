@@ -248,6 +248,13 @@ function closeSaveLoadDbMenu() {
 	sendMessage('closeSaveLoadDbMenu', {});
 }
 
+function goToEntity(handle) {
+	document.querySelector('#properties-menu').style.display = 'none';
+	sendMessage('goToEntity', {
+		handle: handle
+	});
+}
+
 window.addEventListener('message', function(event) {
 	switch (event.data.type) {
 		case 'showSpoonerHud':
@@ -358,6 +365,10 @@ window.addEventListener('load', function() {
 			document.querySelector('#properties-roll').value = resp.roll;
 			document.querySelector('#properties-yaw').value = resp.pitch;
 		});
+	});
+
+	document.querySelector('#properties-goto').addEventListener('click', function(event) {
+		goToEntity(parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle')));
 	});
 
 	document.querySelectorAll('.set-rotation').forEach(function(e) {
