@@ -195,11 +195,64 @@ function SpawnObject(name, model, x, y, z, pitch, roll, yaw)
 	return object
 end
 
+function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw)
+	if not IsModelInCdimage(model) then
+		return nil
+	end
+
+	RequestModel(model)
+	while not HasModelLoaded(model) do
+		Wait(0)
+	end
+
+	local veh = CreateVehicle(model, x, y, z, 0.0, true, false)
+
+	SetModelAsNoLongerNeeded(model)
+
+	SetEntityRotation(veh, pitch, roll, yaw, 2)
+
+	AddEntityToDatabase(veh, name)
+
+	return veh
+end
+
+function CreatePed_2(modelHash, x, y, z, heading, isNetwork, thisScriptCheck, p7, p8)
+	return Citizen.InvokeNative(0xD49F9B0955C367DE, modelHash, x, y, z, heading, isNetwork, thisScriptCheck, p7, p8)
+end
+
+function SetPedDefaultOutfit(ped, p1)
+	Citizen.InvokeNative(0x283978A15512B2FE, ped, p1)
+end
+
+function SpawnPed(name, model, x, y, z, pitch, roll, yaw)
+	if not IsModelInCdimage(model) then
+		return nil
+	end
+
+	RequestModel(model)
+	while not HasModelLoaded(model) do
+		Wait(0)
+	end
+
+	local ped = CreatePed_2(model, x, y, z, 0.0, true, false)
+
+	SetModelAsNoLongerNeeded(model)
+
+	SetEntityRotation(ped, pitch, roll, yaw, 2)
+
+	SetPedDefaultOutfit(ped, true)
+
+	AddEntityToDatabase(ped, name)
+
+	return ped
+end
+
 function RemoveEntity(entity)
 	if IsPedAPlayer(entity) then
 		return
 	end
 
+	NetworkRequestControlOfEntity(entity)
 	SetEntityAsMissionEntity(entity, true, true)
 	DeleteEntity(entity)
 
@@ -453,7 +506,17 @@ end)
 
 function CloneEntity(entity)
 	local props = GetLiveEntityProperties(entity)
-	return SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
+	local entityType = GetEntityType(entity)
+
+	if entityType == 1 then
+		return SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
+	elseif entityType == 2 then
+		return SpawnVehicle(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
+	elseif entityType == 3 then
+		return SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
+	else
+		return nil
+	end
 end
 
 RegisterNUICallback('cloneEntity', function(data, cb)
