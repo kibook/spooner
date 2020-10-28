@@ -53,7 +53,7 @@ function updateSpoonerHud(data) {
 
 	switch(data.adjustMode) {
 		case -1:
-			document.querySelector('#adjust-mode').innerHTML = 'Ground';
+			document.querySelector('#adjust-mode').innerHTML = 'Free';
 			break;
 		case 0:
 			document.querySelector('#adjust-mode').innerHTML = 'X';
@@ -83,6 +83,18 @@ function updateSpoonerHud(data) {
 		case 2:
 			document.querySelector('#rotate-mode').innerHTML = 'Yaw';
 			break;
+	}
+
+	if (data.adjustMode == -1) {
+		document.querySelector('#place-on-ground-container').style.display = 'none';
+	} else {
+		document.querySelector('#place-on-ground-container').style.display = 'block';
+	}
+
+	if (data.placeOnGround) {
+		document.querySelector('#place-on-ground').innerHTML = 'On';
+	} else {
+		document.querySelector('#place-on-ground').innerHTML = 'Off';
 	}
 }
 

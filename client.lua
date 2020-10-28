@@ -13,6 +13,8 @@ local AttachedEntity = nil
 local RotateMode = 0
 local AdjustMode = -1
 
+local PlaceOnGround = true
+
 RegisterNetEvent('spooner:toggle')
 
 function EnableSpoonerMode()
@@ -498,7 +500,8 @@ CreateThread(function()
 				speed = string.format('%.2f', Speed),
 				currentObject = CurrentObject,
 				rotateMode = RotateMode,
-				adjustMode = AdjustMode
+				adjustMode = AdjustMode,
+				placeOnGround = PlaceOnGround
 			})
 
 			if Speed < Config.MinSpeed then
@@ -610,8 +613,12 @@ CreateThread(function()
 				AdjustMode = (AdjustMode + 1) % 5
 			end
 
-			if IsControlJustPressed(0, Config.ResetAdjustModeControl) then
+			if IsControlJustPressed(0, Config.FreeAdjustModeControl) then
 				AdjustMode = -1
+			end
+
+			if IsControlJustPressed(0, Config.PlaceOnGroundControl) then
+				PlaceOnGround = not PlaceOnGround
 			end
 
 			if entity then
@@ -715,6 +722,10 @@ CreateThread(function()
 							else
 								SetEntityRotation(AttachedEntity, epitch2, eroll2, eyaw2 - axisX * Config.SpeedLr)
 							end
+						end
+
+						if PlaceOnGround then
+							PlaceObjectOnGroundProperly(AttachedEntity)
 						end
 					end
 				end
