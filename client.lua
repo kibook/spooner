@@ -751,6 +751,7 @@ CreateThread(function()
 			end
 
 			if IsControlJustReleased(0, Config.DbMenuControl) then
+				UpdateDatabase()
 				SendNUIMessage({
 					type = 'openDatabase',
 					database = json.encode(Database)
