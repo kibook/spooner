@@ -501,7 +501,7 @@ function LoadDatabase(name)
 			SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
 		elseif props.type == 2 then
 			SpawnVehicle(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
-		elseif props.type == 3 then
+		else
 			SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
 		end
 	end

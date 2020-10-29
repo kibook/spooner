@@ -77,7 +77,7 @@ html, body {
 	position: absolute;
 	top: 50%;
 	right: 1%;
-	height: 98%;
+	height: 95%;
 	transform: translate(0, -50%);
 	background-color: rgba(0, 0, 0, 0.5);
 	color: white;
