@@ -193,6 +193,10 @@ input {
 	display: none;
 }
 
+#properties-get-in-container {
+	display: none;
+}
+
 #save-db-options {
 	padding: 1vh 0;
 }

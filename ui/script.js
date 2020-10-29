@@ -313,6 +313,7 @@ function openPropertiesMenu(data) {
 			break;
 		case 2:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'vehicle';
+			document.querySelector('#properties-get-in-container').style.display = 'block';
 			break;
 		case 3:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'object';
@@ -400,6 +401,13 @@ function openHelpMenu() {
 function closeHelpMenu() {
 	document.querySelector('#help-menu').style.display = 'none';
 	sendMessage('closeHelpMenu', {});
+}
+
+function getIntoVehicle(handle) {
+	document.querySelector('#properties-menu').style.display = 'none';
+	sendMessage('getIntoVehicle', {
+		handle: handle
+	});
 }
 
 window.addEventListener('message', function(event) {
@@ -664,5 +672,9 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#spawn-menu-close').addEventListener('click', function(event) {
 		closeSpawnMenu();
+	});
+
+	document.querySelector('#properties-get-in').addEventListener('click', function(event) {
+		getIntoVehicle(parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle')));
 	});
 });

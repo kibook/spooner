@@ -613,6 +613,12 @@ RegisterNUICallback('closeHelpMenu', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('getIntoVehicle', function(data, cb)
+	DisableSpoonerMode()
+	TaskWarpPedIntoVehicle(PlayerPedId(), data.handle, -1)
+	cb({})
+end)
+
 function IsUsingKeyboard(padIndex)
 	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
 end
