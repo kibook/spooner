@@ -352,6 +352,15 @@ function closePropertiesMenu() {
 	sendMessage('closePropertiesMenu', {});
 }
 
+function loadDatabase(name) {
+	var relative = document.querySelector('#load-db-relative').checked;
+
+	sendMessage('loadDb', {
+		name: name,
+		relative: relative
+	});
+}
+
 function updateDbList(data) {
 	var databaseNames = JSON.parse(data);
 	var dbList = document.querySelector('#db-list');
@@ -363,9 +372,7 @@ function updateDbList(data) {
 		div.className = 'database';
 		div.innerHTML = name;
 		div.addEventListener('click', function(event) {
-			sendMessage('loadDb', {
-				name: this.innerHTML
-			});
+			loadDatabase(this.innerHTML);
 		});
 		div.addEventListener('contextmenu', function(event) {
 			sendMessage('deleteDb', {

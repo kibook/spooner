@@ -495,14 +495,52 @@ function SaveDatabase(name)
 	SetResourceKvp(name, json.encode(Database))
 end
 
-function LoadDatabase(name)
-	for entity, props in pairs(json.decode(GetResourceKvpString(name))) do
-		if props.type == 1 then
-			SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
-		elseif props.type == 2 then
-			SpawnVehicle(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
+function LoadDatabase(name, relative)
+	local ax = 0.0
+	local ay = 0.0
+	local az = 0.0
+
+	local spawns = {}
+
+	local db = json.decode(GetResourceKvpString(name))
+
+	for entity, props in pairs(db) do
+		ax = ax + props.x
+		ay = ay + props.y
+		az = az + props.z
+		table.insert(spawns, props)
+	end
+
+	ax = ax / #spawns
+	ay = ay / #spawns
+	az = az / #spawns
+
+	local dx, dy, dz
+
+	if relative then
+		local pos = GetCamCoord(Cam)
+		dx = pos.x - ax
+		dy = pos.y - ay
+		dz = pos.z - az
+	else
+		dx = 0.0
+		dy = 0.0
+		dz = 0.0
+	end
+
+	for _, spawn in ipairs(spawns) do
+		local entity
+
+		if spawn.type == 1 then
+			entity = SpawnPed(spawn.name, spawn.model, spawn.x + dx, spawn.y + dy, spawn.z + dz, spawn.pitch, spawn.roll, spawn.yaw)
+		elseif spawn.type == 2 then
+			entity = SpawnVehicle(spawn.name, spawn.model, spawn.x + dx, spawn.y + dy, spawn.z + dz, spawn.pitch, spawn.roll, spawn.yaw)
 		else
-			SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
+			entity = SpawnObject(spawn.name, spawn.model, spawn.x + dx, spawn.y + dy, spawn.z + dz, spawn.pitch, spawn.roll, spawn.yaw)
+		end
+
+		if relative then
+			PlaceOnGroundProperly(entity)
 		end
 	end
 end
@@ -539,7 +577,7 @@ RegisterNUICallback('saveDb', function(data, cb)
 end)
 
 RegisterNUICallback('loadDb', function(data, cb)
-	LoadDatabase(data.name)
+	LoadDatabase(data.name, data.relative)
 	cb({})
 end)
 
