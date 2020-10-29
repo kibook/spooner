@@ -378,7 +378,7 @@ function updateDbList(data) {
 
 function openSaveLoadDbMenu(databaseNames) {
 	updateDbList(databaseNames)
-	document.querySelector('#save-load-db-menu').style.display = 'block';
+	document.querySelector('#save-load-db-menu').style.display = 'flex';
 }
 
 function closeSaveLoadDbMenu() {

@@ -114,6 +114,7 @@ input {
 	padding: 1vh 0;
 	display: flex;
 	flex-flow: column;
+	flex-grow: 1;
 }
 
 .spawn-category {
