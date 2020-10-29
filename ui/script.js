@@ -1,3 +1,5 @@
+var peds = [];
+var vehicles = [];
 var objects = [];
 
 function sendMessage(name, params) {
@@ -42,8 +44,8 @@ function updateSpoonerHud(data) {
 	var spawnInfo = document.querySelector('#spawn-info');
 	var spawnId = document.querySelector('#spawn-id');
 
-	if (data.currentObject) {
-		spawnId.innerHTML = data.currentObject;
+	if (data.currentSpawn) {
+		spawnId.innerHTML = data.currentSpawn;
 		spawnInfo.style.display = 'block';
 	} else {
 		spawnInfo.style.display = 'none';
@@ -98,31 +100,134 @@ function updateSpoonerHud(data) {
 	}
 }
 
+function openSpawnMenu() {
+	document.querySelector('#spawn-menu').style.display = 'flex';
+}
+
+function closeSpawnMenu() {
+	document.querySelector('#spawn-menu').style.display = 'none';
+	sendMessage('closeSpawnMenu', {})
+}
+
+function openPedMenu() {
+	document.querySelector('#spawn-menu').style.display = 'none';
+	document.querySelector('#ped-menu').style.display = 'flex';
+}
+
+function openVehicleMenu() {
+	document.querySelector('#spawn-menu').style.display = 'none';
+	document.querySelector('#vehicle-menu').style.display = 'flex';
+}
+
 function openObjectMenu() {
+	document.querySelector('#spawn-menu').style.display = 'none';
 	document.querySelector('#object-menu').style.display = 'flex';
 }
 
-function closeObjectMenu(object) {
-	document.querySelector('#object-menu').style.display = 'none';
+function closePedMenu(selected) {
+	document.querySelector('#ped-menu').style.display = 'none';
 
-	if (object) {
-		var name = object.innerHTML;
+	if (selected) {
+		var name = selected.innerHTML;
 
-		sendMessage('closeObjectMenu', {
-			object: name
+		sendMessage('closePedMenu', {
+			modelName: name
 		});
 
-		var objects = document.querySelectorAll('#object-list .object');
+		var entries = document.querySelectorAll('#ped-list .object');
 
-		for (i = 0; i < objects.length; ++i) {
-			objects[i].className = 'object';
+		for (i = 0; i < entries.length; ++i) {
+			entries[i].className = 'object';
 		}
 
-		object.className = 'object selected';
+		selected.className = 'object selected';
+	} else {
+		sendMessage('closePedMenu', {});
+	}
+}
+
+function closeVehicleMenu(selected) {
+	document.querySelector('#vehicle-menu').style.display = 'none';
+
+	if (selected) {
+		var name = selected.innerHTML;
+
+		sendMessage('closeVehicleMenu', {
+			modelName: name
+		});
+
+		var entries = document.querySelectorAll('#vehicle-list .object');
+
+		for (i = 0; i < entries.length; ++i) {
+			entries[i].className = 'object';
+		}
+
+		selected.className = 'object selected';
+	} else {
+		sendMessage('closeVehicleMenu', {});
+	}
+}
+
+function closeObjectMenu(selected) {
+	document.querySelector('#object-menu').style.display = 'none';
+
+	if (selected) {
+		var name = selected.innerHTML;
+
+		sendMessage('closeObjectMenu', {
+			modelName: name
+		});
+
+		var entries = document.querySelectorAll('#object-list .object');
+
+		for (i = 0; i < entries.length; ++i) {
+			entries[i].className = 'object';
+		}
+
+		selected.className = 'object selected';
 	} else {
 		sendMessage('closeObjectMenu', {});
 	}
+}
 
+function populatePedList(filter) {
+	var pedList = document.querySelector('#ped-list');
+
+	pedList.innerHTML = '';
+
+	for (i = 0; i < peds.length; ++i) {
+		var name = peds[i];
+
+		if (!filter || filter == '' || name.toLowerCase().includes(filter.toLowerCase())) {
+			var div = document.createElement('div');
+			div.className = 'object';
+			div.innerHTML = name;
+			div.addEventListener('click', function(event) {
+				closePedMenu(this);
+			});
+			pedList.appendChild(div);
+		}
+	}
+}
+
+function populateVehicleList(filter) {
+	var vehicleList = document.querySelector('#vehicle-list');
+
+	vehicleList.innerHTML = '';
+
+	for (i = 0; i < vehicles.length; ++i) {
+		var name = vehicles[i];
+
+		if (!filter || filter == '' || name.toLowerCase().includes(filter.toLowerCase())) {
+			var div = document.createElement('div');
+			div.className = 'object';
+			div.innerHTML = name;
+			div.addEventListener('click', function(event) {
+				closeVehicleMenu(this);
+			});
+			vehicleList.appendChild(div);
+		}
+	}
 }
 
 function populateObjectList(filter) {
@@ -308,8 +413,8 @@ window.addEventListener('message', function(event) {
 		case 'updateSpoonerHud':
 			updateSpoonerHud(event.data);
 			break;
-		case 'openObjectMenu':
-			openObjectMenu();
+		case 'openSpawnMenu':
+			openSpawnMenu();
 			break;
 		case 'openDatabase':
 			openDatabase(event.data);
@@ -328,6 +433,12 @@ window.addEventListener('message', function(event) {
 
 window.addEventListener('load', function() {
 	sendMessage('init', {}).then(resp => resp.json()).then(function(resp) {
+		peds = JSON.parse(resp.peds);
+		populatePedList();
+
+		vehicles = JSON.parse(resp.vehicles);
+		populateVehicleList();
+
 		objects = JSON.parse(resp.objects);
 		populateObjectList();
 
@@ -342,16 +453,31 @@ window.addEventListener('load', function() {
 		document.querySelector('#properties-yaw').step = resp.rotateSpeed;
 	});
 
-	document.querySelector('#search-filter').addEventListener('input', function(event) {
+	document.querySelector('#ped-search-filter').addEventListener('input', function(event) {
+		populatePedList(this.value);
+	});
+
+	document.querySelector('#vehicle-search-filter').addEventListener('input', function(event) {
+		populateVehicleList(this.value);
+	});
+	document.querySelector('#object-search-filter').addEventListener('input', function(event) {
 		populateObjectList(this.value);
 	});
 
-	document.querySelector('#spawn-by-name').addEventListener('click', function(event) {
+	document.querySelector('#object-spawn-by-name').addEventListener('click', function(event) {
 		document.querySelector('#object-menu').style.display = 'none';
 
 		sendMessage('closeObjectMenu', {
 			object: document.querySelector('#search-filter').value
 		});
+	});
+
+	document.querySelector('#ped-menu-close-btn').addEventListener('click', function(event) {
+		closePedMenu();
+	});
+
+	document.querySelector('#vehicle-menu-close-btn').addEventListener('click', function(event) {
+		closeVehicleMenu();
 	});
 
 	document.querySelector('#object-menu-close-btn').addEventListener('click', function(event) {
@@ -506,5 +632,21 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#help-menu-close-btn').addEventListener('click', function(event) {
 		closeHelpMenu();
+	});
+
+	document.querySelector('#spawn-menu-peds').addEventListener('click', function(event) {
+		openPedMenu();
+	});
+
+	document.querySelector('#spawn-menu-vehicles').addEventListener('click', function(event) {
+		openVehicleMenu();
+	});
+
+	document.querySelector('#spawn-menu-objects').addEventListener('click', function(event) {
+		openObjectMenu();
+	});
+
+	document.querySelector('#spawn-menu-close').addEventListener('click', function(event) {
+		closeSpawnMenu();
 	});
 });

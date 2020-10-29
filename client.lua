@@ -112,6 +112,18 @@ function GetInView(x1, y1, z1, pitch, roll, yaw)
 end
 
 function GetModelName(model)
+	for _, name in ipairs(Peds) do
+		if model == GetHashKey(name) then
+			return name
+		end
+	end
+
+	for _, name in ipairs(Vehicles) do
+		if model == GetHashKey(name) then
+			return name
+		end
+	end
+
 	for _, name in ipairs(Objects) do
 		if model == GetHashKey(name) then
 			return name
@@ -277,11 +289,41 @@ AddEventHandler('onResourceStop', function(resourceName)
 	end
 end)
 
-local CurrentObject = nil
+local CurrentSpawn = nil
+
+RegisterNUICallback('closeSpawnMenu', function(data, cb)
+	SetNuiFocus(false, false)
+	cb({})
+end)
+
+RegisterNUICallback('closePedMenu', function(data, cb)
+	if data.modelName then
+		CurrentSpawn = {
+			modelName = data.modelName,
+			type = 1
+		}
+	end
+	SetNuiFocus(false, false)
+	cb({})
+end)
+
+RegisterNUICallback('closeVehicleMenu', function(data, cb)
+	if data.modelName then
+		CurrentSpawn = {
+			modelName = data.modelName,
+			type = 2
+		}
+	end
+	SetNuiFocus(false, false)
+	cb({})
+end)
 
 RegisterNUICallback('closeObjectMenu', function(data, cb)
-	if data.object then
-		CurrentObject = data.object;
+	if data.modelName then
+		CurrentSpawn = {
+			modelName = data.modelName,
+			type = 3
+		}
 	end
 	SetNuiFocus(false, false)
 	cb({})
@@ -496,6 +538,8 @@ end)
 
 RegisterNUICallback('init', function(data, cb)
 	cb({
+		peds = json.encode(Peds),
+		vehicles = json.encode(Vehicles),
 		objects = json.encode(Objects),
 		adjustSpeed = AdjustSpeed,
 		rotateSpeed = RotateSpeed
@@ -593,7 +637,7 @@ CreateThread(function()
 				entity = entity,
 				attachedEntity = AttachedEntity,
 				speed = string.format('%.2f', Speed),
-				currentObject = CurrentObject,
+				currentSpawn = CurrentSpawn and CurrentSpawn.modelName,
 				rotateMode = RotateMode,
 				adjustMode = AdjustMode,
 				placeOnGround = PlaceOnGround
@@ -663,8 +707,18 @@ CreateThread(function()
 					AttachedEntity = nil
 				elseif entity then
 					AttachedEntity = entity
-				elseif CurrentObject then
-					PlaceOnGroundProperly(SpawnObject(CurrentObject, GetHashKey(CurrentObject), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, 0.0))
+				elseif CurrentSpawn then
+					local entity
+
+					if CurrentSpawn.type == 1 then
+						entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, 0.0)
+					elseif CurrentSpawn.type == 2 then
+						entity = SpawnVehicle(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, 0.0)
+					elseif CurrentSpawn.type == 3 then
+						entity = SpawnObject(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, 0.0)
+					end
+
+					PlaceOnGroundProperly(entity)
 				end
 			end
 
@@ -679,7 +733,7 @@ CreateThread(function()
 
 			if IsControlJustReleased(0, Config.ObjectMenuControl) then
 				SendNUIMessage({
-					type = 'openObjectMenu'
+					type = 'openSpawnMenu'
 				})
 				SetNuiFocus(true, true)
 			end

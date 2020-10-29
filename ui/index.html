@@ -36,12 +36,37 @@
 				<div id="controls">Press H for controls and help</div>
 			</div>
 		</div>
+		<div id="spawn-menu" class="menu">
+			<h1>Spawn Menu</h1>
+			<div id="spawn-categories">
+				<button id="spawn-menu-peds">Peds</button>
+				<button id="spawn-menu-vehicles">Vehicles</button>
+				<button id="spawn-menu-objects">Objects</button>
+			</div>
+			<button id="spawn-menu-close">Close</button>
+		</div>
+		<div id="ped-menu" class="menu">
+			<div id="ped-search">
+				<input type="text" id="ped-search-filter" class="search-filter" value="">
+			</div>
+			<div id="ped-list" class="list"></div>
+			<button id="ped-spawn-by-name">Spawn By Name</button>
+			<button id="ped-menu-close-btn">Close</button>
+		</div>
+		<div id="vehicle-menu" class="menu">
+			<div id="vehicle-search">
+				<input type="text" id="vehicle-search-filter" class="search-filter" value="">
+			</div>
+			<div id="vehicle-list" class="list"></div>
+			<button id="vehicle-spawn-by-name">Spawn By Name</button>
+			<button id="vehicle-menu-close-btn">Close</button>
+		</div>
 		<div id="object-menu" class="menu">
 			<div id="object-search">
-				<input type="text" id="search-filter" value="">
+				<input type="text" id="object-search-filter" class="search-filter" value="">
 			</div>
 			<div id="object-list" class="list"></div>
-			<button id="spawn-by-name">Spawn By Name</button>
+			<button id="object-spawn-by-name">Spawn By Name</button>
 			<button id="object-menu-close-btn">Close</button>
 		</div>
 		<div id="object-database" class="menu">

@@ -83,13 +83,17 @@ html, body {
 	color: white;
 	font-size: 1vw;
 	padding: 0.5vh 0.5vw;
-}
-
-#object-menu, #object-database, #save-db-menu {
 	flex-flow: column;
 }
 
-#search-filter {
+#spawn-categories {
+	padding: 1vh 0;
+	display: flex;
+	flex-flow: column;
+	font-size: 1.25vw;
+}
+
+.search-filter {
 	width: 100%;
 	border: solid 1px white;
 	background-color: rgba(0, 0, 0, 0.5);
