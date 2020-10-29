@@ -152,6 +152,10 @@ function GetLiveEntityProperties(entity)
 end
 
 function AddEntityToDatabase(entity, name)
+	if not entity then
+		return nil
+	end
+
 	Database[entity] = GetLiveEntityProperties(entity)
 
 	if name then
@@ -193,15 +197,15 @@ function SpawnObject(name, model, x, y, z, pitch, roll, yaw)
 
 	local object = CreateObjectNoOffset(model, x, y, z, true, false, true)
 
-	if object < 1 then
+	SetModelAsNoLongerNeeded(model)
+
+	if not object or object < 1 then
 		return nil
 	end
 
 	SetEntityRotation(object, pitch, roll, yaw, 2)
 
 	FreezeEntityPosition(object, true)
-
-	SetModelAsNoLongerNeeded(model)
 
 	AddEntityToDatabase(object, name)
 
@@ -221,6 +225,10 @@ function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw)
 	local veh = CreateVehicle(model, x, y, z, 0.0, true, false)
 
 	SetModelAsNoLongerNeeded(model)
+
+	if not veh or veh < 1 then
+		return nil
+	end
 
 	SetEntityRotation(veh, pitch, roll, yaw, 2)
 
@@ -250,6 +258,10 @@ function SpawnPed(name, model, x, y, z, pitch, roll, yaw)
 	local ped = CreatePed_2(model, x, y, z, 0.0, true, false)
 
 	SetModelAsNoLongerNeeded(model)
+
+	if not ped or ped < 1 then
+		return nil
+	end
 
 	SetEntityRotation(ped, pitch, roll, yaw, 2)
 
