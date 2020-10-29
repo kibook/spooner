@@ -2,6 +2,8 @@ var peds = [];
 var vehicles = [];
 var objects = [];
 
+var lastSpawnMenu = -1;
+
 function sendMessage(name, params) {
 	return fetch('https://' + GetParentResourceName() + '/' + name, {
 		method: 'POST',
@@ -101,7 +103,20 @@ function updateSpoonerHud(data) {
 }
 
 function openSpawnMenu() {
-	document.querySelector('#spawn-menu').style.display = 'flex';
+	switch (lastSpawnMenu) {
+		case 0:
+			document.querySelector('#ped-menu').style.display = 'flex';
+			break;
+		case 1:
+			document.querySelector('#vehicle-menu').style.display = 'flex';
+			break;
+		case 2:
+			document.querySelector('#object-menu').style.display = 'flex';
+			break;
+		default:
+			document.querySelector('#spawn-menu').style.display = 'flex';
+			break;
+	}
 }
 
 function closeSpawnMenu() {
@@ -112,16 +127,19 @@ function closeSpawnMenu() {
 function openPedMenu() {
 	document.querySelector('#spawn-menu').style.display = 'none';
 	document.querySelector('#ped-menu').style.display = 'flex';
+	lastSpawnMenu = 0;
 }
 
 function openVehicleMenu() {
 	document.querySelector('#spawn-menu').style.display = 'none';
 	document.querySelector('#vehicle-menu').style.display = 'flex';
+	lastSpawnMenu = 1;
 }
 
 function openObjectMenu() {
 	document.querySelector('#spawn-menu').style.display = 'none';
 	document.querySelector('#object-menu').style.display = 'flex';
+	lastSpawnMenu = 2;
 }
 
 function closePedMenu(selected) {
@@ -142,7 +160,8 @@ function closePedMenu(selected) {
 
 		selected.className = 'object selected';
 	} else {
-		sendMessage('closePedMenu', {});
+		document.querySelector('#spawn-menu').style.display = 'flex';
+		lastSpawnMenu = -1;
 	}
 }
 
@@ -164,7 +183,8 @@ function closeVehicleMenu(selected) {
 
 		selected.className = 'object selected';
 	} else {
-		sendMessage('closeVehicleMenu', {});
+		document.querySelector('#spawn-menu').style.display = 'flex';
+		lastSpawnMenu = -1;
 	}
 }
 
@@ -186,7 +206,8 @@ function closeObjectMenu(selected) {
 
 		selected.className = 'object selected';
 	} else {
-		sendMessage('closeObjectMenu', {});
+		document.querySelector('#spawn-menu').style.display = 'flex';
+		lastSpawnMenu = -1;
 	}
 }
 
