@@ -464,11 +464,27 @@ window.addEventListener('load', function() {
 		populateObjectList(this.value);
 	});
 
+	document.querySelector('#ped-spawn-by-name').addEventListener('click', function(event) {
+		document.querySelector('#ped-menu').style.display = 'none';
+
+		sendMessage('closePedMenu', {
+			modelName: document.querySelector('#ped-search-filter').value
+		});
+	});
+
+	document.querySelector('#vehicle-spawn-by-name').addEventListener('click', function(event) {
+		document.querySelector('#vehicle-menu').style.display = 'none';
+
+		sendMessage('closevehicleMenu', {
+			modelName: document.querySelector('#vehicle-search-filter').value
+		});
+	});
+
 	document.querySelector('#object-spawn-by-name').addEventListener('click', function(event) {
 		document.querySelector('#object-menu').style.display = 'none';
 
 		sendMessage('closeObjectMenu', {
-			object: document.querySelector('#search-filter').value
+			modelName: document.querySelector('#object-search-filter').value
 		});
 	});
 

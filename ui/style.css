@@ -90,7 +90,6 @@ html, body {
 	padding: 1vh 0;
 	display: flex;
 	flex-flow: column;
-	font-size: 1.25vw;
 }
 
 .search-filter {
@@ -132,6 +131,7 @@ button {
 	color: white;
 	border: solid 1px white;
 	font-family: "Chinese Rocks";
+	font-size: 1.1vw;
 }
 
 button:hover {
