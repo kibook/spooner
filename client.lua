@@ -505,38 +505,61 @@ function LoadDatabase(name, relative)
 	local db = json.decode(GetResourceKvpString(name))
 
 	for entity, props in pairs(db) do
-		ax = ax + props.x
-		ay = ay + props.y
-		az = az + props.z
+		if relative then
+			ax = ax + props.x
+			ay = ay + props.y
+			az = az + props.z
+		end
+
 		table.insert(spawns, props)
 	end
-
-	ax = ax / #spawns
-	ay = ay / #spawns
-	az = az / #spawns
 
 	local dx, dy, dz
 
 	if relative then
+		ax = ax / #spawns
+		ay = ay / #spawns
+		az = az / #spawns
+
 		local pos = GetCamCoord(Cam)
+
 		dx = pos.x - ax
 		dy = pos.y - ay
 		dz = pos.z - az
-	else
-		dx = 0.0
-		dy = 0.0
-		dz = 0.0
 	end
+
+	local a = GetCamRot(Cam, 2).z
+	local r = math.rad(a)
+	local cosr = math.cos(r)
+	local sinr = math.sin(r)
 
 	for _, spawn in ipairs(spawns) do
 		local entity
 
-		if spawn.type == 1 then
-			entity = SpawnPed(spawn.name, spawn.model, spawn.x + dx, spawn.y + dy, spawn.z + dz, spawn.pitch, spawn.roll, spawn.yaw)
-		elseif spawn.type == 2 then
-			entity = SpawnVehicle(spawn.name, spawn.model, spawn.x + dx, spawn.y + dy, spawn.z + dz, spawn.pitch, spawn.roll, spawn.yaw)
+		local x, y, z, pitch, roll, yaw
+
+		if relative then
+			x = ((spawn.x - ax) * cosr - (spawn.y - ay) * sinr + ax) + dx
+			y = ((spawn.y - ay) * cosr + (spawn.x - ax) * sinr + ay) + dy
+			z = spawn.z + dz
+			pitch = spawn.pitch
+			roll = spawn.roll
+			yaw = spawn.yaw + a
 		else
-			entity = SpawnObject(spawn.name, spawn.model, spawn.x + dx, spawn.y + dy, spawn.z + dz, spawn.pitch, spawn.roll, spawn.yaw)
+			x = spawn.x
+			y = spawn.y
+			z = spawn.z
+			pitch = spawn.pitch
+			roll = spawn.roll
+			yaw = spawn.yaw
+		end
+
+		if spawn.type == 1 then
+			entity = SpawnPed(spawn.name, spawn.model, x, y, z, pitch, roll, yaw)
+		elseif spawn.type == 2 then
+			entity = SpawnVehicle(spawn.name, spawn.model, x, y, z, pitch, roll, yaw)
+		else
+			entity = SpawnObject(spawn.name, spawn.model, x, y, z, pitch, roll, yaw)
 		end
 
 		if relative then
