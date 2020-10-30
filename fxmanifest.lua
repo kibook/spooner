@@ -6,7 +6,8 @@ files {
 	'ui/index.html',
 	'ui/style.css',
 	'ui/script.js',
-	'ui/chineserocks.ttf'
+	'ui/chineserocks.ttf',
+	'ui/keyboard.ttf'
 }
 
 ui_page 'ui/index.html'

@@ -423,11 +423,13 @@ function goToEntity(handle) {
 }
 
 function openHelpMenu() {
-	document.querySelector('#help-menu').style.display = 'block';
+	document.querySelector('#help-menu').style.display = 'flex';
+	document.querySelector('#hud').style.display = 'none';
 }
 
 function closeHelpMenu() {
 	document.querySelector('#help-menu').style.display = 'none';
+	document.querySelector('#hud').style.display = 'block';
 	sendMessage('closeHelpMenu', {});
 }
 

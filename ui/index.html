@@ -154,104 +154,129 @@
 		</div>
 		<div id="help-menu">
 			<h1>Object Spooner Help</h1>
-			<h2>Cursor colours</h2>
-			<table>
-				<tr>
-					<td style="color: #fff">+</td>
-					<td>No entity selected</td>
-				</tr>
-				<tr>
-					<td style="color: #0f0">+</td>
-					<td>Entity highlighted</td>
-				</tr>
-				<tr>
-					<td style="color: #0ff">+</td>
-					<td>Entity attached</td>
-				</tr>
-			</table>
-			<h2>Controls</h2>
-			<table>
-				<tr>
-					<td>W/A/S/D</td>
-					<td><strong>Move</strong></td>
-				</tr>
-				<tr>
-					<td>Spacebar/Shift</td>
-					<td><strong>Up</strong>/<strong>Down</strong></td>
-				</tr>
-				<tr>
-					<td>Left Click</td>
-					<td>
-						<ul>
-							<li>No entity highlighted: <strong>Spawn</strong></li>
-							<li>Entity highlighted: <strong>Attach</strong></li>
-							<li>Entity attached: <strong>Detach</strong></li>
-						</ul>
-					</td>
-				</tr>
-				<tr>
-					<td>Right Click</td>
-					<td><strong>Delete</strong> selected entity</td>
-				</tr>
-				<tr>
-					<td>C/V</td>
-					<td><strong>Rotate</strong></td>
-				</tr>
-				<tr>
-					<td>B</td>
-					<td>Change rotation axis</td>
-				</tr>
-				<tr>
-					<td>Q/Z/Arrow Keys</td>
-					<td>Adjust selected entity position</td>
-				</tr>
-				<tr>
-					<td>I</td>
-					<td>
-						Cycle between controlled mouse adjustment modes:
-						<ul>
-							<li><strong>X</strong>: Moves attached entity on the X axis</li>
-							<li><strong>Y</strong>: Moves attached entity on the Y axis</li>
-							<li><strong>Z</strong>: Moves attached entity on the Z axis</li>
-							<li><strong>Rotate</strong>: Rotates the entity</li>
-							<li><strong>Off</strong>: Entity can only be adjusted with C/V/Q/Z/Arrow Keys</li>
-						</ul>
-					</td>
-				</tr>
-				<tr>
-					<td>U</td>
-					<td>Toggle whether entities stick to the ground in controlled mouse adjustment modes</td>
-				</tr>
-				<tr>
-					<td>8</td>
-					<td>Return to <strong>Free</strong> mouse adjustment mode</td>
-				</tr>
-				<tr>
-					<td>G</td>
-					<td><strong>Clone</strong> selected entity</td>
-				</tr>
-				<tr>
-					<td>F</td>
-					<td>Open the <strong>Spawn</strong> menu</td>
-				</tr>
-				<tr>
-					<td>X</td>
-					<td>Open the <strong>Database</strong> menu</td>
-				</tr>
-				<tr>
-					<td>Enter</td>
-					<td>Open the <strong>Properties</strong> menu for the selected entity</td>
-				</tr>
-				<tr>
-					<td>J</td>
-					<td>Open the <strong>Save/Load Database</strong> menu</td>
-				</tr>
-				<tr>
-					<td>Del</td>
-					<td><strong>Exit</strong> Object Spooner</td>
-				</tr>
-			</table>
-			<button id="help-menu-close-btn">Close</button>
+			<div id="help-content">
+				<h2>Cursor colours</h2>
+				<table>
+					<tr>
+						<td style="color: #fff">+</td>
+						<td>No entity selected</td>
+					</tr>
+					<tr>
+						<td style="color: #0f0">+</td>
+						<td>Entity highlighted</td>
+					</tr>
+					<tr>
+						<td style="color: #0ff">+</td>
+						<td>Entity attached</td>
+					</tr>
+				</table>
+				<h2>Controls</h2>
+				<table>
+					<tr>
+						<td class="control">WASD</td>
+						<td><strong>Move</strong></td>
+					</tr>
+					<tr>
+						<td class="control">wg</td>
+						<td><strong>Up</strong>/<strong>Down</strong></td>
+					</tr>
+					<tr>
+						<td>Left Click</td>
+						<td>
+							<ul>
+								<li>No entity highlighted: <strong>Spawn</strong> at cursor position</li>
+								<li>Entity highlighted: <strong>Attach</strong> to cursor</li>
+								<li>Entity attached to cursor: <strong>Detach</strong> from cursor</li>
+							</ul>
+						</td>
+					</tr>
+					<tr>
+						<td>Right Click</td>
+						<td><strong>Delete</strong> selected entity</td>
+					</tr>
+					<tr>
+						<td class="control">CV</td>
+						<td><strong>Rotate</strong></td>
+					</tr>
+					<tr>
+						<td class="control">B</td>
+						<td>Change rotation axis</td>
+					</tr>
+					<tr>
+						<td class="control">QZqrst</td>
+						<td>Adjust selected entity position</td>
+					</tr>
+					<tr>
+						<td class="control">I</td>
+						<td>
+							Cycle between controlled mouse adjustment modes:
+							<ul>
+								<li><strong>X</strong>: Moves attached entity on the X axis</li>
+								<li><strong>Y</strong>: Moves attached entity on the Y axis</li>
+								<li><strong>Z</strong>: Moves attached entity on the Z axis</li>
+								<li><strong>Rotate</strong>: Rotates the entity</li>
+								<li><strong>Off</strong>: Entity can only be adjusted with C/V/Q/Z/Arrow Keys</li>
+							</ul>
+						</td>
+					</tr>
+					<tr>
+						<td class="control">U</td>
+						<td>Toggle whether entities stick to the ground in controlled mouse adjustment modes</td>
+					</tr>
+					<tr>
+						<td class="control">8</td>
+						<td>Return to <strong>Free</strong> mouse adjustment mode</td>
+					</tr>
+					<tr>
+						<td class="control">G</td>
+						<td><strong>Clone</strong> selected entity</td>
+					</tr>
+					<tr>
+						<td class="control">F</td>
+						<td>Open the <strong>Spawn</strong> menu</td>
+					</tr>
+					<tr>
+						<td class="control">X</td>
+						<td>Open the <strong>Database</strong> menu</td>
+					</tr>
+					<tr>
+						<td class="control">a</td>
+						<td>Open the <strong>Properties</strong> menu for the selected entity</td>
+					</tr>
+					<tr>
+						<td class="control">J</td>
+						<td>Open the <strong>Save/Load Database</strong> menu</td>
+					</tr>
+					<tr>
+						<td class="control">k</td>
+						<td><strong>Exit</strong> Object Spooner</td>
+					</tr>
+				</table>
+				<h2>Menus</h2>
+				<h3>Spawn menu - <span class="control">F</span></h3>
+				<p>The Spawn menu provides searchable lists to select an entity to spawn. Left-clicking on an entity sets it as your current spawn.</p>
+				<p>If an entity is not included in the list, you can still spawn it by entering the full model name in the search field and clicking Spawn By Name.</p>
+				<h3>Database menu - <span class="control">X</span></h3>
+				<p>The Database menu stores a list of entities. When an entity is spawned, it is automatically added to the current database. Entities can be added/removed from the database via the Properties menu.</p>
+				<ul>
+					<li>Left-click on an entity to open it in the Properties menu</li>
+					<li>Right-click on an entity to delete it</li>
+					<li>Click Remove All to delete all entities in the database</li>
+				</ul>
+				<h3>Properties menu - <span class="control">a</span></h3>
+				<p>The Properties menu lists and allows you to edit properties of an entity.</p>
+				<h3>Save/Load Database menu - <span class="control">J</span></h3>
+				<p>The Save/Load Database menu allows you to store your current database with a name, and then load all the entities from it again later.</p>
+				<ul>
+					<li>To save your current database, enter name in the field and click Save.</li>
+					<li>To load a saved database, left-click on the name of the database.</li>
+					<li>To delete a saved database, right-click on the name of the database.</li>
+				</ul>
+				<p>Checking the Relative box will spawn the entities in the selected database relative to your current position, rather than exactly where they were originally placed.</p>
+			</div>
+			<div id="help-menu-controls">
+				<button id="help-menu-close-btn">Close</button>
+			</div>
 		</div>
 	</body>
 </html>
