@@ -334,7 +334,7 @@ function openPropertiesMenu(data) {
 			break;
 		case 2:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'vehicle';
-			document.querySelector('#properties-get-in-container').style.display = 'block';
+			document.querySelectorAll('.vehicle-property').forEach(e => e.style.display = 'block');
 			break;
 		case 3:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'object';
@@ -438,6 +438,10 @@ function getIntoVehicle(handle) {
 	sendMessage('getIntoVehicle', {
 		handle: handle
 	});
+}
+
+function currentEntity() {
+	return parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'));
 }
 
 window.addEventListener('message', function(event) {
@@ -548,7 +552,7 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#properties-add-to-db').addEventListener('click', function(event) {
 		sendMessage('addEntityToDatabase', {
-			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
+			handle: currentEntity()
 		}).then(resp => resp.json()).then(function(resp) {
 			document.querySelector('#properties-add-to-db').style.display = 'none';
 			document.querySelector('#properties-remove-from-db').style.display = 'block';
@@ -557,7 +561,7 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#properties-remove-from-db').addEventListener('click', function(event) {
 		sendMessage('removeEntityFromDatabase', {
-			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
+			handle: currentEntity()
 		}).then(resp => resp.json()).then(function(resp) {
 			document.querySelector('#properties-add-to-db').style.display = 'block';
 			document.querySelector('#properties-remove-from-db').style.display = 'none';
@@ -566,20 +570,20 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#properties-freeze').addEventListener('click', function(event) {
 		sendMessage('freezeEntity', {
-			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
+			handle: currentEntity()
 		});
 	});
 
 	document.querySelector('#properties-unfreeze').addEventListener('click', function(event) {
 		sendMessage('unfreezeEntity', {
-			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
+			handle: currentEntity()
 		});
 	});
 
 	document.querySelectorAll('.set-coords').forEach(function(e) {
 		e.addEventListener('input', function(event) {
 			sendMessage('setEntityCoords', {
-				handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle')),
+				handle: currentEntity(),
 				x: parseFloat(document.querySelector('#properties-x').value),
 				y: parseFloat(document.querySelector('#properties-y').value),
 				z: parseFloat(document.querySelector('#properties-z').value)
@@ -589,7 +593,7 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#properties-place-here').addEventListener('click', function(event) {
 		sendMessage('placeEntityHere', {
-			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
+			handle: currentEntity()
 		}).then(resp => resp.json()).then(function(resp) {
 			document.querySelector('#properties-x').value = resp.x;
 			document.querySelector('#properties-y').value = resp.y;
@@ -601,13 +605,13 @@ window.addEventListener('load', function() {
 	});
 
 	document.querySelector('#properties-goto').addEventListener('click', function(event) {
-		goToEntity(parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle')));
+		goToEntity(currentEntity())
 	});
 
 	document.querySelectorAll('.set-rotation').forEach(function(e) {
 		e.addEventListener('input', function(event) {
 			sendMessage('setEntityRotation', {
-				handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle')),
+				handle: currentEntity(),
 				pitch: parseFloat(document.querySelector('#properties-pitch').value),
 				roll: parseFloat(document.querySelector('#properties-roll').value),
 				yaw: parseFloat(document.querySelector('#properties-yaw').value)
@@ -617,7 +621,7 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#properties-reset-rotation').addEventListener('click', function(event) {
 		sendMessage('resetRotation', {
-			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
+			handle: currentEntity()
 		});
 		document.querySelector('#properties-pitch').value = 0.0;
 		document.querySelector('#properties-roll').value = 0.0;
@@ -626,25 +630,25 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#properties-invincible-on').addEventListener('click', function(event) {
 		sendMessage('invincibleOn', {
-			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
+			handle: currentEntity()
 		});
 	});
 
 	document.querySelector('#properties-invincible-off').addEventListener('click', function(event) {
 		sendMessage('invincibleOff', {
-			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
+			handle: currentEntity()
 		});
 	});
 
 	document.querySelector('#properties-clone').addEventListener('click', function(event) {
 		sendMessage('cloneEntity', {
-			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
+			handle: currentEntity()
 		});
 	});
 
 	document.querySelector('#properties-delete').addEventListener('click', function(event) {
 		sendMessage('deleteEntity', {
-			handle: parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'))
+			handle: currentEntity()
 		});
 
 		closePropertiesMenu();
@@ -705,6 +709,12 @@ window.addEventListener('load', function() {
 	});
 
 	document.querySelector('#properties-get-in').addEventListener('click', function(event) {
-		getIntoVehicle(parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle')));
+		getIntoVehicle(currentEntity())
+	});
+
+	document.querySelector('#properties-repair-vehicle').addEventListener('click', function(event) {
+		sendMessage('repairVehicle', {
+			handle: currentEntity()
+		});
 	});
 });

@@ -680,6 +680,11 @@ RegisterNUICallback('getIntoVehicle', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('repairVehicle', function(data, cb)
+	SetVehicleFixed(data.handle)
+	cb({})
+end)
+
 function IsUsingKeyboard(padIndex)
 	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
 end
