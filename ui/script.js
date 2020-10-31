@@ -732,4 +732,10 @@ window.addEventListener('load', function() {
 			handle: currentEntity()
 		});
 	});
+
+	document.querySelector('#properties-request-control').addEventListener('click', function(event) {
+		sendMessage('requestControl', {
+			handle: currentEntity()
+		});
+	});
 });

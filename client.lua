@@ -277,7 +277,6 @@ function RemoveEntity(entity)
 		return
 	end
 
-	NetworkRequestControlOfEntity(entity)
 	SetEntityAsMissionEntity(entity, true, true)
 	DeleteEntity(entity)
 
@@ -714,6 +713,11 @@ end)
 
 RegisterNUICallback('closeExportedDbWindow', function(data, cb)
 	SetNuiFocus(false, false)
+	cb({})
+end)
+
+RegisterNUICallback('requestControl', function(data, cb)
+	NetworkRequestControlOfEntity(data.handle)
 	cb({})
 end)
 
