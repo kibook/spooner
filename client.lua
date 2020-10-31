@@ -515,20 +515,22 @@ function LoadDatabase(name, relative)
 
 	local dx, dy, dz
 
+	local rot = GetCamRot(Cam, 2)
+
 	if relative then
 		ax = ax / #spawns
 		ay = ay / #spawns
 		az = az / #spawns
 
 		local pos = GetCamCoord(Cam)
+		local spawnPos, entity, distance = GetInView(pos.x, pos.y, pos.z, rot.x, rot.y, rot.z)
 
-		dx = pos.x - ax
-		dy = pos.y - ay
-		dz = pos.z - az
+		dx = spawnPos.x - ax
+		dy = spawnPos.y - ay
+		dz = spawnPos.z - az
 	end
 
-	local a = GetCamRot(Cam, 2).z
-	local r = math.rad(a)
+	local r = math.rad(rot.z)
 	local cosr = math.cos(r)
 	local sinr = math.sin(r)
 
@@ -543,7 +545,7 @@ function LoadDatabase(name, relative)
 			z = spawn.z + dz
 			pitch = spawn.pitch
 			roll = spawn.roll
-			yaw = spawn.yaw + a
+			yaw = spawn.yaw + rot.z
 		else
 			x = spawn.x
 			y = spawn.y
