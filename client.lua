@@ -277,6 +277,7 @@ function RemoveEntity(entity)
 		return
 	end
 
+	NetworkRequestControlOfEntity(entity)
 	SetEntityAsMissionEntity(entity, true, true)
 	DeleteEntity(entity)
 
@@ -376,11 +377,13 @@ RegisterNUICallback('removeEntityFromDatabase', function(data, cb)
 end)
 
 RegisterNUICallback('freezeEntity', function(data, cb)
+	NetworkRequestControlOfEntity(data.handle)
 	FreezeEntityPosition(data.handle, true)
 	cb({})
 end)
 
 RegisterNUICallback('unfreezeEntity', function(data, cb)
+	NetworkRequestControlOfEntity(data.handle)
 	FreezeEntityPosition(data.handle, false)
 	cb({})
 end)
@@ -390,6 +393,7 @@ RegisterNUICallback('setEntityRotation', function(data, cb)
 	local roll  = data.roll  and data.roll  * 1.0 or 0.0
 	local yaw   = data.yaw   and data.yaw   * 1.0 or 0.0
 
+	NetworkRequestControlOfEntity(data.handle)
 	SetEntityRotation(data.handle, pitch, roll, yaw, 2)
 
 	cb({})
@@ -400,12 +404,14 @@ RegisterNUICallback('setEntityCoords', function(data, cb)
 	local y = data.y and data.y * 1.0 or 0.0
 	local z = data.z and data.z * 1.0 or 0.0
 
+	NetworkRequestControlOfEntity(data.handle)
 	SetEntityCoordsNoOffset(data.handle, x, y, z)
 
 	cb({})
 end)
 
 RegisterNUICallback('resetRotation', function(data, cb)
+	NetworkRequestControlOfEntity(data.handle)
 	SetEntityRotation(data.handle, 0.0, 0.0, 0.0, 2)
 	cb({})
 end)
@@ -442,11 +448,13 @@ RegisterNUICallback('openPropertiesMenuForEntity', function(data, cb)
 end)
 
 RegisterNUICallback('invincibleOn', function(data, cb)
+	NetworkRequestControlOfEntity(data.handle)
 	SetEntityInvincible(data.handle, true)
 	cb({})
 end)
 
 RegisterNUICallback('invincibleOff', function(data, cb)
+	NetworkRequestControlOfEntity(data.handle)
 	SetEntityInvincible(data.handle, false)
 	cb({})
 end)
@@ -473,6 +481,7 @@ RegisterNUICallback('placeEntityHere', function(data, cb)
 
 	local spawnPos, entity, distance = GetInView(x, y, z, pitch, roll, yaw)
 
+	NetworkRequestControlOfEntity(data.handle)
 	SetEntityCoordsNoOffset(data.handle, spawnPos.x, spawnPos.y, spawnPos.z)
 	PlaceOnGroundProperly(data.handle)
 
@@ -677,11 +686,13 @@ end)
 
 RegisterNUICallback('getIntoVehicle', function(data, cb)
 	DisableSpoonerMode()
+	NetworkRequestControlOfEntity(data.handle)
 	TaskWarpPedIntoVehicle(PlayerPedId(), data.handle, -1)
 	cb({})
 end)
 
 RegisterNUICallback('repairVehicle', function(data, cb)
+	NetworkRequestControlOfEntity(data.handle)
 	SetVehicleFixed(data.handle)
 	cb({})
 end)
@@ -901,6 +912,9 @@ CreateThread(function()
 			end
 
 			if entity then
+				local posChanged = false
+				local rotChanged = false
+
 				if IsControlJustReleased(0, Config.PropMenuControl) then
 					OpenPropertiesMenuForEntity(entity)
 				end
@@ -931,6 +945,8 @@ CreateThread(function()
 					else
 						eyaw2 = eyaw2 + RotateSpeed
 					end
+
+					rotChanged = true
 				end
 
 				if IsControlPressed(0, Config.RotateRightControl) then
@@ -942,73 +958,84 @@ CreateThread(function()
 						eyaw2 = eyaw2 - RotateSpeed
 					end
 
+					rotChanged = true
 				end
 
 				if IsControlPressed(0, Config.AdjustUpControl) then
 					ez2 = ez2 + AdjustSpeed
+					posChanged = true
 				end
 
 				if IsControlPressed(0, Config.AdjustDownControl) then
 					ez2 = ez2 - AdjustSpeed
+					posChanged = true
 				end
 
 				if IsControlPressed(0, Config.AdjustForwardControl) then
 					ex2 = ex2 + edx1
 					ey2 = ey2 + edy1
+					posChanged = true
 				end
 
 				if IsControlPressed(0, Config.AdjustBackwardControl) then
 					ex2 = ex2 - edx1
 					ey2 = ey2 - edy1
+					posChanged = true
 				end
 
 				if IsControlPressed(0, Config.AdjustLeftControl) then
 					ex2 = ex2 + edx2
 					ey2 = ey2 + edy2
+					posChanged = true
 				end
 
 				if IsControlPressed(0, Config.AdjustRightControl) then
 					ex2 = ex2 - edx2
 					ey2 = ey2 - edy2
+					posChanged = true
 				end
 
-				if ex2 ~= ex1 or ey2 ~= ey1 or ez2 ~= ez1 then
-					SetEntityCoordsNoOffset(entity, ex2, ey2, ez2)
-				end
+				if AttachedEntity or posChanged or rotChanged then
+					NetworkRequestControlOfEntity(entity)
 
-				if epitch2 ~= epitch1 or eroll2 ~= eroll1 or eyaw2 ~= eyaw1 then
-					SetEntityRotation(entity, epitch2, eroll2, eyaw2, 2)
-				end
+					if posChanged then
+						SetEntityCoordsNoOffset(entity, ex2, ey2, ez2)
+					end
 
-				if AttachedEntity then
-					if AdjustMode == -1 then
-						SetEntityCoordsNoOffset(AttachedEntity, spawnPos.x, spawnPos.y, spawnPos.z)
-						PlaceOnGroundProperly(AttachedEntity)
-					elseif AdjustMode ~= 4 then
-						x2 = x1
-						y2 = y1
-						z2 = z1
-						pitch2 = pitch1
-						yaw2 = yaw1
+					if rotChanged then
+						SetEntityRotation(entity, epitch2, eroll2, eyaw2, 2)
+					end
 
-						if AdjustMode == 0 then
-							SetEntityCoordsNoOffset(AttachedEntity, ex2 - axisX, ey2, ez2)
-						elseif AdjustMode == 1 then
-							SetEntityCoordsNoOffset(AttachedEntity, ex2, ey2 - axisX, ez2)
-						elseif AdjustMode == 2 then
-							SetEntityCoordsNoOffset(AttachedEntity, ex2, ey2, ez2 - axisY)
-						elseif AdjustMode == 3 then
-							if RotateMode == 0 then
-								SetEntityRotation(AttachedEntity, epitch2 - axisX * Config.SpeedLr, eroll2, eyaw2)
-							elseif RotateMode == 1 then
-								SetEntityRotation(AttachedEntity, epitch2, eroll2 - axisX * Config.SpeedLr, eyaw2)
-							else
-								SetEntityRotation(AttachedEntity, epitch2, eroll2, eyaw2 - axisX * Config.SpeedLr)
-							end
-						end
-
-						if PlaceOnGround then
+					if AttachedEntity then
+						if AdjustMode == -1 then
+							SetEntityCoordsNoOffset(AttachedEntity, spawnPos.x, spawnPos.y, spawnPos.z)
 							PlaceOnGroundProperly(AttachedEntity)
+						elseif AdjustMode ~= 4 then
+							x2 = x1
+							y2 = y1
+							z2 = z1
+							pitch2 = pitch1
+							yaw2 = yaw1
+
+							if AdjustMode == 0 then
+								SetEntityCoordsNoOffset(AttachedEntity, ex2 - axisX, ey2, ez2)
+							elseif AdjustMode == 1 then
+								SetEntityCoordsNoOffset(AttachedEntity, ex2, ey2 - axisX, ez2)
+							elseif AdjustMode == 2 then
+								SetEntityCoordsNoOffset(AttachedEntity, ex2, ey2, ez2 - axisY)
+							elseif AdjustMode == 3 then
+								if RotateMode == 0 then
+									SetEntityRotation(AttachedEntity, epitch2 - axisX * Config.SpeedLr, eroll2, eyaw2)
+								elseif RotateMode == 1 then
+									SetEntityRotation(AttachedEntity, epitch2, eroll2 - axisX * Config.SpeedLr, eyaw2)
+								else
+									SetEntityRotation(AttachedEntity, epitch2, eroll2, eyaw2 - axisX * Config.SpeedLr)
+								end
+							end
+
+							if PlaceOnGround then
+								PlaceOnGroundProperly(AttachedEntity)
+							end
 						end
 					end
 				end
