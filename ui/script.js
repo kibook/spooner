@@ -4,6 +4,8 @@ var objects = [];
 
 var lastSpawnMenu = -1;
 
+var propertiesMenuUpdate;
+
 function sendMessage(name, params) {
 	return fetch('https://' + GetParentResourceName() + '/' + name, {
 		method: 'POST',
@@ -323,10 +325,10 @@ function removeAllFromDatabase() {
 	closeDatabase()
 }
 
-function openPropertiesMenu(data) {
-	document.querySelector('#properties-menu').style.display = 'block';
+function updatePropertiesMenu(data) {
+	var properties = JSON.parse(data.properties);
 
-	var properties = JSON.parse(data.properties)
+	document.querySelectorAll('.vehicle-property').forEach(e => e.style.display = 'none');
 
 	switch (properties.type) {
 		case 1:
@@ -367,8 +369,35 @@ function openPropertiesMenu(data) {
 	}
 }
 
+function sendUpdatePropertiesMenuMessage(handle, open) {
+	sendMessage('updatePropertiesMenu', {
+		handle: handle
+	}).then(resp => resp.json()).then(function(resp){
+		updatePropertiesMenu(resp);
+
+		if (open) {
+			document.querySelector('#properties-menu').style.display = 'block';
+		}
+	});
+}
+
+function openPropertiesMenu(data) {
+	sendUpdatePropertiesMenuMessage(data.entity, true);
+
+	if (propertiesMenuUpdate) {
+		clearInterval(propertiesMenuUpdate);
+		propertiesMenuUpdate = null;
+	}
+
+	propertiesMenuUpdate = setInterval(function() {
+		sendUpdatePropertiesMenuMessage(data.entity, false);
+	}, 500);
+}
+
 function closePropertiesMenu() {
 	document.querySelector('#properties-menu').style.display = 'none';
+
+	clearInterval(propertiesMenuUpdate);
 
 	sendMessage('closePropertiesMenu', {});
 }
@@ -416,7 +445,6 @@ function closeSaveLoadDbMenu() {
 }
 
 function goToEntity(handle) {
-	document.querySelector('#properties-menu').style.display = 'none';
 	sendMessage('goToEntity', {
 		handle: handle
 	});
@@ -434,7 +462,6 @@ function closeHelpMenu() {
 }
 
 function getIntoVehicle(handle) {
-	document.querySelector('#properties-menu').style.display = 'none';
 	sendMessage('getIntoVehicle', {
 		handle: handle
 	});
@@ -605,6 +632,7 @@ window.addEventListener('load', function() {
 	});
 
 	document.querySelector('#properties-goto').addEventListener('click', function(event) {
+		closePropertiesMenu();
 		goToEntity(currentEntity())
 	});
 
@@ -724,6 +752,7 @@ window.addEventListener('load', function() {
 	});
 
 	document.querySelector('#properties-get-in').addEventListener('click', function(event) {
+		closePropertiesMenu();
 		getIntoVehicle(currentEntity())
 	});
 

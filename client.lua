@@ -435,9 +435,7 @@ end
 function OpenPropertiesMenuForEntity(entity)
 	SendNUIMessage({
 		type = 'openPropertiesMenu',
-		entity = entity,
-		properties = json.encode(GetEntityProperties(entity)),
-		inDb = EntityIsInDatabase(entity)
+		entity = entity
 	})
 	SetNuiFocus(true, true)
 end
@@ -445,6 +443,14 @@ end
 RegisterNUICallback('openPropertiesMenuForEntity', function(data, cb)
 	OpenPropertiesMenuForEntity(data.entity)
 	cb({})
+end)
+
+RegisterNUICallback('updatePropertiesMenu', function(data, cb)
+	cb({
+		entity = data.handle,
+		properties = json.encode(GetEntityProperties(data.handle)),
+		inDb = EntityIsInDatabase(entity)
+	})
 end)
 
 RegisterNUICallback('invincibleOn', function(data, cb)
