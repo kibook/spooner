@@ -685,6 +685,38 @@ RegisterNUICallback('repairVehicle', function(data, cb)
 	cb({})
 end)
 
+function ConvertDatabaseToMapEditorXml(name, creator, database)
+	local xml = '<Map>\n\t<MapMeta Creator="' .. GetPlayerName() .. '"/>\n'
+
+	for entity, properties in pairs(database) do
+		if properties.type == 1 then
+			xml = xml .. string.format('\t<Ped Hash="%s" Position_x="%s" Position_y="%s" Position_z="%s" Rotation_x="%s" Rotation_Y="%s" Rotation_z="%s"/>\n', properties.model, properties.x, properties.y, properties.z, properties.pitch, properties.roll, properties.yaw)
+		elseif properties.type == 2 then
+			xml = xml .. string.format('\t<Vehicle Hash="%s" Position_x="%s" Position_y="%s" Position_z="%s" Rotation_x="%s" Rotation_Y="%s" Rotation_z="%s"/>\n', properties.model, properties.x, properties.y, properties.z, properties.pitch, properties.roll, properties.yaw)
+		else
+			xml = xml .. string.format('\t<Object Hash="%s" Position_x="%s" Position_y="%s" Position_z="%s" Rotation_x="%s" Rotation_Y="%s" Rotation_z="%s"/>\n', properties.model, properties.x, properties.y, properties.z, properties.pitch, properties.roll, properties.yaw)
+		end
+	end
+
+	xml = xml .. '</Map>'
+
+	return xml
+end
+
+function ExportDatabase(name)
+	UpdateDatabase()
+	return ConvertDatabaseToMapEditorXml(name, GetPlayerName(PlayerId()), Database)
+end
+
+RegisterNUICallback('exportDb', function(data, cb)
+	cb({content = ExportDatabase(name)})
+end)
+
+RegisterNUICallback('closeExportedDbWindow', function(data, cb)
+	SetNuiFocus(false, false)
+	cb({})
+end)
+
 function IsUsingKeyboard(padIndex)
 	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
 end

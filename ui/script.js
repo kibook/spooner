@@ -664,6 +664,21 @@ window.addEventListener('load', function() {
 		}).then(resp => resp.json()).then(resp => updateDbList(resp));
 	});
 
+	document.querySelector('#export-db-btn').addEventListener('click', function(event) {
+		sendMessage('exportDb', {
+			name: document.querySelector('#save-db-name').value
+		}).then(resp => resp.json()).then(function(resp) {
+			document.querySelector('#exported-db-content').value = resp.content;
+			document.querySelector('#save-load-db-menu').style.display = 'none';
+			document.querySelector('#exported-db').style.display = 'flex';
+		});
+	});
+
+	document.querySelector('#exported-db-close').addEventListener('click', function(event) {
+		document.querySelector('#exported-db').style.display = 'none';
+		sendMessage('closeExportedDbWindow', {});
+	});
+
 	document.querySelector('#save-load-db-menu-close-btn').addEventListener('click', function(event) {
 		closeSaveLoadDbMenu();
 	});
