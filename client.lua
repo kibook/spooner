@@ -636,7 +636,7 @@ function LoadDatabase(name, relative)
 			local roll  = spawn.props.attachment.roll
 			local yaw   = spawn.props.attachment.yaw
 
-			AttachEntityToEntity(from, to, bone, x, y, z, pitch, roll, yaw, false, false, true, false, 0, false, false, false)
+			AttachEntityToEntity(from, to, bone, x, y, z, pitch, roll, yaw, false, false, true, false, 0, true, false, false)
 
 			AddEntityToDatabase(from, nil, {
 				to = to,
@@ -855,7 +855,7 @@ RegisterNUICallback('attachTo', function(data, cb)
 	end
 
 	NetworkRequestControlOfEntity(from)
-	AttachEntityToEntity(from, to, data.bone, x, y, z, pitch, roll, yaw, false, false, true, false, 0, false, false, false)
+	AttachEntityToEntity(from, to, data.bone, x, y, z, pitch, roll, yaw, false, false, true, false, 0, true, false, false)
 
 	if EntityIsInDatabase(from) then
 		AddEntityToDatabase(from, nil, {
