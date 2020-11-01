@@ -625,7 +625,7 @@ function LoadDatabase(name, relative)
 	end
 
 	for _, spawn in ipairs(spawns) do
-		if spawn.props.attachment.to ~= 0 then
+		if spawn.props.attachment and spawn.props.attachment.to ~= 0 then
 			local from  = handles[spawn.entity]
 			local to    = handles[spawn.props.attachment.to]
 			local bone  = spawn.props.attachment.bone
