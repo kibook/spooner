@@ -9,31 +9,20 @@
 		<div id="hud">
 			<div id="crosshair" class="inactive">+</div>
 			<div id="info">
-				<div class="item" id="entity-info">
-					<div class="label">Entity</div>
-					<div class="value" id="entity-id"></div>
-				</div>
-				<div class="item" id="spawn-info">
-					<div class="label">Spawn</div>
-					<div class="value" id="spawn-id"></div>
-				</div>
-				<div class="item">
-					<div class="label">Speed</div>
-					<div class="value" id="speed"></div>
-				</div>
-				<div class="item">
-					<div class="label">Mouse Adjust</div>
-					<div class="value" id="adjust-mode"></div>
-				</div>
-				<div class="item">
-					<div class="label">Rotate</div>
-					<div class="value" id="rotate-mode"></div>
-				</div>
-				<div class="item" id="place-on-ground-container">
-					<div class="label">Place on Ground</div>
-					<div class="value" id="place-on-ground"></div>
-				</div>
+				<div id="entity-info">Entity: <span id="entity-id"></span> (<span id="model-name"></span>)</div>
+				<div id="spawn-info">Spawn: <span id="spawn-id"></span></div>
+				<div>Speed: <span id="speed"></span></div>
+				<div>Mouse Adjust: <span id="adjust-mode"></span> - Speed: <span id="adjust-speed"></span></div>
+				<div>Rotate: <span id="rotate-mode"></span> - Speed: <span id="rotate-speed"></span></div>
+				<div id="place-on-ground-container">Place on Ground: <span id="place-on-ground"></span></div>
 				<div id="controls">Press H for controls and help</div>
+			</div>
+			<div id="cam-info">
+				<div>Coordinates:</div>
+				<div>X: <span id="cam-x"></span></div>
+				<div>Y: <span id="cam-y"></span></div>
+				<div>Z: <span id="cam-z"></span></div>
+				<div>Heading: <span id="cam-heading"></span></div>
 			</div>
 		</div>
 		<div id="spawn-menu" class="menu">
@@ -128,7 +117,7 @@
 				</div>
 				<div class="property">
 					<div class="label">Position</div>
-					<input type="number" id="position-step">
+					<input type="number" id="position-step" step="0.01">
 					<input type="number" class="set-coords" id="properties-x" step="0.01">
 					<input type="number" class="set-coords" id="properties-y" step="0.01">
 					<input type="number" class="set-coords"id="properties-z" step="0.01">
@@ -141,7 +130,7 @@
 				</div>
 				<div class="property">
 					<div class="label">Rotation</div>
-					<input type="number" id="rotation-step">
+					<input type="number" id="rotation-step" step="0.1">
 					<input type="number" class="set-rotation" id="properties-pitch" min="-359" max="359" step="1">
 					<input type="number" class="set-rotation" id="properties-roll" min="-359" max="359" step="1">
 					<input type="number" class="set-rotation" id="properties-yaw" min="-359" max="359" step="1">

@@ -932,12 +932,19 @@ CreateThread(function()
 			SendNUIMessage({
 				type = 'updateSpoonerHud',
 				entity = entity,
+				modelName = GetModelName(GetEntityModel(entity)),
 				attachedEntity = AttachedEntity,
 				speed = string.format('%.2f', Speed),
 				currentSpawn = CurrentSpawn and CurrentSpawn.modelName,
 				rotateMode = RotateMode,
 				adjustMode = AdjustMode,
-				placeOnGround = PlaceOnGround
+				placeOnGround = PlaceOnGround,
+				adjustSpeed = AdjustSpeed,
+				rotateSpeed = RotateSpeed,
+				x = string.format('%.2f', x2),
+				y = string.format('%.2f', y2),
+				z = string.format('%.2f', z2),
+				heading = string.format('%.2f', yaw2)
 			})
 
 			if Speed < Config.MinSpeed then

@@ -102,6 +102,16 @@ function updateSpoonerHud(data) {
 	} else {
 		document.querySelector('#place-on-ground').innerHTML = 'Off';
 	}
+
+	document.querySelector('#cam-x').innerHTML = data.x;
+	document.querySelector('#cam-y').innerHTML = data.y;
+	document.querySelector('#cam-z').innerHTML = data.z;
+	document.querySelector('#cam-heading').innerHTML = data.heading;
+
+	document.querySelector('#adjust-speed').innerHTML = data.adjustSpeed;
+	document.querySelector('#rotate-speed').innerHTML = data.rotateSpeed;
+
+	document.querySelector('#model-name').innerHTML = data.modelName;
 }
 
 function openSpawnMenu() {
