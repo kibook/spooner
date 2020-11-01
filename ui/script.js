@@ -522,7 +522,7 @@ function openAttachToMenu(fromEntity, data) {
 			div.className = 'object';
 		}
 
-		div.innerHTML = database[handle].name;
+		div.innerHTML = toEntity.toString(16) + ' ' + database[handle].name;
 		div.setAttribute('data-handle', handle);
 		div.addEventListener('click', function(event) {
 			document.querySelector('#attachment-options-menu').style.display = 'none';
