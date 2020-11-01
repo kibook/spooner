@@ -153,6 +153,7 @@ input[type="checkbox"]:checked {
 .list {
 	flex-grow: 1;
 	overflow-y: scroll;
+	padding: 0.5vh 0;
 }
 
 ::-webkit-scrollbar {
