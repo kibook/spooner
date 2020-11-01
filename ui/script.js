@@ -304,14 +304,15 @@ function openDatabase(data) {
 	objectList.innerHTML = '';
 
 	Object.keys(database).forEach(function(handle) {
+		var entityId = parseInt(handle);
 		var div = document.createElement('div');
 		div.className = 'object';
-		div.innerHTML = database[handle].name;
+		div.innerHTML = entityId.toString(16) + ' ' + database[handle].name;
 		div.setAttribute('data-handle', handle);
 		div.addEventListener('click', function(event) {
 			document.querySelector('#object-database').style.display = 'none';
 			sendMessage('openPropertiesMenuForEntity', {
-				entity: parseInt(handle)
+				entity: entityId
 			});
 		});
 		div.addEventListener('contextmenu', function(event) {
