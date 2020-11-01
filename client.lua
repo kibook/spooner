@@ -147,13 +147,43 @@ function GetLiveEntityProperties(entity)
 		z = z,
 		pitch = pitch,
 		roll = roll,
-		yaw = yaw
+		yaw = yaw,
+		attachment = {
+			to = GetEntityAttachedTo(entity),
+			bone = 0,
+			x = 0.0,
+			y = 0.0,
+			z = 0.0,
+			pitch = 0.0,
+			roll = 0.0,
+			yaw = 0.0
+		}
 	}
 end
 
-function AddEntityToDatabase(entity, name)
+function AddEntityToDatabase(entity, name, attachment)
 	if not entity then
 		return nil
+	end
+
+	local attachBone, attachX, attachY, attachZ, attachPitch, attachRoll, attachYaw
+
+	if attachment then
+		attachBone  = attachment.bone
+		attachX     = attachment.x
+		attachY     = attachment.y
+		attachZ     = attachment.z
+		attachPitch = attachment.pitch
+		attachRoll  = attachment.roll
+		attachYaw   = attachment.yaw
+	else
+		attachBone  = (Database[entity] and Database[entity].attachment.bone  or 0)
+		attachX     = (Database[entity] and Database[entity].attachment.x     or 0.0)
+		attachY     = (Database[entity] and Database[entity].attachment.y     or 0.0)
+		attachZ     = (Database[entity] and Database[entity].attachment.z     or 0.0)
+		attachPitch = (Database[entity] and Database[entity].attachment.pitch or 0.0)
+		attachRoll  = (Database[entity] and Database[entity].attachment.roll  or 0.0)
+		attachYaw   = (Database[entity] and Database[entity].attachment.yaw   or 0.0)
 	end
 
 	Database[entity] = GetLiveEntityProperties(entity)
@@ -161,6 +191,14 @@ function AddEntityToDatabase(entity, name)
 	if name then
 		Database[entity].name = name
 	end
+
+	Database[entity].attachment.bone = attachBone
+	Database[entity].attachment.x = attachX
+	Database[entity].attachment.y = attachY
+	Database[entity].attachment.z = attachZ
+	Database[entity].attachment.pitch = attachPitch
+	Database[entity].attachment.roll = attachRoll
+	Database[entity].attachment.yaw = attachYaw
 
 	return Database[entity]
 end
@@ -449,7 +487,7 @@ RegisterNUICallback('updatePropertiesMenu', function(data, cb)
 	cb({
 		entity = data.handle,
 		properties = json.encode(GetEntityProperties(data.handle)),
-		inDb = EntityIsInDatabase(entity)
+		inDb = EntityIsInDatabase(data.handle)
 	})
 end)
 
@@ -515,6 +553,7 @@ function LoadDatabase(name, relative)
 	local az = 0.0
 
 	local spawns = {}
+	local handles = {}
 
 	local db = json.decode(GetResourceKvpString(name))
 
@@ -525,7 +564,7 @@ function LoadDatabase(name, relative)
 			az = az + props.z
 		end
 
-		table.insert(spawns, props)
+		table.insert(spawns, {entity = tonumber(entity), props = props})
 	end
 
 	local dx, dy, dz
@@ -555,31 +594,60 @@ function LoadDatabase(name, relative)
 		local x, y, z, pitch, roll, yaw
 
 		if relative then
-			x = ((spawn.x - ax) * cosr - (spawn.y - ay) * sinr + ax) + dx
-			y = ((spawn.y - ay) * cosr + (spawn.x - ax) * sinr + ay) + dy
-			z = spawn.z + dz
-			pitch = spawn.pitch
-			roll = spawn.roll
-			yaw = spawn.yaw + rot.z
+			x = ((spawn.props.x - ax) * cosr - (spawn.props.y - ay) * sinr + ax) + dx
+			y = ((spawn.props.y - ay) * cosr + (spawn.props.x - ax) * sinr + ay) + dy
+			z = spawn.props.z + dz
+			pitch = spawn.props.pitch
+			roll = spawn.props.roll
+			yaw = spawn.props.yaw + rot.z
 		else
-			x = spawn.x
-			y = spawn.y
-			z = spawn.z
-			pitch = spawn.pitch
-			roll = spawn.roll
-			yaw = spawn.yaw
+			x = spawn.props.x
+			y = spawn.props.y
+			z = spawn.props.z
+			pitch = spawn.props.pitch
+			roll = spawn.props.roll
+			yaw = spawn.props.yaw
 		end
 
-		if spawn.type == 1 then
-			entity = SpawnPed(spawn.name, spawn.model, x, y, z, pitch, roll, yaw)
-		elseif spawn.type == 2 then
-			entity = SpawnVehicle(spawn.name, spawn.model, x, y, z, pitch, roll, yaw)
+		if spawn.props.type == 1 then
+			entity = SpawnPed(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw)
+		elseif spawn.props.type == 2 then
+			entity = SpawnVehicle(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw)
 		else
-			entity = SpawnObject(spawn.name, spawn.model, x, y, z, pitch, roll, yaw)
+			entity = SpawnObject(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw)
 		end
 
 		if relative then
 			PlaceOnGroundProperly(entity)
+		end
+
+		handles[spawn.entity] = entity
+	end
+
+	for _, spawn in ipairs(spawns) do
+		if spawn.props.attachment.to ~= 0 then
+			local from  = handles[spawn.entity]
+			local to    = handles[spawn.props.attachment.to]
+			local bone  = spawn.props.attachment.bone
+			local x     = spawn.props.attachment.x
+			local y     = spawn.props.attachment.y
+			local z     = spawn.props.attachment.z
+			local pitch = spawn.props.attachment.pitch
+			local roll  = spawn.props.attachment.roll
+			local yaw   = spawn.props.attachment.yaw
+
+			AttachEntityToEntity(from, to, bone, x, y, z, pitch, roll, yaw, false, false, true, false, 0, false, false, false)
+
+			AddEntityToDatabase(from, nil, {
+				to = to,
+				bone = bone,
+				x = x,
+				y = y,
+				z = z,
+				pitch = pitch,
+				roll = roll,
+				yaw = yaw
+			})
 		end
 	end
 end
@@ -737,6 +805,96 @@ end)
 
 RegisterNUICallback('requestControl', function(data, cb)
 	NetworkRequestControlOfEntity(data.handle)
+	cb({})
+end)
+
+RegisterNUICallback('getDatabase', function(data, cb)
+	UpdateDatabase()
+	cb({
+		properties = json.encode(GetEntityProperties(data.handle)),
+		database = json.encode(Database)
+	})
+end)
+
+RegisterNUICallback('attachTo', function(data, cb)
+	local from = data.from
+	local to = data.to
+
+	if not to then
+		local props = GetEntityProperties(from)
+
+		if props.attachment.to ~= 0 then
+			to = props.attachment.to
+		else
+			cb({})
+			return
+		end
+	end
+
+	local x, y, z, pitch, roll, yaw
+
+	if data.keepPos then
+		local x1, y1, z1 = table.unpack(GetEntityCoords(from))
+		local x2, y2, z2 = table.unpack(GetEntityCoords(to))
+		local rot = GetEntityRotation(from, 2)
+
+		x = x1 - x2
+		y = y1 - y2
+		z = z1 - z2
+
+		pitch = rot.x
+		roll = rot.y
+		yaw = rot.z
+	else
+		x = data.x and data.x * 1.0 or 0.0
+		y = data.y and data.y * 1.0 or 0.0
+		z = data.z and data.z * 1.0 or 0.0
+		pitch = data.pitch and data.pitch * 1.0 or 0.0
+		roll = data.roll and data.roll * 1.0 or 0.0
+		yaw = data.yaw and data.yaw * 1.0 or 0.0
+	end
+
+	NetworkRequestControlOfEntity(from)
+	AttachEntityToEntity(from, to, data.bone, x, y, z, pitch, roll, yaw, false, false, true, false, 0, false, false, false)
+
+	if EntityIsInDatabase(from) then
+		AddEntityToDatabase(from, nil, {
+			to = to,
+			bone = data.bone,
+			x = x,
+			y = y,
+			z = z,
+			pitch = pitch,
+			roll = roll,
+			yaw = yaw
+		})
+	end
+
+	cb({})
+end)
+
+RegisterNUICallback('closeMenu', function(data, cb)
+	SetNuiFocus(false, false)
+	cb({})
+end)
+
+RegisterNUICallback('detach', function(data, cb)
+	NetworkRequestControlOfEntity(data.handle)
+	DetachEntity(data.handle, false, true)
+
+	if EntityIsInDatabase(data.handle) then
+		AddEntityToDatabase(data.handle, nil, {
+			to = 0,
+			bone = 0,
+			x = 0.0,
+			y = 0.0,
+			z = 0.0,
+			pitch = 0.0,
+			roll = 0.0,
+			yaw = 0.0
+		})
+	end
+
 	cb({})
 end)
 

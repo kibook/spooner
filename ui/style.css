@@ -311,3 +311,7 @@ textarea {
 	background: rgba(0, 0, 0, 0.75);
 	color: white;
 }
+
+.attachment-option {
+	padding: 0.5vh 0;
+}

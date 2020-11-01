@@ -394,12 +394,14 @@ function openPropertiesMenu(data) {
 	}, 500);
 }
 
-function closePropertiesMenu() {
+function closePropertiesMenu(loseFocus) {
 	document.querySelector('#properties-menu').style.display = 'none';
 
 	clearInterval(propertiesMenuUpdate);
 
-	sendMessage('closePropertiesMenu', {});
+	if (loseFocus) {
+		sendMessage('closePropertiesMenu', {});
+	}
 }
 
 function loadDatabase(name) {
@@ -465,6 +467,89 @@ function getIntoVehicle(handle) {
 	sendMessage('getIntoVehicle', {
 		handle: handle
 	});
+}
+
+function attachTo(fromEntity, toEntity) {
+	sendMessage('attachTo', {
+		from: fromEntity,
+		to: toEntity,
+		bone: parseInt(document.querySelector('#attachment-bone').value),
+		x: parseFloat(document.querySelector('#attachment-x').value),
+		y: parseFloat(document.querySelector('#attachment-y').value),
+		z: parseFloat(document.querySelector('#attachment-z').value),
+		pitch: parseFloat(document.querySelector('#attachment-pitch').value),
+		roll: parseFloat(document.querySelector('#attachment-roll').value),
+		yaw: parseFloat(document.querySelector('#attachment-yaw').value),
+		keepPos: document.querySelector('#attachment-keep-pos').checked
+	});
+	sendMessage('getDatabase', {handle: fromEntity}).then(resp => resp.json()).then(resp => openAttachToMenu(fromEntity, resp));
+}
+
+function openAttachToMenu(fromEntity, data) {
+	var properties = JSON.parse(data.properties);
+	var database = JSON.parse(data.database);
+
+	var list = document.querySelector('#attach-to-list');
+
+	list.innerHTML = '';
+
+	var addTo = true;
+
+	Object.keys(database).forEach(function(handle) {
+		var toEntity = parseInt(handle);
+
+		if (toEntity == fromEntity) {
+			return;
+		}
+
+		var div = document.createElement('div');
+
+		if (properties.attachment.to == handle) {
+			div.className = 'object selected';
+			addTo = false;
+		} else {
+			div.className = 'object';
+		}
+
+		div.innerHTML = database[handle].name;
+		div.setAttribute('data-handle', handle);
+		div.addEventListener('click', function(event) {
+			document.querySelector('#attachment-options-menu').style.display = 'none';
+			attachTo(fromEntity, toEntity);
+		});
+		list.appendChild(div);
+	});
+
+	if (addTo && properties.attachment.to) {
+		var div = document.createElement('div');
+		div.className = 'object selected';
+		if (database[properties.attachment.to]) {
+			div.innerHTML = database[properties.attachment.to].name;
+		} else {
+			div.innerHTML = properties.attachment.to.toString(16);
+		}
+		div.addEventListener('click', function(event) {
+			document.querySelector('#attachment-options-menu').style.display = 'none';
+			attachTo(fromEntity, properties.attachment.to);
+		});
+		list.appendChild(div);
+	}
+
+	document.querySelector('#attachment-bone').value = properties.attachment.bone;
+	document.querySelector('#attachment-x').value = properties.attachment.x;
+	document.querySelector('#attachment-y').value = properties.attachment.y;
+	document.querySelector('#attachment-z').value = properties.attachment.z;
+	document.querySelector('#attachment-pitch').value = properties.attachment.pitch;
+	document.querySelector('#attachment-roll').value = properties.attachment.roll;
+	document.querySelector('#attachment-yaw').value = properties.attachment.yaw;
+
+	if (properties.attachment.to) {
+		document.querySelector('#attachment-options-detach').style.display = 'block';
+	} else {
+		document.querySelector('#attachment-options-detach').style.display = 'none';
+	}
+
+	document.querySelector('#attachment-options-menu').style.display = 'flex';
 }
 
 function currentEntity() {
@@ -632,7 +717,7 @@ window.addEventListener('load', function() {
 	});
 
 	document.querySelector('#properties-goto').addEventListener('click', function(event) {
-		closePropertiesMenu();
+		closePropertiesMenu(true);
 		goToEntity(currentEntity())
 	});
 
@@ -679,11 +764,11 @@ window.addEventListener('load', function() {
 			handle: currentEntity()
 		});
 
-		closePropertiesMenu();
+		closePropertiesMenu(true);
 	});
 
 	document.querySelector('#properties-menu-close-btn').addEventListener('click', function(event) {
-		closePropertiesMenu();
+		closePropertiesMenu(true);
 	});
 
 	document.querySelector('#save-db-btn').addEventListener('click', function(event) {
@@ -752,7 +837,7 @@ window.addEventListener('load', function() {
 	});
 
 	document.querySelector('#properties-get-in').addEventListener('click', function(event) {
-		closePropertiesMenu();
+		closePropertiesMenu(true);
 		getIntoVehicle(currentEntity())
 	});
 
@@ -767,4 +852,40 @@ window.addEventListener('load', function() {
 			handle: currentEntity()
 		});
 	});
+
+	document.querySelector('#properties-attach').addEventListener('click', function(event) {
+		closePropertiesMenu(false);
+		sendMessage('getDatabase', {handle: currentEntity()}).then(resp => resp.json()).then(resp => openAttachToMenu(currentEntity(), resp));
+	});
+
+	document.querySelector('#attachment-options-menu-close').addEventListener('click', function(event) {
+		document.querySelector('#attachment-options-menu').style.display = 'none';
+		sendMessage('openPropertiesMenuForEntity', {
+			entity: currentEntity()
+		});
+
+	});
+
+	document.querySelector('#attachment-options-detach').addEventListener('click', function(event) {
+		document.querySelector('#attachment-options-menu').style.display = 'none';
+		sendMessage('detach', {
+			handle: currentEntity()
+		});
+		sendMessage('getDatabase', {handle: currentEntity()}).then(resp => resp.json()).then(resp => openAttachToMenu(currentEntity(), resp));
+	});
+
+	document.querySelectorAll('.set-attach').forEach(e => e.addEventListener('input', function(event) {
+		sendMessage('attachTo', {
+			from: currentEntity(),
+			to: null,
+			bone: parseInt(document.querySelector('#attachment-bone').value),
+			x: parseFloat(document.querySelector('#attachment-x').value),
+			y: parseFloat(document.querySelector('#attachment-y').value),
+			z: parseFloat(document.querySelector('#attachment-z').value),
+			pitch: parseFloat(document.querySelector('#attachment-pitch').value),
+			roll: parseFloat(document.querySelector('#attachment-roll').value),
+			yaw: parseFloat(document.querySelector('#attachment-yaw').value),
+			keepPos: false
+		});
+	}));
 });

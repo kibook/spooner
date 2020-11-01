@@ -79,6 +79,33 @@
 			<button id="object-database-remove-all-btn">Remove All</button>
 			<button id="object-database-close-btn">Close</button>
 		</div>
+		<div id="attachment-options-menu" class="menu">
+			<div id="attach-to-list" class="list"></div>
+			<div>
+				<div class="property">
+					<div class="label">Bone</div>
+					<input type="number" class="set-attach" id="attachment-bone" min="0" step="1">
+				</div>
+				<div class="property">
+					<div class="label">Position</div>
+					<input type="number" class="set-attach" id="attachment-x" step="0.01">
+					<input type="number" class="set-attach" id="attachment-y" step="0.01">
+					<input type="number" class="set-attach" id="attachment-z" step="0.01">
+				</div>
+				<div class="property">
+					<div class="label">Rotation</div>
+					<input type="number" class="set-attach" id="attachment-pitch" step="1.0">
+					<input type="number" class="set-attach" id="attachment-roll" step="1.0">
+					<input type="number" class="set-attach" id="attachment-yaw" step="1.0">
+				</div>
+				<div class="attachment-option">
+					<input type="checkbox" id="attachment-keep-pos">
+					<span>Keep world position</span>
+				</div>
+			</div>
+			<button id="attachment-options-detach">Detach</button>
+			<button id="attachment-options-menu-close">Back</button>
+		</div>
 		<div id="properties-menu" class="menu">
 			<div id="properties-menu-entity">
 				<div class="label">Properties for <span id="properties-menu-entity-type"></span></div>
@@ -136,6 +163,9 @@
 				</div>
 				<div class="property">
 					<button id="properties-clone">Clone</button>
+				</div>
+				<div class="property">
+					<button id="properties-attach">Attachment Options</button>
 				</div>
 				<div class="property">
 					<button id="properties-request-control">Request Control</button>
