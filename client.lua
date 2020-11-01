@@ -19,7 +19,7 @@ RegisterNetEvent('spooner:toggle')
 
 function EnableSpoonerMode()
 	if not IsPedUsingAnyScenario(PlayerPedId()) then
-		TaskStandStill(PlayerPedId(), -1)
+		TaskStartScenarioInPlace(PlayerPedId(), GetHashKey(Config.Scenario), -1)
 		ClearTasks = true
 	else
 		ClearTasks = false
@@ -41,7 +41,7 @@ end
 
 function DisableSpoonerMode()
 	if ClearTasks then
-		ClearPedTasks(PlayerPedId(), true, true)
+		ClearPedTasksImmediately(PlayerPedId())
 	end
 
 	RenderScriptCams(false, true, 500, true, true)
@@ -913,6 +913,11 @@ CreateThread(function()
 		end
 
 		if Cam then
+			if not IsPedUsingAnyScenario(PlayerPedId()) then
+				TaskStartScenarioInPlace(PlayerPedId(), GetHashKey(Config.Scenario), -1)
+				ClearTasks = true
+			end
+
 			local x1, y1, z1 = table.unpack(GetCamCoord(Cam))
 			local pitch1, roll1, yaw1 = table.unpack(GetCamRot(Cam, 2))
 

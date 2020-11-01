@@ -54,3 +54,6 @@ Config.AdjustSpeed = 0.01
 
 -- Speed of pitch, roll, yaw adjustments
 Config.RotateSpeed = 1.0
+
+-- Default scenario to use to keep player ped still in spooner mode
+Config.Scenario = 'GENERIC_STANDING_SCENARIO'
