@@ -78,15 +78,17 @@
 				</div>
 				<div class="property">
 					<div class="label">Position</div>
-					<input type="number" class="set-attach" id="attachment-x" step="0.01">
-					<input type="number" class="set-attach" id="attachment-y" step="0.01">
-					<input type="number" class="set-attach" id="attachment-z" step="0.01">
+					<input type="number" class="adjust-speed" step="0.01">
+					<input type="number" class="set-attach adjust-input" id="attachment-x" step="0.01">
+					<input type="number" class="set-attach adjust-input" id="attachment-y" step="0.01">
+					<input type="number" class="set-attach adjust-input" id="attachment-z" step="0.01">
 				</div>
 				<div class="property">
 					<div class="label">Rotation</div>
-					<input type="number" class="set-attach" id="attachment-pitch" step="1.0">
-					<input type="number" class="set-attach" id="attachment-roll" step="1.0">
-					<input type="number" class="set-attach" id="attachment-yaw" step="1.0">
+					<input type="number" class="rotate-speed" step="0.1">
+					<input type="number" class="set-attach rotate-input" id="attachment-pitch" step="1.0">
+					<input type="number" class="set-attach rotate-input" id="attachment-roll" step="1.0">
+					<input type="number" class="set-attach rotate-input" id="attachment-yaw" step="1.0">
 				</div>
 				<div class="attachment-option">
 					<input type="checkbox" id="attachment-keep-pos">
@@ -117,10 +119,10 @@
 				</div>
 				<div class="property">
 					<div class="label">Position</div>
-					<input type="number" id="position-step" step="0.01">
-					<input type="number" class="set-coords" id="properties-x" step="0.01">
-					<input type="number" class="set-coords" id="properties-y" step="0.01">
-					<input type="number" class="set-coords"id="properties-z" step="0.01">
+					<input type="number" class="adjust-speed" step="0.01">
+					<input type="number" class="set-coords adjust-input" id="properties-x" step="0.01">
+					<input type="number" class="set-coords adjust-input" id="properties-y" step="0.01">
+					<input type="number" class="set-coords adjust-input" id="properties-z" step="0.01">
 				</div>
 				<div class="property">
 					<button id="properties-place-here">Place Here</button>
@@ -130,10 +132,10 @@
 				</div>
 				<div class="property">
 					<div class="label">Rotation</div>
-					<input type="number" id="rotation-step" step="0.1">
-					<input type="number" class="set-rotation" id="properties-pitch" min="-359" max="359" step="1">
-					<input type="number" class="set-rotation" id="properties-roll" min="-359" max="359" step="1">
-					<input type="number" class="set-rotation" id="properties-yaw" min="-359" max="359" step="1">
+					<input type="number" class="rotate-speed" step="0.1">
+					<input type="number" class="set-rotation rotate-input" id="properties-pitch" min="-359" max="359" step="1">
+					<input type="number" class="set-rotation rotate-input" id="properties-roll" min="-359" max="359" step="1">
+					<input type="number" class="set-rotation rotate-input" id="properties-yaw" min="-359" max="359" step="1">
 				</div>
 				<div class="property">
 					<button id="properties-reset-rotation">Reset Rotation</button>

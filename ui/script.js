@@ -607,15 +607,11 @@ window.addEventListener('load', function() {
 		objects = JSON.parse(resp.objects);
 		populateObjectList();
 
-		document.querySelector('#position-step').value = resp.adjustSpeed;
-		document.querySelector('#properties-x').step = resp.adjustSpeed;
-		document.querySelector('#properties-y').step = resp.adjustSpeed;
-		document.querySelector('#properties-z').step = resp.adjustSpeed;
+		document.querySelectorAll('.adjust-speed').forEach(e => e.value = resp.adjustSpeed);
+		document.querySelectorAll('.adjust-input').forEach(e => e.step = resp.adjustSpeed);
 
-		document.querySelector('#rotation-step').value = resp.rotateSpeed;
-		document.querySelector('#properties-pitch').step = resp.rotateSpeed;
-		document.querySelector('#properties-roll').step = resp.rotateSpeed;
-		document.querySelector('#properties-yaw').step = resp.rotateSpeed;
+		document.querySelectorAll('.rotate-speed').forEach(e => e.value = resp.rotateSpeed);
+		document.querySelectorAll('.rotate-input').forEach(e => e.step = resp.rotateSpeed);
 	});
 
 	document.querySelector('#ped-search-filter').addEventListener('input', function(event) {
@@ -807,25 +803,23 @@ window.addEventListener('load', function() {
 		closeSaveLoadDbMenu();
 	});
 
-	document.querySelector('#position-step').addEventListener('input', function(event) {
-		document.querySelector('#properties-x').step = this.value;
-		document.querySelector('#properties-y').step = this.value;
-		document.querySelector('#properties-z').step = this.value;
+	document.querySelectorAll('.adjust-speed').forEach(e => e.addEventListener('input', function(event) {
+		document.querySelectorAll('.adjust-speed').forEach(e => e.value = this.value);
+		document.querySelectorAll('.adjust-input').forEach(e => e.step = this.value);
 
 		sendMessage('setAdjustSpeed', {
 			speed: this.value
 		});
-	});
+	}));
 
-	document.querySelector('#rotation-step').addEventListener('input', function(event) {
-		document.querySelector('#properties-pitch').step = this.value;
-		document.querySelector('#properties-roll').step = this.value;
-		document.querySelector('#properties-yaw').step = this.value;
+	document.querySelectorAll('.rotate-speed').forEach(e => e.addEventListener('input', function(event) {
+		document.querySelectorAll('.rotate-speed').forEach(e => e.value = this.value);
+		document.querySelectorAll('.rotate-input').forEach(e => e.step = this.value);
 
 		sendMessage('setRotateSpeed', {
 			speed: this.value
 		});
-	});
+	}));
 
 	document.querySelector('#help-menu-close-btn').addEventListener('click', function(event) {
 		closeHelpMenu();
