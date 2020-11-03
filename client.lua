@@ -542,9 +542,23 @@ RegisterNUICallback('placeEntityHere', function(data, cb)
 	})
 end)
 
+function PrepareDatabaseForSave(database)
+	local db = json.decode(json.encode(database))
+
+	for entity, props in pairs(db) do
+		if props.attachment.to == PlayerPedId() then
+			props.attachment.to = -1
+		end
+	end
+
+	db[tostring(PlayerPedId())] = nil
+
+	return db
+end
+
 function SaveDatabase(name)
 	UpdateDatabase()
-	SetResourceKvp(name, json.encode(Database))
+	SetResourceKvp(name, json.encode(PrepareDatabaseForSave(Database)))
 end
 
 function LoadDatabase(db, relative)
@@ -625,7 +639,7 @@ function LoadDatabase(db, relative)
 	for _, spawn in ipairs(spawns) do
 		if spawn.props.attachment and spawn.props.attachment.to ~= 0 then
 			local from  = handles[spawn.entity]
-			local to    = handles[spawn.props.attachment.to]
+			local to    = spawn.props.attachment.to == -1 and PlayerPedId() or handles[spawn.props.attachment.to]
 			local bone  = spawn.props.attachment.bone
 			local x     = spawn.props.attachment.x * 1.0
 			local y     = spawn.props.attachment.y * 1.0
@@ -799,9 +813,9 @@ function ExportDatabase(format)
 	UpdateDatabase()
 
 	if format == 'spooner-db-json' then
-		return json.encode(Database)
+		return json.encode(PrepareDatabaseForSave(Database))
 	elseif format == 'map-editor-xml' then
-		return ConvertDatabaseToMapEditorXml(GetPlayerName(), Database)
+		return ConvertDatabaseToMapEditorXml(GetPlayerName(), PrepareDatabaseForSave(Database))
 	end
 end
 
