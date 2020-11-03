@@ -294,7 +294,7 @@ strong {
 	font-size: 2vw;
 }
 
-#exported-db {
+#import-export-db {
 	display: none;
 	flex-flow: column;
 	position: absolute;
@@ -303,14 +303,35 @@ strong {
 	transform: translate(-50%, -50%);
 	width: 50%;
 	height: 50%;
+	background: rgba(0, 0, 0, 0.5);
+	color: white;
+}
+
+#import-export-controls {
+	display: flex;
+	width: 100%;
+}
+
+select {
+	background: rgba(0, 0, 0, 0.5);
+	color: white;
+	border: solid 1px white;
+}
+
+option {
+	background-color: #000;
+}
+
+#import-url {
+	flex-grow: 1;
 }
 
 textarea {
 	width: 100%;
-	height: 100%;
 	flex-grow: 1;
 	background: rgba(0, 0, 0, 0.75);
 	color: white;
+	resize: none;
 }
 
 .attachment-option {

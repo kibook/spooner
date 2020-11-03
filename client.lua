@@ -547,15 +547,13 @@ function SaveDatabase(name)
 	SetResourceKvp(name, json.encode(Database))
 end
 
-function LoadDatabase(name, relative)
+function LoadDatabase(db, relative)
 	local ax = 0.0
 	local ay = 0.0
 	local az = 0.0
 
 	local spawns = {}
 	local handles = {}
-
-	local db = json.decode(GetResourceKvpString(name))
 
 	for entity, props in pairs(db) do
 		if relative then
@@ -594,19 +592,19 @@ function LoadDatabase(name, relative)
 		local x, y, z, pitch, roll, yaw
 
 		if relative then
-			x = ((spawn.props.x - ax) * cosr - (spawn.props.y - ay) * sinr + ax) + dx
-			y = ((spawn.props.y - ay) * cosr + (spawn.props.x - ax) * sinr + ay) + dy
-			z = spawn.props.z + dz
-			pitch = spawn.props.pitch
-			roll = spawn.props.roll
-			yaw = spawn.props.yaw + rot.z
+			x = (((spawn.props.x - ax) * cosr - (spawn.props.y - ay) * sinr + ax) + dx) * 1.0
+			y = (((spawn.props.y - ay) * cosr + (spawn.props.x - ax) * sinr + ay) + dy) * 1.0
+			z = (spawn.props.z + dz) * 1.0
+			pitch = spawn.props.pitch * 1.0
+			roll = spawn.props.roll * 1.0
+			yaw = (spawn.props.yaw + rot.z) * 1.0
 		else
-			x = spawn.props.x
-			y = spawn.props.y
-			z = spawn.props.z
-			pitch = spawn.props.pitch
-			roll = spawn.props.roll
-			yaw = spawn.props.yaw
+			x = spawn.props.x * 1.0
+			y = spawn.props.y * 1.0
+			z = spawn.props.z * 1.0
+			pitch = spawn.props.pitch * 1.0
+			roll = spawn.props.roll * 1.0
+			yaw = spawn.props.yaw * 1.0
 		end
 
 		if spawn.props.type == 1 then
@@ -629,12 +627,12 @@ function LoadDatabase(name, relative)
 			local from  = handles[spawn.entity]
 			local to    = handles[spawn.props.attachment.to]
 			local bone  = spawn.props.attachment.bone
-			local x     = spawn.props.attachment.x
-			local y     = spawn.props.attachment.y
-			local z     = spawn.props.attachment.z
-			local pitch = spawn.props.attachment.pitch
-			local roll  = spawn.props.attachment.roll
-			local yaw   = spawn.props.attachment.yaw
+			local x     = spawn.props.attachment.x * 1.0
+			local y     = spawn.props.attachment.y * 1.0
+			local z     = spawn.props.attachment.z * 1.0
+			local pitch = spawn.props.attachment.pitch * 1.0
+			local roll  = spawn.props.attachment.roll * 1.0
+			local yaw   = spawn.props.attachment.yaw * 1.0
 
 			AttachEntityToEntity(from, to, bone, x, y, z, pitch, roll, yaw, false, false, true, false, 0, true, false, false)
 
@@ -649,6 +647,14 @@ function LoadDatabase(name, relative)
 				yaw = yaw
 			})
 		end
+	end
+end
+
+function LoadSavedDatabase(name, relative)
+	local db = json.decode(GetResourceKvpString(name))
+
+	if db then
+		LoadDatabase(db, relative)
 	end
 end
 
@@ -684,7 +690,7 @@ RegisterNUICallback('saveDb', function(data, cb)
 end)
 
 RegisterNUICallback('loadDb', function(data, cb)
-	LoadDatabase(data.name, data.relative)
+	LoadSavedDatabase(data.name, data.relative)
 	cb({})
 end)
 
@@ -771,8 +777,8 @@ RegisterNUICallback('repairVehicle', function(data, cb)
 	cb({})
 end)
 
-function ConvertDatabaseToMapEditorXml(name, creator, database)
-	local xml = '<Map>\n\t<MapMeta Creator="' .. GetPlayerName() .. '"/>\n'
+function ConvertDatabaseToMapEditorXml(creator, database)
+	local xml = '<Map>\n\t<MapMeta Creator="' .. creator .. '"/>\n'
 
 	for entity, properties in pairs(database) do
 		if properties.type == 1 then
@@ -789,16 +795,36 @@ function ConvertDatabaseToMapEditorXml(name, creator, database)
 	return xml
 end
 
-function ExportDatabase(name)
+function ExportDatabase(format)
 	UpdateDatabase()
-	return ConvertDatabaseToMapEditorXml(name, GetPlayerName(PlayerId()), Database)
+
+	if format == 'spooner-db-json' then
+		return json.encode(Database)
+	elseif format == 'map-editor-xml' then
+		return ConvertDatabaseToMapEditorXml(GetPlayerName(), Database)
+	end
+end
+
+function ImportDatabase(format, content)
+	if format == 'spooner-db-json' then
+		local db = json.decode(content)
+
+		if db then
+			LoadDatabase(db, false)
+		end
+	end
 end
 
 RegisterNUICallback('exportDb', function(data, cb)
-	cb({content = ExportDatabase(name)})
+	cb(ExportDatabase(data.format))
 end)
 
-RegisterNUICallback('closeExportedDbWindow', function(data, cb)
+RegisterNUICallback('importDb', function(data, cb)
+	ImportDatabase(data.format, data.content)
+	cb({})
+end)
+
+RegisterNUICallback('closeImportExportDbWindow', function(data, cb)
 	SetNuiFocus(false, false)
 	cb({})
 end)

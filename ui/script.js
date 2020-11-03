@@ -784,19 +784,42 @@ window.addEventListener('load', function() {
 		}).then(resp => resp.json()).then(resp => updateDbList(resp));
 	});
 
-	document.querySelector('#export-db-btn').addEventListener('click', function(event) {
+	document.querySelector('#import-export-db-btn').addEventListener('click', function(event) {
+		document.querySelector('#save-load-db-menu').style.display = 'none';
+		document.querySelector('#import-export-db').style.display = 'flex';
+	});
+
+	document.querySelector('#import-db').addEventListener('click', function(event) {
+		var url = document.querySelector('#import-url').value;
+
+		if (url) {
+			fetch(url).then(resp => resp.text()).then(function(text) {
+				document.querySelector('#import-export-content').value = text;
+
+				sendMessage('importDb', {
+					format: document.querySelector('#import-export-format').value,
+					content: text
+				});
+			});
+		} else {
+			sendMessage('importDb', {
+				format: document.querySelector('#import-export-format').value,
+				content: document.querySelector('#import-export-content').value
+			});
+		}
+	});
+
+	document.querySelector('#export-db').addEventListener('click', function(event) {
 		sendMessage('exportDb', {
-			name: document.querySelector('#save-db-name').value
+			format: document.querySelector('#import-export-format').value
 		}).then(resp => resp.json()).then(function(resp) {
-			document.querySelector('#exported-db-content').value = resp.content;
-			document.querySelector('#save-load-db-menu').style.display = 'none';
-			document.querySelector('#exported-db').style.display = 'flex';
+			document.querySelector('#import-export-content').value = resp;
 		});
 	});
 
-	document.querySelector('#exported-db-close').addEventListener('click', function(event) {
-		document.querySelector('#exported-db').style.display = 'none';
-		sendMessage('closeExportedDbWindow', {});
+	document.querySelector('#import-export-db-close').addEventListener('click', function(event) {
+		document.querySelector('#import-export-db').style.display = 'none';
+		sendMessage('closeImportExportDbWindow', {});
 	});
 
 	document.querySelector('#save-load-db-menu-close-btn').addEventListener('click', function(event) {

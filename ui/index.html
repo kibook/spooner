@@ -176,13 +176,22 @@
 			<div id="save-db-options">
 				<input id="save-db-name" type="text">
 				<button id="save-db-btn">Save</button>
-				<button id="export-db-btn">Export</button>
 			</div>
+			<button id="import-export-db-btn">Import/Export</button>
 			<button id="save-load-db-menu-close-btn">Close</button>
 		</div>
-		<div id="exported-db">
-			<textarea id="exported-db-content"></textarea>
-			<button id="exported-db-close">Close</button>
+		<div id="import-export-db">
+			<div id="import-export-controls">
+				<select id="import-export-format">
+					<option value="spooner-db-json">Spooner DB JSON</option>
+					<option value="map-editor-xml">Map Editor XML</option>
+				</select>
+				<input type="text" id="import-url" placeholder="Import from URL">
+				<button id="import-db">Import</button>
+				<button id="export-db">Export</button>
+			</div>
+			<textarea id="import-export-content" spellcheck="false"></textarea>
+			<button id="import-export-db-close">Close</button>
 		</div>
 		<div id="help-menu">
 			<h1>Object Spooner Help</h1>
@@ -303,9 +312,11 @@
 					<li>To save your current database, enter name in the field and click <strong>Save</strong>.</li>
 					<li>To load a saved database, left-click on the name of the database.</li>
 					<li>To delete a saved database, right-click on the name of the database.</li>
-					<li>To export the current database as Map Editor XML, click <strong>Export</strong>.</li>
+					<li>To import a database or export the current databas, click <strong>Import/Export</strong>.</li>
 				</ul>
 				<p>Checking the <strong>Load relative to cursor position</strong> box will spawn the entities in the selected database relative to the current cursor position, rather than exactly where they were originally placed.</p>
+				<h3>Import/Export menu</h3>
+				<p>The <strong>Import/Export menu</strong> allows you to import a database into your current database, or export your current database in either a JSON or Map Editor XML format.</p>
 			</div>
 			<div id="help-menu-controls">
 				<button id="help-menu-close-btn">Close</button>
