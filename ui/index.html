@@ -86,9 +86,9 @@
 				<div class="property">
 					<div class="label">Rotation</div>
 					<input type="number" class="rotate-speed" step="0.1">
-					<input type="number" class="set-attach rotate-input" id="attachment-pitch" step="1.0">
-					<input type="number" class="set-attach rotate-input" id="attachment-roll" step="1.0">
-					<input type="number" class="set-attach rotate-input" id="attachment-yaw" step="1.0">
+					<input type="number" class="set-attach rotate-input" id="attachment-pitch" step="1.0" min="-359" max="359">
+					<input type="number" class="set-attach rotate-input" id="attachment-roll" step="1.0" min="-359" max="359">
+					<input type="number" class="set-attach rotate-input" id="attachment-yaw" step="1.0" min="-359" max="359">
 				</div>
 				<div class="attachment-option">
 					<input type="checkbox" id="attachment-keep-pos">
@@ -309,7 +309,7 @@
 				<h3>Save/Load Database menu - <span class="control">J</span></h3>
 				<p>The <strong>Save/Load Database</strong> menu allows you to store your current database with a name, and then load all the entities from it again later.</p>
 				<ul>
-					<li>To save your current database, enter name in the field and click <strong>Save</strong>.</li>
+					<li>To save your current database, enter a name in the field and click <strong>Save</strong>.</li>
 					<li>To load a saved database, left-click on the name of the database.</li>
 					<li>To delete a saved database, right-click on the name of the database.</li>
 					<li>To import a database or export the current databas, click <strong>Import/Export</strong>.</li>
