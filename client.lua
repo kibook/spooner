@@ -966,7 +966,6 @@ end)
 RegisterNUICallback('gravityOff', function(data, cb)
 	NetworkRequestControlOfEntity(data.handle)
 	SetEntityHasGravity(data.handle, false)
-	print('test')
 	cb({})
 end)
 
