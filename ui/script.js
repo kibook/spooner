@@ -638,7 +638,7 @@ window.addEventListener('load', function() {
 	document.querySelector('#vehicle-spawn-by-name').addEventListener('click', function(event) {
 		document.querySelector('#vehicle-menu').style.display = 'none';
 
-		sendMessage('closevehicleMenu', {
+		sendMessage('closeVehicleMenu', {
 			modelName: document.querySelector('#vehicle-search-filter').value
 		});
 	});
