@@ -17,6 +17,7 @@ client_scripts {
 	'peds.lua',
 	'vehicles.lua',
 	'objects.lua',
+	'scenarios.lua',
 	'client.lua'
 }
 

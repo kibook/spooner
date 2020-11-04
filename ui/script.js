@@ -1,6 +1,7 @@
 var peds = [];
 var vehicles = [];
 var objects = [];
+var scenarios = [];
 
 var lastSpawnMenu = -1;
 
@@ -223,6 +224,13 @@ function closeObjectMenu(selected) {
 	}
 }
 
+function performScenario(scenario) {
+	sendMessage('performScenario', {
+		handle: currentEntity(),
+		scenario: scenario.innerHTML
+	});
+}
+
 function populatePedList(filter) {
 	var pedList = document.querySelector('#ped-list');
 
@@ -283,6 +291,24 @@ function populateObjectList(filter) {
 	}
 }
 
+function populateScenarioList(filter) {
+	var scenarioList = document.querySelector('#scenario-list');
+
+	scenarioList.innerHTML = '';
+
+	scenarios.forEach(function(scenario) {
+		if (!filter || filter == '' || scenario.toLowerCase().includes(filter.toLowerCase())) {
+			var div = document.createElement('div');
+			div.className = 'object';
+			div.innerHTML = scenario;
+			div.addEventListener('click', function(event) {
+				performScenario(this);
+			});
+			scenarioList.appendChild(div);
+		}
+	});
+}
+
 function deleteEntity(object) {
 	var handle = object.getAttribute('data-handle');
 
@@ -339,11 +365,13 @@ function removeAllFromDatabase() {
 function updatePropertiesMenu(data) {
 	var properties = JSON.parse(data.properties);
 
+	document.querySelectorAll('.ped-property').forEach(e => e.style.display = 'none');
 	document.querySelectorAll('.vehicle-property').forEach(e => e.style.display = 'none');
 
 	switch (properties.type) {
 		case 1:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'ped';
+			document.querySelectorAll('.ped-property').forEach(e => e.style.display = 'block');
 			break;
 		case 2:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'vehicle';
@@ -609,6 +637,9 @@ window.addEventListener('load', function() {
 		objects = JSON.parse(resp.objects);
 		populateObjectList();
 
+		scenarios = JSON.parse(resp.scenarios);
+		populateScenarioList();
+
 		document.querySelectorAll('.adjust-speed').forEach(e => e.value = resp.adjustSpeed);
 		document.querySelectorAll('.adjust-input').forEach(e => e.step = resp.adjustSpeed);
 
@@ -623,6 +654,7 @@ window.addEventListener('load', function() {
 	document.querySelector('#vehicle-search-filter').addEventListener('input', function(event) {
 		populateVehicleList(this.value);
 	});
+
 	document.querySelector('#object-search-filter').addEventListener('input', function(event) {
 		populateObjectList(this.value);
 	});
@@ -946,6 +978,34 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#properties-gravity-off').addEventListener('click', function(event) {
 		sendMessage('gravityOff', {
+			handle: currentEntity()
+		});
+	});
+
+	document.querySelector('#properties-scenario').addEventListener('click', function(event) {
+		closePropertiesMenu(false);
+		document.querySelector('#scenario-menu').style.display = 'flex';
+	});
+
+	document.querySelector('#scenario-menu-close').addEventListener('click', function(event) {
+		document.querySelector('#scenario-menu').style.display = 'none';
+		sendMessage('openPropertiesMenuForEntity', {
+			entity: currentEntity()
+		});
+	});
+
+	document.querySelector('#scenario-search-filter').addEventListener('input', function(event) {
+		populateScenarioList(this.value);
+	});
+
+	document.querySelector('#properties-clear-ped-tasks').addEventListener('click', function(event) {
+		sendMessage('clearPedTasks', {
+			handle: currentEntity()
+		});
+	});
+
+	document.querySelector('#properties-clear-ped-tasks-immediately').addEventListener('click', function(event) {
+		sendMessage('clearPedTasksImmediately', {
 			handle: currentEntity()
 		});
 	});

@@ -719,6 +719,7 @@ RegisterNUICallback('init', function(data, cb)
 		peds = json.encode(Peds),
 		vehicles = json.encode(Vehicles),
 		objects = json.encode(Objects),
+		scenarios = json.encode(Scenarios),
 		adjustSpeed = AdjustSpeed,
 		rotateSpeed = RotateSpeed
 	})
@@ -966,6 +967,24 @@ end)
 RegisterNUICallback('gravityOff', function(data, cb)
 	NetworkRequestControlOfEntity(data.handle)
 	SetEntityHasGravity(data.handle, false)
+	cb({})
+end)
+
+RegisterNUICallback('performScenario', function(data, cb)
+	NetworkRequestControlOfEntity(data.handle)
+	TaskStartScenarioInPlace(data.handle, GetHashKey(data.scenario), -1)
+	cb({})
+end)
+
+RegisterNUICallback('clearPedTasks', function(data, cb)
+	NetworkRequestControlOfEntity(data.handle)
+	ClearPedTasks(data.handle)
+	cb({})
+end)
+
+RegisterNUICallback('clearPedTasksImmediately', function(data, cb)
+	NetworkRequestControlOfEntity(data.handle)
+	ClearPedTasksImmediately(data.handle)
 	cb({})
 end)
 
