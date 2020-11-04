@@ -973,6 +973,7 @@ end)
 RegisterNUICallback('performScenario', function(data, cb)
 	NetworkRequestControlOfEntity(data.handle)
 	TaskStartScenarioInPlace(data.handle, GetHashKey(data.scenario), -1)
+	ClearTasks = false
 	cb({})
 end)
 
