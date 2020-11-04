@@ -194,6 +194,10 @@ input[type="checkbox"]:checked {
 	padding: 0.5vh 0;
 }
 
+.property.multiple {
+	display: flex;
+}
+
 .property label {
 	display: block;
 }
@@ -201,6 +205,7 @@ input[type="checkbox"]:checked {
 .property button {
 	display: block;
 	width: 100%;
+	white-space: nowrap;
 }
 
 .property input {

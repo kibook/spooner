@@ -378,6 +378,8 @@ function updatePropertiesMenu(data) {
 		document.querySelector('#properties-add-to-db').style.display = 'block';
 		document.querySelector('#properties-remove-from-db').style.display = 'none';
 	}
+
+	document.querySelector('#properties-health').value = properties.health;
 }
 
 function sendUpdatePropertiesMenuMessage(handle, open) {
@@ -916,4 +918,35 @@ window.addEventListener('load', function() {
 			keepPos: false
 		});
 	}));
+
+	document.querySelector('#properties-health').addEventListener('input', function(event) {
+		sendMessage('setEntityHealth', {
+			handle: currentEntity(),
+			health: parseInt(this.value)
+		});
+	});
+
+	document.querySelector('#properties-visible').addEventListener('click', function(event) {
+		sendMessage('setEntityVisible', {
+			handle: currentEntity()
+		});
+	});
+
+	document.querySelector('#properties-invisible').addEventListener('click', function(event) {
+		sendMessage('setEntityInvisible', {
+			handle: currentEntity()
+		});
+	});
+
+	document.querySelector('#properties-gravity-on').addEventListener('click', function(event) {
+		sendMessage('gravityOn', {
+			handle: currentEntity()
+		});
+	});
+
+	document.querySelector('#properties-gravity-off').addEventListener('click', function(event) {
+		sendMessage('gravityOff', {
+			handle: currentEntity()
+		});
+	});
 });

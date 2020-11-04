@@ -111,10 +111,8 @@
 					<button id="properties-add-to-db" class="add-remove-db">Add to DB</button>
 					<button id="properties-remove-from-db" class="add-remove-db">Remove from DB</button>
 				</div>
-				<div class="property">
+				<div class="property multiple">
 					<button id="properties-freeze">Freeze</button>
-				</div>
-				<div class="property">
 					<button id="properties-unfreeze">Unfreeze</button>
 				</div>
 				<div class="property">
@@ -141,10 +139,20 @@
 					<button id="properties-reset-rotation">Reset Rotation</button>
 				</div>
 				<div class="property">
-					<button id="properties-invincible-on">Invincibility On</button>
+					<div class="label">Health</div>
+					<input type="number" id="properties-health" min="0" step="1">
 				</div>
-				<div class="property">
+				<div class="property multiple">
+					<button id="properties-invincible-on">Invincibility On</button>
 					<button id="properties-invincible-off">Invincibility Off</button>
+				</div>
+				<div class="property multiple">
+					<button id="properties-visible">Visible</button>
+					<button id="properties-invisible">Invisible</button>
+				</div>
+				<div class="property multiple">
+					<button id="properties-gravity-on">Gravity On</button>
+					<button id="properties-gravity-off">Gravity Off</button>
 				</div>
 				<div class="property vehicle-property">
 					<button id="properties-repair-vehicle">Repair Vehicle</button>

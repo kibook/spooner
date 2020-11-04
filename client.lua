@@ -148,6 +148,7 @@ function GetLiveEntityProperties(entity)
 		pitch = pitch,
 		roll = roll,
 		yaw = yaw,
+		health = GetEntityHealth(entity),
 		attachment = {
 			to = GetEntityAttachedTo(entity),
 			bone = 0,
@@ -935,6 +936,37 @@ RegisterNUICallback('detach', function(data, cb)
 		})
 	end
 
+	cb({})
+end)
+
+RegisterNUICallback('setEntityHealth', function(data, cb)
+	NetworkRequestControlOfEntity(data.handle)
+	SetEntityHealth(data.handle, data.health, 0)
+	cb({})
+end)
+
+RegisterNUICallback('setEntityVisible', function(data, cb)
+	NetworkRequestControlOfEntity(data.handle)
+	SetEntityVisible(data.handle, true)
+	cb({})
+end)
+
+RegisterNUICallback('setEntityInvisible', function(data, cb)
+	NetworkRequestControlOfEntity(data.handle)
+	SetEntityVisible(data.handle, false)
+	cb({})
+end)
+
+RegisterNUICallback('gravityOn', function(data, cb)
+	NetworkRequestControlOfEntity(data.handle)
+	SetEntityHasGravity(data.handle, true)
+	cb({})
+end)
+
+RegisterNUICallback('gravityOff', function(data, cb)
+	NetworkRequestControlOfEntity(data.handle)
+	SetEntityHasGravity(data.handle, false)
+	print('test')
 	cb({})
 end)
 
