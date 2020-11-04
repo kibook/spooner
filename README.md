@@ -6,6 +6,7 @@ Tool for spawning, placing, and removing entities in RedM, inspired by Menyoo's 
 
 - Freecam mode with a variety of options for placing and adjusting entities
 - Searchable lists of peds, vehicles and objects
+- View and set properties of an entity, including attaching entities to one another
 - Save and load sets of entities
 - Import and export sets of entities to share with others or to convert to a permanent map
 
