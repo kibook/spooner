@@ -408,6 +408,8 @@ function updatePropertiesMenu(data) {
 	}
 
 	document.querySelector('#properties-health').value = properties.health;
+
+	document.querySelector('#properties-outfit').value = properties.outfit;
 }
 
 function sendUpdatePropertiesMenuMessage(handle, open) {
@@ -1007,6 +1009,13 @@ window.addEventListener('load', function() {
 	document.querySelector('#properties-clear-ped-tasks-immediately').addEventListener('click', function(event) {
 		sendMessage('clearPedTasksImmediately', {
 			handle: currentEntity()
+		});
+	});
+
+	document.querySelector('#properties-outfit').addEventListener('input', function(event) {
+		sendMessage('setOutfit', {
+			handle: currentEntity(),
+			outfit: parseInt(this.value)
 		});
 	});
 });

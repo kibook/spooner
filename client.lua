@@ -149,6 +149,7 @@ function GetLiveEntityProperties(entity)
 		roll = roll,
 		yaw = yaw,
 		health = GetEntityHealth(entity),
+		outfit = -1,
 		attachment = {
 			to = GetEntityAttachedTo(entity),
 			bone = 0,
@@ -166,6 +167,8 @@ function AddEntityToDatabase(entity, name, attachment)
 	if not entity then
 		return nil
 	end
+
+	local outfit = Database[entity] and Database[entity].outfit or -1
 
 	local attachBone, attachX, attachY, attachZ, attachPitch, attachRoll, attachYaw
 
@@ -192,6 +195,8 @@ function AddEntityToDatabase(entity, name, attachment)
 	if name then
 		Database[entity].name = name
 	end
+
+	Database[entity].outfit = outfit
 
 	Database[entity].attachment.bone = attachBone
 	Database[entity].attachment.x = attachX
@@ -280,11 +285,11 @@ function CreatePed_2(modelHash, x, y, z, heading, isNetwork, thisScriptCheck, p7
 	return Citizen.InvokeNative(0xD49F9B0955C367DE, modelHash, x, y, z, heading, isNetwork, thisScriptCheck, p7, p8)
 end
 
-function SetPedDefaultOutfit(ped, p1)
+function SetRandomOutfitVariation(ped, p1)
 	Citizen.InvokeNative(0x283978A15512B2FE, ped, p1)
 end
 
-function SpawnPed(name, model, x, y, z, pitch, roll, yaw)
+function SpawnPed(name, model, x, y, z, pitch, roll, yaw, outfit)
 	if not IsModelInCdimage(model) then
 		return nil
 	end
@@ -304,7 +309,11 @@ function SpawnPed(name, model, x, y, z, pitch, roll, yaw)
 
 	SetEntityRotation(ped, pitch, roll, yaw, 2)
 
-	SetPedDefaultOutfit(ped, true)
+	if outfit == -1 then
+		SetRandomOutfitVariation(ped, true)
+	else
+		SetPedOutfitPreset(ped, outfit)
+	end
 
 	AddEntityToDatabase(ped, name)
 
@@ -623,7 +632,7 @@ function LoadDatabase(db, relative)
 		end
 
 		if spawn.props.type == 1 then
-			entity = SpawnPed(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw)
+			entity = SpawnPed(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.outfit)
 		elseif spawn.props.type == 2 then
 			entity = SpawnVehicle(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw)
 		else
@@ -751,11 +760,11 @@ RegisterNUICallback('goToEntity', function(data, cb)
 end)
 
 function CloneEntity(entity)
-	local props = GetLiveEntityProperties(entity)
+	local props = GetEntityProperties(entity)
 	local entityType = GetEntityType(entity)
 
 	if entityType == 1 then
-		return SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
+		return SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.outfit)
 	elseif entityType == 2 then
 		return SpawnVehicle(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
 	elseif entityType == 3 then
@@ -798,7 +807,7 @@ function ConvertDatabaseToMapEditorXml(creator, database)
 
 	for entity, properties in pairs(database) do
 		if properties.type == 1 then
-			xml = xml .. string.format('\t<Ped Hash="%s" Position_x="%s" Position_y="%s" Position_z="%s" Rotation_x="%s" Rotation_Y="%s" Rotation_z="%s"/>\n', properties.model, properties.x, properties.y, properties.z, properties.pitch, properties.roll, properties.yaw)
+			xml = xml .. string.format('\t<Ped Hash="%s" Position_x="%s" Position_y="%s" Position_z="%s" Rotation_x="%s" Rotation_Y="%s" Rotation_z="%s" Preset="%d"/>\n', properties.model, properties.x, properties.y, properties.z, properties.pitch, properties.roll, properties.yaw, properties.outfit)
 		elseif properties.type == 2 then
 			xml = xml .. string.format('\t<Vehicle Hash="%s" Position_x="%s" Position_y="%s" Position_z="%s" Rotation_x="%s" Rotation_Y="%s" Rotation_z="%s"/>\n', properties.model, properties.x, properties.y, properties.z, properties.pitch, properties.roll, properties.yaw)
 		else
@@ -989,6 +998,13 @@ RegisterNUICallback('clearPedTasksImmediately', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('setOutfit', function(data, cb)
+	NetworkRequestControlOfEntity(data.handle)
+	SetPedOutfitPreset(data.handle, data.outfit)
+	Database[data.handle].outfit = data.outfit
+	cb({})
+end)
+
 function IsUsingKeyboard(padIndex)
 	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
 end
@@ -1106,7 +1122,7 @@ CreateThread(function()
 					local entity
 
 					if CurrentSpawn.type == 1 then
-						entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2)
+						entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, -1)
 					elseif CurrentSpawn.type == 2 then
 						entity = SpawnVehicle(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2)
 					elseif CurrentSpawn.type == 3 then
