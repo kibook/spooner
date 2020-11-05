@@ -981,8 +981,13 @@ end)
 
 RegisterNUICallback('performScenario', function(data, cb)
 	NetworkRequestControlOfEntity(data.handle)
+	ClearPedTasksImmediately(data.handle)
 	TaskStartScenarioInPlace(data.handle, GetHashKey(data.scenario), -1)
-	ClearTasks = false
+
+	if data.handle == PlayerPedId() then
+		ClearTasks = false
+	end
+
 	cb({})
 end)
 
