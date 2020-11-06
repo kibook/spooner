@@ -427,6 +427,14 @@ function updatePropertiesMenu(data) {
 	document.querySelector('#properties-outfit').value = properties.outfit;
 
 	document.querySelector('#properties-request-control').disabled = data.hasNetworkControl || properties.type == 0;
+
+	if (properties.isInGroup) {
+		document.querySelector('#properties-add-to-group').style.display = 'none';
+		document.querySelector('#properties-remove-from-group').style.display = 'block';
+	} else {
+		document.querySelector('#properties-remove-from-group').style.display = 'none';
+		document.querySelector('#properties-add-to-group').style.display = 'block';
+	}
 }
 
 function sendUpdatePropertiesMenuMessage(handle, open) {
@@ -1033,6 +1041,18 @@ window.addEventListener('load', function() {
 		sendMessage('setOutfit', {
 			handle: currentEntity(),
 			outfit: parseInt(this.value)
+		});
+	});
+
+	document.querySelector('#properties-add-to-group').addEventListener('click', function(event) {
+		sendMessage('addToGroup', {
+			handle: currentEntity()
+		});
+	});
+
+	document.querySelector('#properties-remove-from-group').addEventListener('click', function(event) {
+		sendMessage('removeFromGroup', {
+			handle: currentEntity()
 		});
 	});
 });

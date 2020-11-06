@@ -150,6 +150,7 @@ function GetLiveEntityProperties(entity)
 		yaw = yaw,
 		health = GetEntityHealth(entity),
 		outfit = -1,
+		isInGroup = IsPedGroupMember(entity, GetPlayerGroup(PlayerId())),
 		attachment = {
 			to = GetEntityAttachedTo(entity),
 			bone = 0,
@@ -289,7 +290,7 @@ function SetRandomOutfitVariation(ped, p1)
 	Citizen.InvokeNative(0x283978A15512B2FE, ped, p1)
 end
 
-function SpawnPed(name, model, x, y, z, pitch, roll, yaw, outfit)
+function SpawnPed(name, model, x, y, z, pitch, roll, yaw, outfit, addToGroup)
 	if not IsModelInCdimage(model) then
 		return nil
 	end
@@ -313,6 +314,10 @@ function SpawnPed(name, model, x, y, z, pitch, roll, yaw, outfit)
 		SetRandomOutfitVariation(ped, true)
 	else
 		SetPedOutfitPreset(ped, outfit)
+	end
+
+	if addToGroup then
+		AddToGroup(ped)
 	end
 
 	AddEntityToDatabase(ped, name)
@@ -646,7 +651,7 @@ function LoadDatabase(db, relative)
 		end
 
 		if spawn.props.type == 1 then
-			entity = SpawnPed(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.outfit)
+			entity = SpawnPed(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.outfit, spawn.props.isInGroup)
 		elseif spawn.props.type == 2 then
 			entity = SpawnVehicle(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw)
 		else
@@ -778,7 +783,7 @@ function CloneEntity(entity)
 	local entityType = GetEntityType(entity)
 
 	if entityType == 1 then
-		return SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.outfit)
+		return SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.outfit, props.isInGroup)
 	elseif entityType == 2 then
 		return SpawnVehicle(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
 	elseif entityType == 3 then
@@ -1024,6 +1029,25 @@ RegisterNUICallback('setOutfit', function(data, cb)
 	cb({})
 end)
 
+function AddToGroup(ped)
+	local group = GetPlayerGroup(PlayerId())
+	SetPedAsGroupMember(ped, group)
+	SetGroupSeparationRange(group, -1)
+	SetPedCanTeleportToGroupLeader(ped, group, true)
+end
+
+RegisterNUICallback('addToGroup', function(data, cb)
+	RequestControl(data.handle)
+	AddToGroup(data.handle)
+	cb({})
+end)
+
+RegisterNUICallback('removeFromGroup', function(data, cb)
+	RequestControl(data.handle)
+	RemovePedFromGroup(data.handle)
+	cb({})
+end)
+
 function IsUsingKeyboard(padIndex)
 	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
 end
@@ -1142,7 +1166,7 @@ CreateThread(function()
 					local entity
 
 					if CurrentSpawn.type == 1 then
-						entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, -1)
+						entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, -1, false)
 					elseif CurrentSpawn.type == 2 then
 						entity = SpawnVehicle(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2)
 					elseif CurrentSpawn.type == 3 then
