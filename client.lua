@@ -532,12 +532,22 @@ RegisterNUICallback('invincibleOff', function(data, cb)
 	cb({})
 end)
 
+function PlacePedOnGroundProperly(ped)
+	local x, y, z = table.unpack(GetEntityCoords(ped))
+	local found, groundz, normal = GetGroundZAndNormalFor_3dCoord(x, y, z)
+	if found then
+		SetEntityCoordsNoOffset(ped, x, y, groundz + normal.z, true)
+	end
+end
+
 function PlaceOnGroundProperly(entity)
 	local entityType = GetEntityType(entity)
 
 	local r1 = GetEntityRotation(entity, 2)
 
-	if entityType == 2 then
+	if entityType == 1 then
+		PlacePedOnGroundProperly(entity)
+	elseif entityType == 2 then
 		SetVehicleOnGroundProperly(entity)
 	elseif entityType == 3 then
 		PlaceObjectOnGroundProperly(entity)
