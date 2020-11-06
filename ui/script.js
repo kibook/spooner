@@ -444,7 +444,7 @@ function sendUpdatePropertiesMenuMessage(handle, open) {
 		updatePropertiesMenu(resp);
 
 		if (open) {
-			document.querySelector('#properties-menu').style.display = 'block';
+			document.querySelector('#properties-menu').style.display = 'flex';
 		}
 	});
 }
@@ -1052,6 +1052,18 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#properties-remove-from-group').addEventListener('click', function(event) {
 		sendMessage('removeFromGroup', {
+			handle: currentEntity()
+		});
+	});
+
+	document.querySelector('#properties-collision-on').addEventListener('click', function(event) {
+		sendMessage('collisionOn', {
+			handle: currentEntity()
+		});
+	});
+
+	document.querySelector('#properties-collision-off').addEventListener('click', function(event) {
+		sendMessage('collisionOff', {
 			handle: currentEntity()
 		});
 	});

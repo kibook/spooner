@@ -1058,6 +1058,18 @@ RegisterNUICallback('removeFromGroup', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('collisionOn', function(data, cb)
+	RequestControl(data.handle)
+	SetEntityCollision(data.handle, true, true)
+	cb({})
+end)
+
+RegisterNUICallback('collisionOff', function(data, cb)
+	RequestControl(data.handle)
+	SetEntityCollision(data.handle, false, false)
+	cb({})
+end)
+
 function IsUsingKeyboard(padIndex)
 	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
 end

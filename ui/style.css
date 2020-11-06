@@ -192,6 +192,7 @@ input[type="checkbox"]:checked {
 }
 
 #properties {
+	flex-grow: 1;
 	padding: 0.5vh 0;
 }
 
