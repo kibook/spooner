@@ -33,13 +33,18 @@ button {
 	font-size: 1.1vw;
 }
 
-button:hover, button:focus {
+button:hover:enabled, button:focus:enabled {
 	background-color: rgba(255, 0, 0, 0.5);
 }
 
-button:active {
+button:active:enabled {
 	background-color: white;
 	color: black;
+}
+
+button:disabled {
+	color: #444;
+	border: solid 1px #444;
 }
 
 input {

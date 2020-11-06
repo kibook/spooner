@@ -320,12 +320,25 @@ function SpawnPed(name, model, x, y, z, pitch, roll, yaw, outfit)
 	return ped
 end
 
+function RequestControl(entity)
+	local type = GetEntityType(entity)
+
+	if type < 1 or type > 3 then
+		return
+	end
+
+	while not NetworkHasControlOfEntity(entity) do
+		NetworkRequestControlOfEntity(entity)
+		Wait(0)
+	end
+end
+
 function RemoveEntity(entity)
 	if IsPedAPlayer(entity) then
 		return
 	end
 
-	NetworkRequestControlOfEntity(entity)
+	RequestControl(entity)
 	SetEntityAsMissionEntity(entity, true, true)
 	DeleteEntity(entity)
 
@@ -425,13 +438,13 @@ RegisterNUICallback('removeEntityFromDatabase', function(data, cb)
 end)
 
 RegisterNUICallback('freezeEntity', function(data, cb)
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	FreezeEntityPosition(data.handle, true)
 	cb({})
 end)
 
 RegisterNUICallback('unfreezeEntity', function(data, cb)
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	FreezeEntityPosition(data.handle, false)
 	cb({})
 end)
@@ -441,7 +454,7 @@ RegisterNUICallback('setEntityRotation', function(data, cb)
 	local roll  = data.roll  and data.roll  * 1.0 or 0.0
 	local yaw   = data.yaw   and data.yaw   * 1.0 or 0.0
 
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	SetEntityRotation(data.handle, pitch, roll, yaw, 2)
 
 	cb({})
@@ -452,14 +465,14 @@ RegisterNUICallback('setEntityCoords', function(data, cb)
 	local y = data.y and data.y * 1.0 or 0.0
 	local z = data.z and data.z * 1.0 or 0.0
 
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	SetEntityCoordsNoOffset(data.handle, x, y, z)
 
 	cb({})
 end)
 
 RegisterNUICallback('resetRotation', function(data, cb)
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	SetEntityRotation(data.handle, 0.0, 0.0, 0.0, 2)
 	cb({})
 end)
@@ -497,18 +510,19 @@ RegisterNUICallback('updatePropertiesMenu', function(data, cb)
 	cb({
 		entity = data.handle,
 		properties = json.encode(GetEntityProperties(data.handle)),
-		inDb = EntityIsInDatabase(data.handle)
+		inDb = EntityIsInDatabase(data.handle),
+		hasNetworkControl = NetworkHasControlOfEntity(data.handle)
 	})
 end)
 
 RegisterNUICallback('invincibleOn', function(data, cb)
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	SetEntityInvincible(data.handle, true)
 	cb({})
 end)
 
 RegisterNUICallback('invincibleOff', function(data, cb)
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	SetEntityInvincible(data.handle, false)
 	cb({})
 end)
@@ -535,7 +549,7 @@ RegisterNUICallback('placeEntityHere', function(data, cb)
 
 	local spawnPos, entity, distance = GetInView(x, y, z, pitch, roll, yaw)
 
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	SetEntityCoordsNoOffset(data.handle, spawnPos.x, spawnPos.y, spawnPos.z)
 	PlaceOnGroundProperly(data.handle)
 
@@ -791,13 +805,13 @@ end)
 
 RegisterNUICallback('getIntoVehicle', function(data, cb)
 	DisableSpoonerMode()
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	TaskWarpPedIntoVehicle(PlayerPedId(), data.handle, -1)
 	cb({})
 end)
 
 RegisterNUICallback('repairVehicle', function(data, cb)
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	SetVehicleFixed(data.handle)
 	cb({})
 end)
@@ -855,7 +869,7 @@ RegisterNUICallback('closeImportExportDbWindow', function(data, cb)
 end)
 
 RegisterNUICallback('requestControl', function(data, cb)
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	cb({})
 end)
 
@@ -905,7 +919,7 @@ RegisterNUICallback('attachTo', function(data, cb)
 		yaw = data.yaw and data.yaw * 1.0 or 0.0
 	end
 
-	NetworkRequestControlOfEntity(from)
+	RequestControl(from)
 	AttachEntityToEntity(from, to, data.bone, x, y, z, pitch, roll, yaw, false, false, true, false, 0, true, false, false)
 
 	if EntityIsInDatabase(from) then
@@ -930,7 +944,7 @@ RegisterNUICallback('closeMenu', function(data, cb)
 end)
 
 RegisterNUICallback('detach', function(data, cb)
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	DetachEntity(data.handle, false, true)
 
 	if EntityIsInDatabase(data.handle) then
@@ -950,37 +964,37 @@ RegisterNUICallback('detach', function(data, cb)
 end)
 
 RegisterNUICallback('setEntityHealth', function(data, cb)
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	SetEntityHealth(data.handle, data.health, 0)
 	cb({})
 end)
 
 RegisterNUICallback('setEntityVisible', function(data, cb)
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	SetEntityVisible(data.handle, true)
 	cb({})
 end)
 
 RegisterNUICallback('setEntityInvisible', function(data, cb)
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	SetEntityVisible(data.handle, false)
 	cb({})
 end)
 
 RegisterNUICallback('gravityOn', function(data, cb)
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	SetEntityHasGravity(data.handle, true)
 	cb({})
 end)
 
 RegisterNUICallback('gravityOff', function(data, cb)
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	SetEntityHasGravity(data.handle, false)
 	cb({})
 end)
 
 RegisterNUICallback('performScenario', function(data, cb)
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	ClearPedTasksImmediately(data.handle)
 	TaskStartScenarioInPlace(data.handle, GetHashKey(data.scenario), -1)
 
@@ -992,19 +1006,19 @@ RegisterNUICallback('performScenario', function(data, cb)
 end)
 
 RegisterNUICallback('clearPedTasks', function(data, cb)
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	ClearPedTasks(data.handle)
 	cb({})
 end)
 
 RegisterNUICallback('clearPedTasksImmediately', function(data, cb)
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	ClearPedTasksImmediately(data.handle)
 	cb({})
 end)
 
 RegisterNUICallback('setOutfit', function(data, cb)
-	NetworkRequestControlOfEntity(data.handle)
+	RequestControl(data.handle)
 	SetPedOutfitPreset(data.handle, data.outfit)
 	Database[data.handle].outfit = data.outfit
 	cb({})
@@ -1279,7 +1293,7 @@ CreateThread(function()
 				end
 
 				if AttachedEntity or posChanged or rotChanged then
-					NetworkRequestControlOfEntity(entity)
+					RequestControl(entity)
 
 					if posChanged then
 						SetEntityCoordsNoOffset(entity, ex2, ey2, ez2)

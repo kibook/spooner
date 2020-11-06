@@ -410,6 +410,8 @@ function updatePropertiesMenu(data) {
 	document.querySelector('#properties-health').value = properties.health;
 
 	document.querySelector('#properties-outfit').value = properties.outfit;
+
+	document.querySelector('#properties-request-control').disabled = data.hasNetworkControl || properties.type == 0;
 }
 
 function sendUpdatePropertiesMenuMessage(handle, open) {
