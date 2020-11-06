@@ -113,6 +113,21 @@ function updateSpoonerHud(data) {
 	document.querySelector('#rotate-speed').innerHTML = data.rotateSpeed;
 
 	document.querySelector('#model-name').innerHTML = data.modelName;
+
+	switch(data.entityType) {
+		case 1:
+			document.querySelector('#entity-type').innerHTML = 'Ped';
+			break;
+		case 2:
+			document.querySelector('#entity-type').innerHTML = 'Vehicle';
+			break;
+		case 3:
+			document.querySelector('#entity-type').innerHTML = 'Object';
+			break;
+		default:
+			document.querySelector('#entity-type').innerHTML = 'Entity';
+			break;
+	}
 }
 
 function openSpawnMenu() {

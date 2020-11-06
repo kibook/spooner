@@ -1058,6 +1058,7 @@ CreateThread(function()
 			SendNUIMessage({
 				type = 'updateSpoonerHud',
 				entity = entity,
+				entityType = GetEntityType(entity),
 				modelName = GetModelName(GetEntityModel(entity)),
 				attachedEntity = AttachedEntity,
 				speed = string.format('%.2f', Speed),
