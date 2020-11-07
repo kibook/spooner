@@ -1060,11 +1060,16 @@ RegisterNUICallback('setOutfit', function(data, cb)
 	cb({})
 end)
 
+function BlipAddForEntity(blipHash, entity)
+	return Citizen.InvokeNative(0x23F74C2FDA6E7C61, blipHash, entity)
+end
+
 function AddToGroup(ped)
 	local group = GetPlayerGroup(PlayerId())
 	SetPedAsGroupMember(ped, group)
 	SetGroupSeparationRange(group, -1)
 	SetPedCanTeleportToGroupLeader(ped, group, true)
+	BlipAddForEntity(Config.GroupMemberBlipSprite, ped)
 end
 
 RegisterNUICallback('addToGroup', function(data, cb)
@@ -1076,6 +1081,7 @@ end)
 RegisterNUICallback('removeFromGroup', function(data, cb)
 	RequestControl(data.handle)
 	RemovePedFromGroup(data.handle)
+	RemoveBlip(GetBlipFromEntity(data.handle))
 	cb({})
 end)
 

@@ -54,3 +54,6 @@ Config.AdjustSpeed = 0.01
 
 -- Speed of pitch, roll, yaw adjustments
 Config.RotateSpeed = 1.0
+
+-- Radar blip sprite for group members
+Config.GroupMemberBlipSprite = -214162151
