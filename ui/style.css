@@ -191,7 +191,7 @@ input[type="checkbox"]:checked {
 	content: ": ";
 }
 
-#properties {
+#properties, #ped-options, #vehicle-options {
 	flex-grow: 1;
 	padding: 0.5vh 0;
 }

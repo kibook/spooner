@@ -1018,15 +1018,13 @@ window.addEventListener('load', function() {
 	});
 
 	document.querySelector('#properties-scenario').addEventListener('click', function(event) {
-		closePropertiesMenu(false);
+		document.querySelector('#ped-options-menu').style.display = 'none';
 		document.querySelector('#scenario-menu').style.display = 'flex';
 	});
 
 	document.querySelector('#scenario-menu-close').addEventListener('click', function(event) {
 		document.querySelector('#scenario-menu').style.display = 'none';
-		sendMessage('openPropertiesMenuForEntity', {
-			entity: currentEntity()
-		});
+		document.querySelector('#ped-options-menu').style.display = 'flex';
 	});
 
 	document.querySelector('#scenario-search-filter').addEventListener('input', function(event) {
@@ -1074,5 +1072,25 @@ window.addEventListener('load', function() {
 		sendMessage('collisionOff', {
 			handle: currentEntity()
 		});
+	});
+
+	document.querySelector('#properties-ped-options').addEventListener('click', function(event) {
+		document.querySelector('#properties-menu').style.display = 'none';
+		document.querySelector('#ped-options-menu').style.display = 'flex';
+	});
+
+	document.querySelector('#ped-options-menu-close').addEventListener('click', function(event) {
+		document.querySelector('#ped-options-menu').style.display = 'none';
+		document.querySelector('#properties-menu').style.display = 'flex';
+	});
+
+	document.querySelector('#properties-vehicle-options').addEventListener('click', function(event) {
+		document.querySelector('#properties-menu').style.display = 'none';
+		document.querySelector('#vehicle-options-menu').style.display = 'flex';
+	});
+
+	document.querySelector('#vehicle-options-menu-close').addEventListener('click', function(event) {
+		document.querySelector('#vehicle-options-menu').style.display = 'none';
+		document.querySelector('#properties-menu').style.display = 'flex';
 	});
 });

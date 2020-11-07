@@ -152,11 +152,9 @@
 					<button id="properties-gravity-on">Gravity On</button>
 					<button id="properties-gravity-off">Gravity Off</button>
 				</div>
-				<div class="property vehicle-property">
-					<button id="properties-repair-vehicle">Repair Vehicle</button>
-				</div>
-				<div class="property vehicle-property">
-					<button id="properties-get-in">Get Into Vehicle</button>
+				<div class="property">
+					<button id="properties-collision-on">Collision On</button>
+					<button id="properties-collision-off">Collision Off</button>
 				</div>
 				<div class="property">
 					<button id="properties-clone">Clone</button>
@@ -165,25 +163,10 @@
 					<button id="properties-attach">Attachment Options</button>
 				</div>
 				<div class="property ped-property">
-					<div class="label">Outfit</div>
-					<input type="number" id="properties-outfit" min="-1" step="1">
+					<button id="properties-ped-options">Ped Options</button>
 				</div>
-				<div class="property ped-property">
-					<button id="properties-scenario">Perform Scenario</button>
-				</div>
-				<div class="property ped-property">
-					<button id="properties-clear-ped-tasks">Clear Ped Tasks</button>
-				</div>
-				<div class="property ped-property">
-					<button id="properties-clear-ped-tasks-immediately">Clear Ped Tasks Immediately</button>
-				</div>
-				<div class="property ped-property">
-					<button id="properties-add-to-group">Add to Group</button>
-					<button id="properties-remove-from-group">Remove from Group</button>
-				</div>
-				<div class="property">
-					<button id="properties-collision-on">Collision On</button>
-					<button id="properties-collision-off">Collision Off</button>
+				<div class="property vehicle-property">
+					<button id="properties-vehicle-options">Vehicle Options</button>
 				</div>
 				<div class="property">
 					<button id="properties-request-control">Request Control</button>
@@ -193,6 +176,39 @@
 				</div>
 			</div>
 			<button id="properties-menu-close-btn">Close</button>
+		</div>
+		<div id="ped-options-menu" class="menu">
+			<div id="ped-options">
+				<div class="property">
+					<div class="label">Outfit</div>
+					<input type="number" id="properties-outfit" min="-1" step="1">
+				</div>
+				<div class="property">
+					<button id="properties-scenario">Perform Scenario</button>
+				</div>
+				<div class="property">
+					<button id="properties-clear-ped-tasks">Clear Ped Tasks</button>
+				</div>
+				<div class="property">
+					<button id="properties-clear-ped-tasks-immediately">Clear Ped Tasks Immediately</button>
+				</div>
+				<div class="property">
+					<button id="properties-add-to-group">Add to Group</button>
+					<button id="properties-remove-from-group">Remove from Group</button>
+				</div>
+			</div>
+			<button id="ped-options-menu-close">Back</button>
+		</div>
+		<div id="vehicle-options-menu" class="menu">
+			<div id="vehicle-options">
+				<div class="property">
+					<button id="properties-repair-vehicle">Repair Vehicle</button>
+				</div>
+				<div class="property">
+					<button id="properties-get-in">Get Into Vehicle</button>
+				</div>
+			</div>
+			<button id="vehicle-options-menu-close">Close</button>
 		</div>
 		<div id="scenario-menu" class="menu">
 			<div id="scenario-search">
