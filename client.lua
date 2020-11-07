@@ -1051,7 +1051,11 @@ end)
 RegisterNUICallback('setOutfit', function(data, cb)
 	RequestControl(data.handle)
 	SetPedOutfitPreset(data.handle, data.outfit)
-	Database[data.handle].outfit = data.outfit
+
+	if EntityIsInDatabase(data.handle) then
+		Database[data.handle].outfit = data.outfit
+	end
+
 	cb({})
 end)
 
