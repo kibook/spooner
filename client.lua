@@ -16,6 +16,8 @@ local AdjustMode = -1
 local PlaceOnGround = false
 
 RegisterNetEvent('spooner:toggle')
+RegisterNetEvent('spooner:openDatabaseMenu')
+RegisterNetEvent('spooner:openSaveDbMenu')
 
 function EnableSpoonerMode()
 	if not IsPedUsingAnyScenario(PlayerPedId()) then
@@ -66,11 +68,39 @@ function ToggleSpoonerMode()
 	end
 end
 
+
+function OpenDatabaseMenu()
+	UpdateDatabase()
+	SendNUIMessage({
+		type = 'openDatabase',
+		database = json.encode(Database)
+	})
+	SetNuiFocus(true, true)
+end
+
+function OpenSaveDbMenu()
+	SendNUIMessage({
+		type = 'openSaveLoadDbMenu',
+		databaseNames = json.encode(GetSavedDatabases())
+	})
+	SetNuiFocus(true, true)
+end
+
 RegisterCommand('spooner', function(source, args, raw)
 	TriggerServerEvent('spooner:toggle')
 end, false)
 
+RegisterCommand('spooner_db', function(source, args, raw)
+	TriggerServerEvent('spooner:openDatabaseMenu')
+end, false)
+
+RegisterCommand('spooner_savedb', function(source, args, raw)
+	TriggerServerEvent('spooner:openSaveDbMenu')
+end, false)
+
 AddEventHandler('spooner:toggle', ToggleSpoonerMode)
+AddEventHandler('spooner:openDatabaseMenu', OpenDatabaseMenu)
+AddEventHandler('spooner:openSaveDbMenu', OpenSaveDbMenu)
 
 function DrawText(text, x, y, centred)
 	SetTextScale(0.35, 0.35)
@@ -1119,6 +1149,10 @@ CreateThread(function()
 	while true do
 		Wait(0)
 
+		if not EntityIsInDatabase(PlayerPedId()) then
+			AddEntityToDatabase(PlayerPedId())
+		end
+
 		if IsUsingKeyboard(0) and IsControlJustPressed(0, Config.ToggleControl) then
 			TriggerServerEvent('spooner:toggle')
 		end
@@ -1255,27 +1289,15 @@ CreateThread(function()
 			end
 
 			if IsControlJustReleased(0, Config.DbMenuControl) then
-				UpdateDatabase()
-				SendNUIMessage({
-					type = 'openDatabase',
-					database = json.encode(Database)
-				})
-				SetNuiFocus(true, true)
+				OpenDatabaseMenu()
 			end
 
 			if IsControlJustReleased(0, Config.SaveLoadDbMenuControl) then
-				SendNUIMessage({
-					type = 'openSaveLoadDbMenu',
-					databaseNames = json.encode(GetSavedDatabases())
-				})
-				SetNuiFocus(true, true)
+				OpenSaveDbMenu()
 			end
 
 			if IsControlJustReleased(0, Config.HelpMenuControl) then
-				SendNUIMessage({
-					type = 'openHelpMenu'
-				})
-				SetNuiFocus(true, true)
+				OpenHelpMenu()
 			end
 
 			if IsControlJustPressed(0, Config.RotateModeControl) then
