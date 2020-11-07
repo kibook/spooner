@@ -347,10 +347,11 @@ function RequestControl(entity)
 		return
 	end
 
-	while not NetworkHasControlOfEntity(entity) do
-		NetworkRequestControlOfEntity(entity)
-		Wait(0)
-	end
+	NetworkRequestControlOfEntity(entity)
+
+	--while not NetworkHasControlOfEntity(entity) do
+	--	Wait(0)
+	--end
 end
 
 function RemoveEntity(entity)
