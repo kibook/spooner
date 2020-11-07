@@ -403,6 +403,14 @@ function removeAllFromDatabase() {
 	closeDatabase()
 }
 
+function setFieldIfInactive(id, value) {
+	var field = document.getElementById(id);
+
+	if (document.activeElement != field) {
+		field.value = value;
+	}
+}
+
 function updatePropertiesMenu(data) {
 	var properties = JSON.parse(data.properties);
 
@@ -432,13 +440,13 @@ function updatePropertiesMenu(data) {
 
 	document.querySelector('#properties-model').innerHTML = properties.name;
 
-	document.querySelector('#properties-x').value = properties.x;
-	document.querySelector('#properties-y').value = properties.y;
-	document.querySelector('#properties-z').value = properties.z;
+	setFieldIfInactive('properties-x', properties.x);
+	setFieldIfInactive('properties-y', properties.y);
+	setFieldIfInactive('properties-z', properties.z);
 
-	document.querySelector('#properties-pitch').value = properties.pitch;
-	document.querySelector('#properties-roll').value = properties.roll;
-	document.querySelector('#properties-yaw').value = properties.yaw;
+	setFieldIfInactive('properties-pitch', properties.pitch);
+	setFieldIfInactive('properties-roll', properties.roll);
+	setFieldIfInactive('properties-yaw', properties.yaw);
 
 	if (data.inDb) {
 		document.querySelector('#properties-add-to-db').style.display = 'none';
@@ -448,9 +456,9 @@ function updatePropertiesMenu(data) {
 		document.querySelector('#properties-remove-from-db').style.display = 'none';
 	}
 
-	document.querySelector('#properties-health').value = properties.health;
+	setFieldIfInactive('properties-health', properties.health);
 
-	document.querySelector('#properties-outfit').value = properties.outfit;
+	setFieldIfInactive('properties-outfit', properties.outfit);
 
 	document.querySelector('#properties-request-control').disabled = data.hasNetworkControl || properties.type == 0;
 
