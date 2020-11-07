@@ -1138,4 +1138,10 @@ window.addEventListener('load', function() {
 		document.querySelector('#weapon-menu').style.display = 'none';
 		document.querySelector('#ped-options-menu').style.display = 'flex';
 	});
+
+	document.querySelector('#properties-resurrect-ped').addEventListener('click', function(event) {
+		sendMessage('resurrectPed', {
+			handle: currentEntity()
+		});
+	});
 });

@@ -1139,6 +1139,12 @@ RegisterNUICallback('removeAllWeapons', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('resurrectPed', function(data, cb)
+	RequestControl(data.handle)
+	ResurrectPed(data.handle)
+	cb({})
+end)
+
 function IsUsingKeyboard(padIndex)
 	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
 end
