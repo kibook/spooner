@@ -18,6 +18,7 @@ client_scripts {
 	'vehicles.lua',
 	'objects.lua',
 	'scenarios.lua',
+	'weapons.lua',
 	'client.lua'
 }
 

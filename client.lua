@@ -774,6 +774,7 @@ RegisterNUICallback('init', function(data, cb)
 		vehicles = json.encode(Vehicles),
 		objects = json.encode(Objects),
 		scenarios = json.encode(Scenarios),
+		weapons = json.encode(Weapons),
 		adjustSpeed = AdjustSpeed,
 		rotateSpeed = RotateSpeed
 	})
@@ -1087,6 +1088,18 @@ end)
 RegisterNUICallback('collisionOff', function(data, cb)
 	RequestControl(data.handle)
 	SetEntityCollision(data.handle, false, false)
+	cb({})
+end)
+
+RegisterNUICallback('giveWeapon', function(data, cb)
+	RequestControl(data.handle)
+	GiveWeaponToPed_2(data.handle, GetHashKey(data.weapon), 500, true, false, 0, false, 0.5, 1.0, 0, false, 0.0, false)
+	cb({})
+end)
+
+RegisterNUICallback('removeAllWeapons', function(data, cb)
+	RequestControl(data.handle)
+	RemoveAllPedWeapons(data.handle, true, true)
 	cb({})
 end)
 

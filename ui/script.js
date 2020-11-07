@@ -2,6 +2,7 @@ var peds = [];
 var vehicles = [];
 var objects = [];
 var scenarios = [];
+var weapons = [];
 
 var lastSpawnMenu = -1;
 
@@ -246,6 +247,13 @@ function performScenario(scenario) {
 	});
 }
 
+function giveWeapon(weapon) {
+	sendMessage('giveWeapon', {
+		handle: currentEntity(),
+		weapon: weapon.innerHTML
+	});
+}
+
 function populatePedList(filter) {
 	var pedList = document.querySelector('#ped-list');
 
@@ -320,6 +328,24 @@ function populateScenarioList(filter) {
 				performScenario(this);
 			});
 			scenarioList.appendChild(div);
+		}
+	});
+}
+
+function populateWeaponList(filter) {
+	var weaponList = document.querySelector('#weapon-list');
+
+	weaponList.innerHTML = '';
+
+	weapons.forEach(function(weapon) {
+		if (!filter || filter == '' || scenario.toLowerCase().includes(filter.toLowerCase())) {
+			var div = document.createElement('div');
+			div.className = 'object';
+			div.innerHTML = weapon;
+			div.addEventListener('click', function(event) {
+				giveWeapon(this);
+			});
+			weaponList.appendChild(div);
 		}
 	});
 }
@@ -674,6 +700,9 @@ window.addEventListener('load', function() {
 
 		scenarios = JSON.parse(resp.scenarios);
 		populateScenarioList();
+
+		weapons = JSON.parse(resp.weapons);
+		populateWeaponList();
 
 		document.querySelectorAll('.adjust-speed').forEach(e => e.value = resp.adjustSpeed);
 		document.querySelectorAll('.adjust-input').forEach(e => e.step = resp.adjustSpeed);
@@ -1092,5 +1121,21 @@ window.addEventListener('load', function() {
 	document.querySelector('#vehicle-options-menu-close').addEventListener('click', function(event) {
 		document.querySelector('#vehicle-options-menu').style.display = 'none';
 		document.querySelector('#properties-menu').style.display = 'flex';
+	});
+
+	document.querySelector('#properties-give-weapon').addEventListener('click', function(event) {
+		document.querySelector('#ped-options-menu').style.display = 'none';
+		document.querySelector('#weapon-menu').style.display = 'flex';
+	});
+
+	document.querySelector('#properties-remove-all-weapons').addEventListener('click', function(event) {
+		sendMessage('removeAllWeapons', {
+			handle: currentEntity()
+		});
+	});
+
+	document.querySelector('#weapon-menu-close').addEventListener('click', function(event) {
+		document.querySelector('#weapon-menu').style.display = 'none';
+		document.querySelector('#ped-options-menu').style.display = 'flex';
 	});
 });
