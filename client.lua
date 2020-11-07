@@ -1156,6 +1156,18 @@ RegisterNUICallback('getOnMount', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('engineOn', function(data, cb)
+	RequestControl(data.handle)
+	SetVehicleEngineOn(data.handle, true, true)
+	cb({})
+end)
+
+RegisterNUICallback('engineOff', function(data, cb)
+	RequestControl(data.handle)
+	SetVehicleEngineOn(data.handle, false, true)
+	cb({})
+end)
+
 function IsUsingKeyboard(padIndex)
 	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
 end

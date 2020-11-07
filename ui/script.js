@@ -1153,4 +1153,16 @@ window.addEventListener('load', function() {
 			handle: currentEntity()
 		});
 	});
+
+	document.querySelector('#properties-engine-on').addEventListener('click', function(event) {
+		sendMessage('engineOn', {
+			handle: currentEntity()
+		});
+	});
+
+	document.querySelector('#properties-engine-off').addEventListener('click', function(event) {
+		sendMessage('engineOff', {
+			handle: currentEntity()
+		});
+	});
 });
