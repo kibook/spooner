@@ -1145,6 +1145,17 @@ RegisterNUICallback('resurrectPed', function(data, cb)
 	cb({})
 end)
 
+function SetPedOnMount(ped, mount, seatIndex, p3)
+	Citizen.InvokeNative(0x028F76B6E78246EB, ped, mount, seatIndex, p3)
+end
+
+RegisterNUICallback('getOnMount', function(data, cb)
+	DisableSpoonerMode()
+	RequestControl(data.handle)
+	SetPedOnMount(PlayerPedId(), data.handle, -1, false)
+	cb({})
+end)
+
 function IsUsingKeyboard(padIndex)
 	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
 end

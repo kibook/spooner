@@ -498,6 +498,8 @@ function openPropertiesMenu(data) {
 
 function closePropertiesMenu(loseFocus) {
 	document.querySelector('#properties-menu').style.display = 'none';
+	document.querySelector('#ped-options-menu').style.display = 'none';
+	document.querySelector('#vehicle-options-menu').style.display = 'none';
 
 	clearInterval(propertiesMenuUpdate);
 
@@ -1141,6 +1143,13 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#properties-resurrect-ped').addEventListener('click', function(event) {
 		sendMessage('resurrectPed', {
+			handle: currentEntity()
+		});
+	});
+
+	document.querySelector('#properties-get-on-mount').addEventListener('click', function(event) {
+		closePropertiesMenu(true);
+		sendMessage('getOnMount', {
 			handle: currentEntity()
 		});
 	});
