@@ -435,6 +435,14 @@ function updatePropertiesMenu(data) {
 		document.querySelector('#properties-remove-from-group').style.display = 'none';
 		document.querySelector('#properties-add-to-group').style.display = 'block';
 	}
+
+	if (properties.collision) {
+		document.querySelector('#properties-collision-on').style.display = 'none';
+		document.querySelector('#properties-collision-off').style.display = 'block';
+	} else {
+		document.querySelector('#properties-collision-off').style.display = 'none';
+		document.querySelector('#properties-collision-on').style.display = 'block';
+	}
 }
 
 function sendUpdatePropertiesMenuMessage(handle, open) {

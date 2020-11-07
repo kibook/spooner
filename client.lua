@@ -151,6 +151,7 @@ function GetLiveEntityProperties(entity)
 		health = GetEntityHealth(entity),
 		outfit = -1,
 		isInGroup = IsPedGroupMember(entity, GetPlayerGroup(PlayerId())),
+		collision = not GetEntityCollisionDisabled(entity),
 		attachment = {
 			to = GetEntityAttachedTo(entity),
 			bone = 0,
@@ -230,7 +231,7 @@ function GetEntityProperties(entity)
 	end
 end
 
-function SpawnObject(name, model, x, y, z, pitch, roll, yaw)
+function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collision)
 	if not IsModelInCdimage(model) then
 		return nil
 	end
@@ -252,12 +253,16 @@ function SpawnObject(name, model, x, y, z, pitch, roll, yaw)
 
 	FreezeEntityPosition(object, true)
 
+	if not collision then
+		SetEntityCollision(object, false, false)
+	end
+
 	AddEntityToDatabase(object, name)
 
 	return object
 end
 
-function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw)
+function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collision)
 	if not IsModelInCdimage(model) then
 		return nil
 	end
@@ -277,6 +282,11 @@ function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw)
 
 	SetEntityRotation(veh, pitch, roll, yaw, 2)
 
+	if not collision then
+		FreezeEntityPosition(veh, true)
+		SetEntityCollision(veh, false, false)
+	end
+
 	AddEntityToDatabase(veh, name)
 
 	return veh
@@ -290,7 +300,7 @@ function SetRandomOutfitVariation(ped, p1)
 	Citizen.InvokeNative(0x283978A15512B2FE, ped, p1)
 end
 
-function SpawnPed(name, model, x, y, z, pitch, roll, yaw, outfit, addToGroup)
+function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collision, outfit, addToGroup)
 	if not IsModelInCdimage(model) then
 		return nil
 	end
@@ -309,6 +319,11 @@ function SpawnPed(name, model, x, y, z, pitch, roll, yaw, outfit, addToGroup)
 	end
 
 	SetEntityRotation(ped, pitch, roll, yaw, 2)
+
+	if not collision then
+		FreezeEntityPosition(ped, true)
+		SetEntityCollision(ped, false,false)
+	end
 
 	if outfit == -1 then
 		SetRandomOutfitVariation(ped, true)
@@ -661,11 +676,11 @@ function LoadDatabase(db, relative)
 		end
 
 		if spawn.props.type == 1 then
-			entity = SpawnPed(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.outfit, spawn.props.isInGroup)
+			entity = SpawnPed(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collision, spawn.props.outfit, spawn.props.isInGroup)
 		elseif spawn.props.type == 2 then
-			entity = SpawnVehicle(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw)
+			entity = SpawnVehicle(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collision)
 		else
-			entity = SpawnObject(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw)
+			entity = SpawnObject(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collision)
 		end
 
 		if relative then
@@ -793,11 +808,11 @@ function CloneEntity(entity)
 	local entityType = GetEntityType(entity)
 
 	if entityType == 1 then
-		return SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.outfit, props.isInGroup)
+		return SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collision, props.outfit, props.isInGroup)
 	elseif entityType == 2 then
-		return SpawnVehicle(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
+		return SpawnVehicle(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collision)
 	elseif entityType == 3 then
-		return SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw)
+		return SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collision)
 	else
 		return nil
 	end
@@ -1188,11 +1203,11 @@ CreateThread(function()
 					local entity
 
 					if CurrentSpawn.type == 1 then
-						entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, -1, false)
+						entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, true, -1, false)
 					elseif CurrentSpawn.type == 2 then
-						entity = SpawnVehicle(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2)
+						entity = SpawnVehicle(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, true)
 					elseif CurrentSpawn.type == 3 then
-						entity = SpawnObject(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2)
+						entity = SpawnObject(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, true)
 					end
 
 					PlaceOnGroundProperly(entity)
