@@ -15,6 +15,10 @@
 	color: inherit;
 }
 
+::selection {
+	background-color: #d00;
+}
+
 html, body {
 	background: none;
 	width: 100%;
