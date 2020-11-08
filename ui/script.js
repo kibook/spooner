@@ -421,15 +421,15 @@ function updatePropertiesMenu(data) {
 	switch (properties.type) {
 		case 1:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'ped';
-			document.querySelectorAll('.ped-property').forEach(e => e.disabled = false);
+			document.querySelectorAll('.ped-property *').forEach(e => e.disabled = false);
 			break;
 		case 2:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'vehicle';
-			document.querySelectorAll('.vehicle-property').forEach(e => e.disabled = false);
+			document.querySelectorAll('.vehicle-property *').forEach(e => e.disabled = false);
 			break;
 		case 3:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'object';
-			document.querySelectorAll('.object-property').forEach(e => e.disabled = false);
+			document.querySelectorAll('.object-property *').forEach(e => e.disabled = false);
 			break;
 		default:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'entity';
