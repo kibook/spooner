@@ -1377,7 +1377,11 @@ CreateThread(function()
 				if AttachedEntity then
 					AttachedEntity = nil
 				elseif entity then
-					AttachedEntity = entity
+					if IsEntityAttached(entity) then
+						AttachedEntity = GetEntityAttachedTo(entity)
+					else
+						AttachedEntity = entity
+					end
 				elseif CurrentSpawn then
 					local entity
 
