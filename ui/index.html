@@ -102,7 +102,7 @@
 				<div class="label">Properties for <span id="properties-menu-entity-type"></span></div>
 				<div class="value" id="properties-menu-entity-id"></div>
 			</div>
-			<div id="properties">
+			<div id="properties" class="list">
 				<div class="property">
 					<div class="label">Model</div>
 					<div class="value" id="properties-model"></div>
@@ -169,6 +169,9 @@
 					<button id="properties-vehicle-options">Vehicle Options</button>
 				</div>
 				<div class="property">
+					<button id="properties-lights-options">Light Options</button>
+				</div>
+				<div class="property">
 					<button id="properties-request-control">Request Control</button>
 				</div>
 				<div class="property">
@@ -178,7 +181,7 @@
 			<button id="properties-menu-close-btn">Close</button>
 		</div>
 		<div id="ped-options-menu" class="menu">
-			<div id="ped-options">
+			<div id="ped-options" class="list">
 				<div class="property">
 					<div class="label">Outfit</div>
 					<input type="number" id="properties-outfit" min="-1" step="1">
@@ -219,7 +222,7 @@
 			<button id="weapon-menu-close">Back</button>
 		</div>
 		<div id="vehicle-options-menu" class="menu">
-			<div id="vehicle-options">
+			<div id="vehicle-options" class="list">
 				<div class="property">
 					<button id="properties-repair-vehicle">Repair Vehicle</button>
 				</div>
@@ -265,6 +268,25 @@
 			</div>
 			<textarea id="import-export-content" spellcheck="false"></textarea>
 			<button id="import-export-db-close">Close</button>
+		</div>
+		<div id="lights-options-menu" class="menu">
+			<div id="lights-options" class="list">
+				<div class="property">
+					<div class="label">Intensity</div>
+					<input type="number" id="properties-lights-intensity" min="0" step="1">
+				</div>
+				<div class="property">
+					<div class="label">Colour</div>
+					<input type="number" class="lights-colour" id="properties-lights-red" min="0" max="255" step="1">
+					<input type="number" class="lights-colour" id="properties-lights-green" min="0" max="255" step="1">
+					<input type="number" class="lights-colour" id="properties-lights-blue" min="0" max="255" step="1">
+				</div>
+				<div class="property">
+					<div class="label">Type</div>
+					<input type="number" id="properties-lights-type" min="0" max="20" step="1">
+				</div>
+			</div>
+			<button id="lights-options-menu-close">Back</button>
 		</div>
 		<div id="help-menu">
 			<h1>Object Spooner Help</h1>

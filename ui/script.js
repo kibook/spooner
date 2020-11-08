@@ -414,20 +414,22 @@ function setFieldIfInactive(id, value) {
 function updatePropertiesMenu(data) {
 	var properties = JSON.parse(data.properties);
 
-	document.querySelectorAll('.ped-property').forEach(e => e.style.display = 'none');
-	document.querySelectorAll('.vehicle-property').forEach(e => e.style.display = 'none');
+	document.querySelectorAll('.ped-property *').forEach(e => e.disabled = true);
+	document.querySelectorAll('.vehicle-property *').forEach(e => e.disabled = true);
+	document.querySelectorAll('.object-property *').forEach(e => e.disabled = true);
 
 	switch (properties.type) {
 		case 1:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'ped';
-			document.querySelectorAll('.ped-property').forEach(e => e.style.display = 'block');
+			document.querySelectorAll('.ped-property').forEach(e => e.disabled = false);
 			break;
 		case 2:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'vehicle';
-			document.querySelectorAll('.vehicle-property').forEach(e => e.style.display = 'block');
+			document.querySelectorAll('.vehicle-property').forEach(e => e.disabled = false);
 			break;
 		case 3:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'object';
+			document.querySelectorAll('.object-property').forEach(e => e.disabled = false);
 			break;
 		default:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'entity';
@@ -476,6 +478,34 @@ function updatePropertiesMenu(data) {
 	} else {
 		document.querySelector('#properties-collision-on').style.display = 'none';
 		document.querySelector('#properties-collision-off').style.display = 'block';
+	}
+
+	if (data.inDb && properties.type == 3) {
+		document.querySelector('#properties-lights-options').disabled = false;
+	} else {
+		document.querySelector('#properties-lights-options').disabled = true;
+	}
+
+	if (properties.lightsIntensity) {
+		setFieldIfInactive('properties-lights-intensity', properties.lightsIntensity);
+	} else {
+		setFieldIfInactive('properties-lights-intensity', 0);
+	}
+
+	if (properties.lightsColour) {
+		setFieldIfInactive('properties-lights-red', properties.lightsColour.red);
+		setFieldIfInactive('properties-lights-green', properties.lightsColour.green);
+		setFieldIfInactive('properties-lights-blue', properties.lightsColour.blue);
+	} else {
+		setFieldIfInactive('properties-lights-red', 0);
+		setFieldIfInactive('properties-lights-green', 0);
+		setFieldIfInactive('properties-lights-blue', 0);
+	}
+
+	if (properties.lightsType) {
+		setFieldIfInactive('properties-lights-type', properties.lightsType);
+	} else {
+		setFieldIfInactive('properties-lights-type', 0);
 	}
 }
 
@@ -1171,6 +1201,39 @@ window.addEventListener('load', function() {
 	document.querySelector('#properties-engine-off').addEventListener('click', function(event) {
 		sendMessage('engineOff', {
 			handle: currentEntity()
+		});
+	});
+
+	document.querySelector('#properties-lights-options').addEventListener('click', function(event) {
+		document.querySelector('#properties-menu').style.display = 'none';
+		document.querySelector('#lights-options-menu').style.display = 'flex';
+	});
+
+	document.querySelector('#lights-options-menu-close').addEventListener('click', function(event) {
+		document.querySelector('#lights-options-menu').style.display = 'none';
+		document.querySelector('#properties-menu').style.display = 'flex';
+	});
+
+	document.querySelector('#properties-lights-intensity').addEventListener('input', function(event) {
+		sendMessage('setLightsIntensity', {
+			handle: currentEntity(),
+			intensity: parseFloat(this.value)
+		});
+	});
+
+	document.querySelectorAll('.lights-colour').forEach(e => e.addEventListener('input', function(event) {
+		sendMessage('setLightsColour', {
+			handle: currentEntity(),
+			red: parseFloat(document.querySelector('#properties-lights-red').value),
+			green: parseFloat(document.querySelector('#properties-lights-green').value),
+			blue: parseFloat(document.querySelector('#properties-lights-blue').value)
+		});
+	}));
+
+	document.querySelector('#properties-lights-type').addEventListener('click', function(event) {
+		sendMessage('setLightsType', {
+			handle: currentEntity(),
+			type: parseInt(this.value)
 		});
 	});
 });

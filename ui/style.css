@@ -157,7 +157,7 @@ input[type="checkbox"]:checked {
 
 .list {
 	flex-grow: 1;
-	overflow-y: scroll;
+	overflow-y: auto;
 	padding: 0.5vh 0;
 }
 
@@ -191,11 +191,6 @@ input[type="checkbox"]:checked {
 	content: ": ";
 }
 
-#properties, #ped-options, #vehicle-options {
-	flex-grow: 1;
-	padding: 0.5vh 0;
-}
-
 .property {
 	padding: 0.5vh 0;
 }
@@ -220,10 +215,6 @@ input[type="checkbox"]:checked {
 }
 
 .add-remove-db {
-	display: none;
-}
-
-.vehicle-property {
 	display: none;
 }
 

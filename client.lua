@@ -19,6 +19,38 @@ RegisterNetEvent('spooner:toggle')
 RegisterNetEvent('spooner:openDatabaseMenu')
 RegisterNetEvent('spooner:openSaveDbMenu')
 
+function SetLightsIntensityForEntity(entity, intensity)
+	Citizen.InvokeNative(0x07C0F87AAC57F2E4, entity, intensity)
+end
+
+function SetLightsColorForEntity(entity, red, green, blue)
+	Citizen.InvokeNative(0x6EC2A67962296F49, entity, red, green, blue)
+end
+
+function SetLightsTypeForEntity(entity, type)
+	Citizen.InvokeNative(0xAB72C67163DC4DB4, entity, type)
+end
+
+function CreatePed_2(modelHash, x, y, z, heading, isNetwork, thisScriptCheck, p7, p8)
+	return Citizen.InvokeNative(0xD49F9B0955C367DE, modelHash, x, y, z, heading, isNetwork, thisScriptCheck, p7, p8)
+end
+
+function SetRandomOutfitVariation(ped, p1)
+	Citizen.InvokeNative(0x283978A15512B2FE, ped, p1)
+end
+
+function BlipAddForEntity(blipHash, entity)
+	return Citizen.InvokeNative(0x23F74C2FDA6E7C61, blipHash, entity)
+end
+
+function SetPedOnMount(ped, mount, seatIndex, p3)
+	Citizen.InvokeNative(0x028F76B6E78246EB, ped, mount, seatIndex, p3)
+end
+
+function IsUsingKeyboard(padIndex)
+	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
+end
+
 function EnableSpoonerMode()
 	if not IsPedUsingAnyScenario(PlayerPedId()) then
 		TaskStandStill(PlayerPedId(), -1)
@@ -182,6 +214,9 @@ function GetLiveEntityProperties(entity)
 		outfit = -1,
 		isInGroup = IsPedGroupMember(entity, GetPlayerGroup(PlayerId())),
 		collisionDisabled = GetEntityCollisionDisabled(entity),
+		lightsIntensity = nil,
+		lightsColour = nil,
+		lightsType = nil,
 		attachment = {
 			to = GetEntityAttachedTo(entity),
 			bone = 0,
@@ -203,6 +238,10 @@ function AddEntityToDatabase(entity, name, attachment)
 	local outfit = Database[entity] and Database[entity].outfit or -1
 
 	local attachBone, attachX, attachY, attachZ, attachPitch, attachRoll, attachYaw
+
+	local lightsIntensity = Database[entity] and Database[entity].lightsIntensity or nil
+	local lightsColour = Database[entity] and Database[entity].lightsColour or nil
+	local lightsType = Database[entity] and Database[entity].lightsType or nil
 
 	if attachment then
 		attachBone  = attachment.bone
@@ -238,6 +277,10 @@ function AddEntityToDatabase(entity, name, attachment)
 	Database[entity].attachment.roll = attachRoll
 	Database[entity].attachment.yaw = attachYaw
 
+	Database[entity].lightsIntensity = lightsIntensity
+	Database[entity].lightsColour = lightsColour
+	Database[entity].lightsType = lightsType
+
 	return Database[entity]
 end
 
@@ -261,7 +304,7 @@ function GetEntityProperties(entity)
 	end
 end
 
-function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled)
+function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, lightsIntensity, lightsColour, lightsType)
 	if not IsModelInCdimage(model) then
 		return nil
 	end
@@ -285,6 +328,18 @@ function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled)
 
 	if collisionDisabled then
 		SetEntityCollision(object, false, false)
+	end
+
+	if lightsIntensity then
+		SetLightsIntensityForEntity(object, lightsIntensity)
+	end
+
+	if lightsColour then
+		SetLightsColorForEntity(object, lightsColour.red, lightsColour.green, lightsColour.blue)
+	end
+
+	if lightsType then
+		SetLightsTypeForEntity(object, lightsType)
 	end
 
 	AddEntityToDatabase(object, name)
@@ -320,14 +375,6 @@ function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collisionDisabled)
 	AddEntityToDatabase(veh, name)
 
 	return veh
-end
-
-function CreatePed_2(modelHash, x, y, z, heading, isNetwork, thisScriptCheck, p7, p8)
-	return Citizen.InvokeNative(0xD49F9B0955C367DE, modelHash, x, y, z, heading, isNetwork, thisScriptCheck, p7, p8)
-end
-
-function SetRandomOutfitVariation(ped, p1)
-	Citizen.InvokeNative(0x283978A15512B2FE, ped, p1)
 end
 
 function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, outfit, addToGroup)
@@ -711,7 +758,7 @@ function LoadDatabase(db, relative)
 		elseif spawn.props.type == 2 then
 			entity = SpawnVehicle(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled)
 		else
-			entity = SpawnObject(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled)
+			entity = SpawnObject(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled, spawn.props.lightsIntensity, spawn.props.lightsColour, spawn.props.lightsType)
 		end
 
 		if relative then
@@ -844,7 +891,7 @@ function CloneEntity(entity)
 	elseif entityType == 2 then
 		return SpawnVehicle(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled)
 	elseif entityType == 3 then
-		return SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled)
+		return SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.lightsIntensity, props.lightsColour, props.lightsType)
 	else
 		return nil
 	end
@@ -1090,10 +1137,6 @@ RegisterNUICallback('setOutfit', function(data, cb)
 	cb({})
 end)
 
-function BlipAddForEntity(blipHash, entity)
-	return Citizen.InvokeNative(0x23F74C2FDA6E7C61, blipHash, entity)
-end
-
 function AddToGroup(ped)
 	local group = GetPlayerGroup(PlayerId())
 	SetPedAsGroupMember(ped, group)
@@ -1145,10 +1188,6 @@ RegisterNUICallback('resurrectPed', function(data, cb)
 	cb({})
 end)
 
-function SetPedOnMount(ped, mount, seatIndex, p3)
-	Citizen.InvokeNative(0x028F76B6E78246EB, ped, mount, seatIndex, p3)
-end
-
 RegisterNUICallback('getOnMount', function(data, cb)
 	DisableSpoonerMode()
 	RequestControl(data.handle)
@@ -1168,9 +1207,50 @@ RegisterNUICallback('engineOff', function(data, cb)
 	cb({})
 end)
 
-function IsUsingKeyboard(padIndex)
-	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
-end
+RegisterNUICallback('setLightsIntensity', function(data, cb)
+	local intensity = data.intensity and data.intensity * 1.0 or 0.0
+
+	RequestControl(data.handle)
+	SetLightsIntensityForEntity(data.handle, intensity)
+
+	if EntityIsInDatabase(data.handle) then
+		Database[data.handle].lightsIntensity = intensity
+	end
+
+	cb({})
+end)
+
+RegisterNUICallback('setLightsColour', function(data, cb)
+	local red = data.red and data.red or 0
+	local green = data.green and data.green or 0
+	local blue = data.blue and data.blue or 0
+
+	RequestControl(data.handle)
+	SetLightsColorForEntity(data.handle, red, green, blue)
+
+	if EntityIsInDatabase(data.handle) then
+		Database[data.handle].lightsColour = {
+			red = red,
+			green = green,
+			blue = blue
+		}
+	end
+
+	cb({})
+end)
+
+RegisterNUICallback('setLightsType', function(data, cb)
+	local type = data.type and data.type or 0
+
+	RequestControl(data.handle)
+	SetLightsTypeForEntity(data.handle, type)
+
+	if EntityIsInDatabase(data.handle) then
+		Database[data.handle].lightsType = type
+	end
+
+	cb({})
+end)
 
 CreateThread(function()
 	TriggerEvent('chat:addSuggestion', '/spooner', 'Toggle spooner mode', {})
@@ -1294,7 +1374,7 @@ CreateThread(function()
 					elseif CurrentSpawn.type == 2 then
 						entity = SpawnVehicle(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false)
 					elseif CurrentSpawn.type == 3 then
-						entity = SpawnObject(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false)
+						entity = SpawnObject(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, nil, nil, nil)
 					end
 
 					PlaceOnGroundProperly(entity)
@@ -1326,7 +1406,10 @@ CreateThread(function()
 			end
 
 			if IsControlJustReleased(0, Config.HelpMenuControl) then
-				OpenHelpMenu()
+				SendNUIMessage({
+					type = 'openHelpMenu'
+				})
+				SetNuiFocus(true, true)
 			end
 
 			if IsControlJustPressed(0, Config.RotateModeControl) then
