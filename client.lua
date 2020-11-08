@@ -885,16 +885,25 @@ end)
 function CloneEntity(entity)
 	local props = GetEntityProperties(entity)
 	local entityType = GetEntityType(entity)
+	local clone = nil
 
 	if entityType == 1 then
-		return SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.outfit, props.isInGroup)
+		clone = SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.outfit, props.isInGroup)
 	elseif entityType == 2 then
-		return SpawnVehicle(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled)
+		clone = SpawnVehicle(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled)
 	elseif entityType == 3 then
-		return SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.lightsIntensity, props.lightsColour, props.lightsType)
+		clone = SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.lightsIntensity, props.lightsColour, props.lightsType)
 	else
 		return nil
 	end
+
+	if props.attachment and props.attachment.to ~= 0 then
+		AttachEntityToEntity(clone, props.attachment.to, props.attachment.bone, props.attachment.x, props.attachment.y, props.attachment.z, props.attachment.pitch, props.attachment.roll, props.attachment.yaw, false, false, true, false, 0, true, false, false)
+
+		AddEntityToDatabase(clone, nil, props.attachment)
+	end
+
+	return clone
 end
 
 RegisterNUICallback('cloneEntity', function(data, cb)
