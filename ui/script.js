@@ -1248,4 +1248,16 @@ window.addEventListener('load', function() {
 			handle: currentEntity()
 		});
 	});
+
+	document.querySelector('#properties-ai-on').addEventListener('click', function(event) {
+		sendMessage('aiOn', {
+			handle: currentEntity()
+		});
+	});
+
+	document.querySelector('#properties-ai-off').addEventListener('click', function(event) {
+		sendMessage('aiOff', {
+			handle: currentEntity()
+		});
+	});
 });

@@ -1273,6 +1273,19 @@ RegisterNUICallback('setVehicleLightsOff', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('aiOn', function(data, cb)
+	RequestControl(data.handle)
+	SetBlockingOfNonTemporaryEvents(data.handle, false)
+	cb({})
+end)
+
+RegisterNUICallback('aiOff', function(data, cb)
+	print('test')
+	RequestControl(data.handle)
+	SetBlockingOfNonTemporaryEvents(data.handle, true)
+	cb({})
+end)
+
 CreateThread(function()
 	TriggerEvent('chat:addSuggestion', '/spooner', 'Toggle spooner mode', {})
 
