@@ -1308,9 +1308,9 @@ CreateThread(function()
 				placeOnGround = PlaceOnGround,
 				adjustSpeed = AdjustSpeed,
 				rotateSpeed = RotateSpeed,
-				x = string.format('%.2f', x2),
-				y = string.format('%.2f', y2),
-				z = string.format('%.2f', z2),
+				x = string.format('%.2f', spawnPos.x),
+				y = string.format('%.2f', spawnPos.y),
+				z = string.format('%.2f', spawnPos.z),
 				heading = string.format('%.2f', yaw2)
 			})
 
