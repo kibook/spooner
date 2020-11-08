@@ -1252,6 +1252,18 @@ RegisterNUICallback('setLightsType', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('setVehicleLightsOn', function(data, cb)
+	RequestControl(data.handle)
+	SetVehicleLights(data.handle, false)
+	cb({})
+end)
+
+RegisterNUICallback('setVehicleLightsOff', function(data, cb)
+	RequestControl(data.handle)
+	SetVehicleLights(data.handle, true)
+	cb({})
+end)
+
 CreateThread(function()
 	TriggerEvent('chat:addSuggestion', '/spooner', 'Toggle spooner mode', {})
 

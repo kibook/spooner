@@ -1236,4 +1236,16 @@ window.addEventListener('load', function() {
 			type: parseInt(this.value)
 		});
 	});
+
+	document.querySelector('#properties-vehicle-lights-on').addEventListener('click', function(event) {
+		sendMessage('setVehicleLightsOn', {
+			handle: currentEntity()
+		});
+	});
+
+	document.querySelector('#properties-vehicle-lights-off').addEventListener('click', function(event) {
+		sendMessage('setVehicleLightsOff', {
+			handle: currentEntity()
+		});
+	});
 });
