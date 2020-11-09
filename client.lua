@@ -1287,8 +1287,6 @@ RegisterNUICallback('playAnimation', function(data, cb)
 			Wait(0)
 		end
 
-		ClearPedTasksImmediately(data.handle)
-
 		TaskPlayAnim(data.handle, data.dict, data.anim, speed, speed, duration, flags, playbackRate, false, false, false, '', false)
 	end
 
