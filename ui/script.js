@@ -354,7 +354,7 @@ function populateWeaponList(filter) {
 	weaponList.innerHTML = '';
 
 	weapons.forEach(function(weapon) {
-		if (!filter || filter == '' || scenario.toLowerCase().includes(filter.toLowerCase())) {
+		if (!filter || filter == '' || weapon.toLowerCase().includes(filter.toLowerCase())) {
 			var div = document.createElement('div');
 			div.className = 'object';
 			div.innerHTML = weapon;
@@ -1212,6 +1212,10 @@ window.addEventListener('load', function() {
 	document.querySelector('#properties-give-weapon').addEventListener('click', function(event) {
 		document.querySelector('#ped-options-menu').style.display = 'none';
 		document.querySelector('#weapon-menu').style.display = 'flex';
+	});
+
+	document.querySelector('#weapon-search-filter').addEventListener('input', function(event) {
+		populateWeaponList(this.value);
 	});
 
 	document.querySelector('#properties-remove-all-weapons').addEventListener('click', function(event) {
