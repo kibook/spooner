@@ -1,7 +1,6 @@
 local Cam = nil
 local ShowHud = true
 local Speed = Config.Speed
-local ClearTasks = false
 
 local Database = {}
 
@@ -52,13 +51,6 @@ function IsUsingKeyboard(padIndex)
 end
 
 function EnableSpoonerMode()
-	if not IsPedUsingAnyScenario(PlayerPedId()) then
-		TaskStandStill(PlayerPedId(), -1)
-		ClearTasks = true
-	else
-		ClearTasks = false
-	end
-
 	local x, y, z = table.unpack(GetGameplayCamCoord())
 	local pitch, roll, yaw = table.unpack(GetGameplayCamRot(2))
 	local fov = GetGameplayCamFov()
@@ -74,10 +66,6 @@ function EnableSpoonerMode()
 end
 
 function DisableSpoonerMode()
-	if ClearTasks then
-		ClearPedTasks(PlayerPedId(), true, true)
-	end
-
 	RenderScriptCams(false, true, 500, true, true)
 	SetCamActive(Cam, false)
 	DetachCam(Cam)
@@ -1116,11 +1104,6 @@ RegisterNUICallback('performScenario', function(data, cb)
 	RequestControl(data.handle)
 	ClearPedTasksImmediately(data.handle)
 	TaskStartScenarioInPlace(data.handle, GetHashKey(data.scenario), -1)
-
-	if data.handle == PlayerPedId() then
-		ClearTasks = false
-	end
-
 	cb({})
 end)
 
@@ -1304,10 +1287,6 @@ RegisterNUICallback('playAnimation', function(data, cb)
 		ClearPedTasksImmediately(data.handle)
 
 		TaskPlayAnim(data.handle, data.dict, data.anim, speed, speed, duration, flags, playbackRate, false, false, false, '', false)
-
-		if data.handle == PlayerPedId() then
-			ClearTasks = false
-		end
 	end
 
 	cb({})
@@ -1323,11 +1302,14 @@ CreateThread(function()
 			AddEntityToDatabase(PlayerPedId())
 		end
 
-		if IsUsingKeyboard(0) and IsControlJustPressed(0, Config.ToggleControl) then
+		if IsUsingKeyboard(0) and IsDisabledControlJustPressed(0, Config.ToggleControl) then
 			TriggerServerEvent('spooner:toggle')
 		end
 
 		if Cam then
+			DisableAllControlActions(0)
+			EnableControlAction(0, 0x9720fcee)
+
 			local x1, y1, z1 = table.unpack(GetCamCoord(Cam))
 			local pitch1, roll1, yaw1 = table.unpack(GetCamRot(Cam, 2))
 
@@ -1370,19 +1352,19 @@ CreateThread(function()
 				Speed = Config.MaxSpeed
 			end
 
-			if IsControlPressed(0, Config.IncreaseSpeedControl) then
+			if IsDisabledControlPressed(0, Config.IncreaseSpeedControl) then
 				Speed = Speed + Config.SpeedIncrement
 			end
 
-			if IsControlPressed(0, Config.DecreaseSpeedControl) then
+			if IsDisabledControlPressed(0, Config.DecreaseSpeedControl) then
 				Speed = Speed - Config.SpeedIncrement
 			end
 
-			if IsControlPressed(0, Config.UpControl) then
+			if IsDisabledControlPressed(0, Config.UpControl) then
 				z2 = z2 + Speed
 			end
 
-			if IsControlPressed(0, Config.DownControl) then
+			if IsDisabledControlPressed(0, Config.DownControl) then
 				z2 = z2 - Speed
 			end
 
@@ -1402,27 +1384,27 @@ CreateThread(function()
 			local dx2 = Speed * math.sin(r2)
 			local dy2 = Speed * math.cos(r2)
 
-			if IsControlPressed(0, Config.ForwardControl) then
+			if IsDisabledControlPressed(0, Config.ForwardControl) then
 				x2 = x2 + dx1
 				y2 = y2 + dy1
 			end
 
-			if IsControlPressed(0, Config.BackwardControl) then
+			if IsDisabledControlPressed(0, Config.BackwardControl) then
 				x2 = x2 - dx1
 				y2 = y2 - dy1
 			end
 
-			if IsControlPressed(0, Config.LeftControl) then
+			if IsDisabledControlPressed(0, Config.LeftControl) then
 				x2 = x2 + dx2
 				y2 = y2 + dy2
 			end
 
-			if IsControlPressed(0, Config.RightControl) then
+			if IsDisabledControlPressed(0, Config.RightControl) then
 				x2 = x2 - dx2
 				y2 = y2 - dy2
 			end
 
-			if IsControlJustPressed(0, Config.SpawnSelectControl) then
+			if IsDisabledControlJustPressed(0, Config.SpawnSelectControl) then
 				if AttachedEntity then
 					AttachedEntity = nil
 				elseif entity then
@@ -1446,7 +1428,7 @@ CreateThread(function()
 				end
 			end
 
-			if IsControlJustPressed(0, Config.DeleteControl) and entity then
+			if IsDisabledControlJustPressed(0, Config.DeleteControl) and entity then
 				if AttachedEntity then
 					RemoveEntity(AttachedEntity)
 					AttachedEntity = nil
@@ -1455,41 +1437,41 @@ CreateThread(function()
 				end
 			end
 
-			if IsControlJustReleased(0, Config.ObjectMenuControl) then
+			if IsDisabledControlJustReleased(0, Config.ObjectMenuControl) then
 				SendNUIMessage({
 					type = 'openSpawnMenu'
 				})
 				SetNuiFocus(true, true)
 			end
 
-			if IsControlJustReleased(0, Config.DbMenuControl) then
+			if IsDisabledControlJustReleased(0, Config.DbMenuControl) then
 				OpenDatabaseMenu()
 			end
 
-			if IsControlJustReleased(0, Config.SaveLoadDbMenuControl) then
+			if IsDisabledControlJustReleased(0, Config.SaveLoadDbMenuControl) then
 				OpenSaveDbMenu()
 			end
 
-			if IsControlJustReleased(0, Config.HelpMenuControl) then
+			if IsDisabledControlJustReleased(0, Config.HelpMenuControl) then
 				SendNUIMessage({
 					type = 'openHelpMenu'
 				})
 				SetNuiFocus(true, true)
 			end
 
-			if IsControlJustPressed(0, Config.RotateModeControl) then
+			if IsDisabledControlJustPressed(0, Config.RotateModeControl) then
 				RotateMode = (RotateMode + 1) % 3
 			end
 
-			if IsControlJustPressed(0, Config.AdjustModeControl) then
+			if IsDisabledControlJustPressed(0, Config.AdjustModeControl) then
 				AdjustMode = (AdjustMode + 1) % 5
 			end
 
-			if IsControlJustPressed(0, Config.FreeAdjustModeControl) then
+			if IsDisabledControlJustPressed(0, Config.FreeAdjustModeControl) then
 				AdjustMode = -1
 			end
 
-			if IsControlJustPressed(0, Config.PlaceOnGroundControl) then
+			if IsDisabledControlJustPressed(0, Config.PlaceOnGroundControl) then
 				PlaceOnGround = not PlaceOnGround
 			end
 
@@ -1497,11 +1479,11 @@ CreateThread(function()
 				local posChanged = false
 				local rotChanged = false
 
-				if IsControlJustReleased(0, Config.PropMenuControl) then
+				if IsDisabledControlJustReleased(0, Config.PropMenuControl) then
 					OpenPropertiesMenuForEntity(entity)
 				end
 
-				if IsControlJustPressed(0, Config.CloneControl) then
+				if IsDisabledControlJustPressed(0, Config.CloneControl) then
 					AttachedEntity = CloneEntity(entity)
 				end
 
@@ -1519,7 +1501,7 @@ CreateThread(function()
 				local edx2 = AdjustSpeed * math.sin(r2)
 				local edy2 = AdjustSpeed * math.cos(r2)
 
-				if IsControlPressed(0, Config.RotateLeftControl) then
+				if IsDisabledControlPressed(0, Config.RotateLeftControl) then
 					if RotateMode == 0 then
 						epitch2 = epitch2 + RotateSpeed
 					elseif RotateMode == 1 then
@@ -1531,7 +1513,7 @@ CreateThread(function()
 					rotChanged = true
 				end
 
-				if IsControlPressed(0, Config.RotateRightControl) then
+				if IsDisabledControlPressed(0, Config.RotateRightControl) then
 					if RotateMode == 0 then
 						epitch2 = epitch2 - RotateSpeed
 					elseif RotateMode == 1 then
@@ -1543,35 +1525,35 @@ CreateThread(function()
 					rotChanged = true
 				end
 
-				if IsControlPressed(0, Config.AdjustUpControl) then
+				if IsDisabledControlPressed(0, Config.AdjustUpControl) then
 					ez2 = ez2 + AdjustSpeed
 					posChanged = true
 				end
 
-				if IsControlPressed(0, Config.AdjustDownControl) then
+				if IsDisabledControlPressed(0, Config.AdjustDownControl) then
 					ez2 = ez2 - AdjustSpeed
 					posChanged = true
 				end
 
-				if IsControlPressed(0, Config.AdjustForwardControl) then
+				if IsDisabledControlPressed(0, Config.AdjustForwardControl) then
 					ex2 = ex2 + edx1
 					ey2 = ey2 + edy1
 					posChanged = true
 				end
 
-				if IsControlPressed(0, Config.AdjustBackwardControl) then
+				if IsDisabledControlPressed(0, Config.AdjustBackwardControl) then
 					ex2 = ex2 - edx1
 					ey2 = ey2 - edy1
 					posChanged = true
 				end
 
-				if IsControlPressed(0, Config.AdjustLeftControl) then
+				if IsDisabledControlPressed(0, Config.AdjustLeftControl) then
 					ex2 = ex2 + edx2
 					ey2 = ey2 + edy2
 					posChanged = true
 				end
 
-				if IsControlPressed(0, Config.AdjustRightControl) then
+				if IsDisabledControlPressed(0, Config.AdjustRightControl) then
 					ex2 = ex2 - edx2
 					ey2 = ey2 - edy2
 					posChanged = true
