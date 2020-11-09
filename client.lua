@@ -66,11 +66,14 @@ function EnableSpoonerMode()
 end
 
 function DisableSpoonerMode()
-	RenderScriptCams(false, true, 500, true, true)
-	SetCamActive(Cam, false)
-	DetachCam(Cam)
-	DestroyCam(Cam, true)
-	Cam = nil
+	if Cam then
+		RenderScriptCams(false, true, 500, true, true)
+		SetCamActive(Cam, false)
+		DetachCam(Cam)
+		DestroyCam(Cam, true)
+		Cam = nil
+	end
+
 	AttachedEntity = nil
 
 	SendNUIMessage({
@@ -442,7 +445,7 @@ function RemoveAllFromDatabase()
 end
 
 AddEventHandler('onResourceStop', function(resourceName)
-	if GetCurrentResourceName() == resourceName and Cam then
+	if GetCurrentResourceName() == resourceName then
 		DisableSpoonerMode()
 		--RemoveAllFromDatabase();
 	end
