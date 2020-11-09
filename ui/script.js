@@ -367,30 +367,48 @@ function populateWeaponList(filter) {
 }
 
 function populateAnimationList(filter) {
-	if (!filter || filter.length < 3) {
-		return;
-	}
-
 	var animationList = document.querySelector('#animation-list');
+	var animationMaxResults = parseInt(document.querySelector('#animation-search-max-results').value);
 
 	animationList.innerHTML = '';
+
+	var results = [];
 
 	Object.keys(animations).forEach(function(dict) {
 		animations[dict].forEach(function(anim) {
 			var name = dict + ': ' + anim;
-			if (name.toLowerCase().includes(filter.toLowerCase())) {
-				var div = document.createElement('div');
-				div.className = 'object';
-				div.innerHTML = name;
-				div.setAttribute('data-dict', dict);
-				div.setAttribute('data-anim', anim);
-				div.addEventListener('click', function() {
-					playAnimation(this);
-				});
-				animationList.appendChild(div);
+
+			if (!filter || filter == '' || name.toLowerCase().includes(filter.toLowerCase())) {
+				results.push({
+					name: name,
+					dict: dict,
+					anim: anim
+				})
 			}
 		});
 	});
+
+	results.sort(function(a, b) {
+		if (a.name < b.name) {
+			return -1;
+		}
+		if (a.name > b.name) {
+			return 1;
+		}
+		return 0;
+	});
+
+	for (var i = 0; i < results.length && i < animationMaxResults; ++i) {
+		var div = document.createElement('div');
+		div.className = 'object';
+		div.innerHTML = results[i].name;
+		div.setAttribute('data-dict', results[i].dict);
+		div.setAttribute('data-anim', results[i].anim);
+		div.addEventListener('click', function() {
+			playAnimation(this);
+		});
+		animationList.appendChild(div);
+	}
 }
 
 function deleteEntity(object) {
@@ -1323,5 +1341,9 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#animation-search-filter').addEventListener('input', function(event) {
 		populateAnimationList(this.value);
+	});
+
+	document.querySelector('#animation-search-max-results').addEventListener('input', function(event) {
+		populateAnimationList(document.querySelector('#animation-search-filter').value)
 	});
 });
