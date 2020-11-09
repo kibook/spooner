@@ -852,6 +852,7 @@ RegisterNUICallback('init', function(data, cb)
 		objects = json.encode(Objects),
 		scenarios = json.encode(Scenarios),
 		weapons = json.encode(Weapons),
+		animations = json.encode(Animations),
 		adjustSpeed = AdjustSpeed,
 		rotateSpeed = RotateSpeed
 	})
@@ -1280,9 +1281,35 @@ RegisterNUICallback('aiOn', function(data, cb)
 end)
 
 RegisterNUICallback('aiOff', function(data, cb)
-	print('test')
 	RequestControl(data.handle)
 	SetBlockingOfNonTemporaryEvents(data.handle, true)
+	cb({})
+end)
+
+RegisterNUICallback('playAnimation', function(data, cb)
+	local speed = data.speed and data.speed * 1.0 or 4.0
+	local duration = data.duration and data.duraction or -1
+	local flags = data.flags and data.flags or 1
+	local playbackRate = data.playbackRate and data.playbackRate * 1.0 or 0.0
+
+	RequestControl(data.handle)
+
+	if DoesAnimDictExist(data.dict) then
+		RequestAnimDict(data.dict)
+
+		while not HasAnimDictLoaded(data.dict) do
+			Wait(0)
+		end
+
+		ClearPedTasksImmediately(data.handle)
+
+		TaskPlayAnim(data.handle, data.dict, data.anim, speed, speed, duration, flags, playbackRate, false, false, false, '', false)
+
+		if data.handle == PlayerPedId() then
+			ClearTasks = false
+		end
+	end
+
 	cb({})
 end)
 

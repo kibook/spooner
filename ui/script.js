@@ -3,6 +3,7 @@ var vehicles = [];
 var objects = [];
 var scenarios = [];
 var weapons = [];
+var animations = {};
 
 var lastSpawnMenu = -1;
 
@@ -254,6 +255,21 @@ function giveWeapon(weapon) {
 	});
 }
 
+function playAnimation(animation) {
+	document.querySelectorAll('#animation-list .object').forEach(e => e.className = 'object');
+	animation.className = 'object selected';
+
+	sendMessage('playAnimation', {
+		handle: currentEntity(),
+		dict: animation.getAttribute('data-dict'),
+		anim: animation.getAttribute('data-anim'),
+		speed: parseFloat(document.querySelector('#animation-speed').value),
+		duration: parseInt(document.querySelector('#animation-duration').value),
+		flags: parseInt(document.querySelector('#animation-flags').value),
+		playbackRate: parseFloat(document.querySelector('#animation-playback-rate').value)
+	});
+}
+
 function populatePedList(filter) {
 	var pedList = document.querySelector('#ped-list');
 
@@ -347,6 +363,33 @@ function populateWeaponList(filter) {
 			});
 			weaponList.appendChild(div);
 		}
+	});
+}
+
+function populateAnimationList(filter) {
+	if (!filter || filter.length < 3) {
+		return;
+	}
+
+	var animationList = document.querySelector('#animation-list');
+
+	animationList.innerHTML = '';
+
+	Object.keys(animations).forEach(function(dict) {
+		animations[dict].forEach(function(anim) {
+			var name = dict + ': ' + anim;
+			if (name.toLowerCase().includes(filter.toLowerCase())) {
+				var div = document.createElement('div');
+				div.className = 'object';
+				div.innerHTML = name;
+				div.setAttribute('data-dict', dict);
+				div.setAttribute('data-anim', anim);
+				div.addEventListener('click', function() {
+					playAnimation(this);
+				});
+				animationList.appendChild(div);
+			}
+		});
 	});
 }
 
@@ -743,6 +786,9 @@ window.addEventListener('load', function() {
 
 		weapons = JSON.parse(resp.weapons);
 		populateWeaponList();
+
+		animations = JSON.parse(resp.animations);
+		populateAnimationList();
 
 		document.querySelectorAll('.adjust-speed').forEach(e => e.value = resp.adjustSpeed);
 		document.querySelectorAll('.adjust-input').forEach(e => e.step = resp.adjustSpeed);
@@ -1259,5 +1305,19 @@ window.addEventListener('load', function() {
 		sendMessage('aiOff', {
 			handle: currentEntity()
 		});
+	});
+
+	document.querySelector('#properties-animation').addEventListener('click', function(event) {
+		document.querySelector('#ped-options-menu').style.display = 'none';
+		document.querySelector('#animation-menu').style.display = 'flex';
+	});
+
+	document.querySelector('#animation-menu-close').addEventListener('click', function(event) {
+		document.querySelector('#animation-menu').style.display = 'none';
+		document.querySelector('#ped-options-menu').style.display = 'flex';
+	});
+
+	document.querySelector('#animation-search-filter').addEventListener('input', function(event) {
+		populateAnimationList(this.value);
 	});
 });

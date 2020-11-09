@@ -19,6 +19,7 @@ client_scripts {
 	'objects.lua',
 	'scenarios.lua',
 	'weapons.lua',
+	'animations.lua',
 	'client.lua'
 }
 

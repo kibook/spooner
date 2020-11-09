@@ -194,6 +194,9 @@
 					<button id="properties-scenario">Perform Scenario</button>
 				</div>
 				<div class="property">
+					<button id="properties-animation">Play Animation</button>
+				</div>
+				<div class="property">
 					<button id="properties-clear-ped-tasks">Clear Ped Tasks</button>
 				</div>
 				<div class="property">
@@ -295,6 +298,31 @@
 				</div>
 			</div>
 			<button id="lights-options-menu-close">Back</button>
+		</div>
+		<div id="animation-menu" class="menu">
+			<div id="animation-search">
+				<input type="text" id="animation-search-filter" class="search-filter" value="">
+			</div>
+			<div id="animation-list" class="list"></div>
+			<div id="animation-settings">
+				<div class="property">
+					<div class="label">Speed</div>
+					<input type="number" id="animation-speed" value="4.0">
+				</div>
+				<div class="property">
+					<div class="label">Duration</div>
+					<input type="number" id="animation-duration" value="-1">
+				</div>
+				<div class="property">
+					<div class="label">Flags</div>
+					<input type="number" id="animation-flags" min="0" value="1">
+				</div>
+				<div class="property">
+					<div class="label">Playback Rate</div>
+					<input type="number" id="animation-playback-rate" value="0">
+				</div>
+			</div>
+			<button id="animation-menu-close">Back</button>
 		</div>
 		<div id="help-menu">
 			<h1>Object Spooner Help</h1>
