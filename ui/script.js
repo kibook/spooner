@@ -398,6 +398,8 @@ function populateAnimationList(filter) {
 		return 0;
 	});
 
+	document.getElementById('animation-search-total-results').innerHTML = results.length;
+
 	for (var i = 0; i < results.length && i < animationMaxResults; ++i) {
 		var div = document.createElement('div');
 		div.className = 'object';
