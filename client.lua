@@ -1309,6 +1309,7 @@ CreateThread(function()
 
 		if Cam then
 			DisableAllControlActions(0)
+			EnableControlAction(0, 0x4A903C11)
 			EnableControlAction(0, 0x9720fcee)
 
 			local x1, y1, z1 = table.unpack(GetCamCoord(Cam))
