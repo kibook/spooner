@@ -12,8 +12,11 @@ files {
 
 ui_page 'ui/index.html'
 
+shared_scripts {
+	'config.lua'
+}
+
 client_scripts {
-	'config.lua',
 	'peds.lua',
 	'vehicles.lua',
 	'objects.lua',

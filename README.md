@@ -9,24 +9,44 @@ Tool for spawning, placing, and removing entities in RedM, inspired by Menyoo's 
 - View and set properties of an entity, including attaching entities to one another
 - Save and load sets of entities
 - Import and export sets of entities to share with others or to convert to a permanent map
+- Permissions system for controlling access to individual features
 
 # Example
 
 [![Object Spooner Example](https://i.imgur.com/foLmX9rm.jpg)](https://imgur.com/foLmX9r)
 
-# Configuration
+# Install
 
-After installing, you must allow access to the spooner with:
+1. Place in the resources directory.
+
+2. Add the following to server.cfg:
+
+   ```
+	 exec path/to/spooner/permissions.cfg
+	 ensure spooner
+	 ```
+
+	 The path to permissions.cfg depends on where in the resources directory the resource is installed.
+
+The default permissions give full access to the object spooner to all players. You can limit which players can use the spooner or what parts they can access by modifying `permissions.cfg`.
+
+For example:
 
 ```
-add_ace <principal> spooner allow
+add_ace builtin.everyone spooner.view allow
+add_ace builtin.everyone spooner.spawn allow
+add_ace builtin.everyone spooner.modify.own allow
+add_ace builtin.everyone spooner.delete.own allow
+add_ace builtin.everyone spooner.properties allow
+
+add_ace group.admin spooner.noEntityLimit allow
+add_ace group.admin spooner.modify.other allow
+add_ace group.admin spooner.delete.other allow
 ```
 
-For example, to allow all players to use the spooner:
+The above configuration would allow all users to spawn a limited number of entities, and only modify or delete the objects they spawn, while an admin can spawn any number of entities and modify or delete other players' entities.
 
-```
-add_ace builtin.everyone spooner allow
-```
+If you need to change any permissions while the server is running, after adding/removing any spooner-related aces, run `spooner_refresh_perms` to refresh the permissions on all clients, or restart the resource.
 
 # Usage
 

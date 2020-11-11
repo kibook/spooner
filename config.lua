@@ -57,3 +57,6 @@ Config.RotateSpeed = 1.0
 
 -- Radar blip sprite for group members
 Config.GroupMemberBlipSprite = -214162151
+
+-- Max entities that can be spawned at a time by players without spooner.noEntityLimit
+Config.MaxEntities = 10

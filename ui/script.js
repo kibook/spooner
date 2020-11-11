@@ -476,10 +476,53 @@ function setFieldIfInactive(id, value) {
 
 function updatePropertiesMenu(data) {
 	var properties = JSON.parse(data.properties);
+	var permissions = JSON.parse(data.permissions);
 
 	document.querySelectorAll('.ped-property *').forEach(e => e.disabled = true);
 	document.querySelectorAll('.vehicle-property *').forEach(e => e.disabled = true);
 	document.querySelectorAll('.object-property *').forEach(e => e.disabled = true);
+
+	document.querySelector('#properties-freeze').disabled = !permissions.properties.freeze;
+	document.querySelector('#properties-unfreeze').disabled = !permissions.properties.freeze;
+	document.querySelector('#properties-x').disabled = !permissions.properties.position;
+	document.querySelector('#properties-y').disabled = !permissions.properties.position;
+	document.querySelector('#properties-z').disabled = !permissions.properties.position;
+	document.querySelector('#properties-place-here').disabled = !permissions.properties.position;
+	document.querySelector('#properties-goto').disabled = !permissions.properties.goTo;
+	document.querySelector('#properties-pitch').disabled = !permissions.properties.rotation;
+	document.querySelector('#properties-roll').disabled = !permissions.properties.rotation;
+	document.querySelector('#properties-yaw').disabled = !permissions.properties.rotation;
+	document.querySelector('#properties-reset-rotation').disabled = !permissions.properties.rotation;
+	document.querySelector('#properties-health').disabled = !permissions.properties.health;
+	document.querySelector('#properties-invincible-on').disabled = !permissions.properties.invincible;
+	document.querySelector('#properties-invincible-off').disabled = !permissions.properties.invincible;
+	document.querySelector('#properties-visible').disabled = !permissions.properties.visible;
+	document.querySelector('#properties-invisible').disabled = !permissions.properties.visible;
+	document.querySelector('#properties-gravity-on').disabled = !permissions.properties.gravity;
+	document.querySelector('#properties-gravity-off').disabled = !permissions.properties.gravity;
+	document.querySelector('#properties-collision-off').disabled = !permissions.properties.collision;
+	document.querySelector('#properties-collision-on').disabled = !permissions.properties.collision;
+	document.querySelector('#properties-clone').disabled = !permissions.spawn;
+	document.querySelector('#properties-attach').disabled = !permissions.properties.attachments;
+	document.querySelector('#properties-outfit').disabled = !permissions.properties.ped.outfit;
+	document.querySelector('#properties-add-to-group').disabled = !permissions.properties.ped.group;
+	document.querySelector('#properties-remove-from-group').disabled = !permissions.properties.ped.group;
+	document.querySelector('#properties-scenario').disabled = !permissions.properties.ped.scenario;
+	document.querySelector('#properties-animation').disabled = !permissions.properties.ped.animation;
+	document.querySelector('#properties-clear-ped-tasks').disabled = !permissions.properties.ped.clearTasks;
+	document.querySelector('#properties-clear-ped-tasks-immediately').disabled = !permissions.properties.ped.clearTasks;
+	document.querySelector('#properties-give-weapon').disabled = !permissions.properties.ped.weapon;
+	document.querySelector('#properties-remove-all-weapons').disabled = !permissions.properties.ped.weapon;
+	document.querySelector('#properties-get-on-mount').disabled = !permissions.properties.ped.mount;
+	document.querySelector('#properties-resurrect-ped').disabled = !permissions.properties.ped.resurrect;
+	document.querySelector('#properties-ai-on').disabled = !permissions.properties.ped.ai;
+	document.querySelector('#properties-ai-off').disabled = !permissions.properties.ped.ai;
+	document.querySelector('#properties-repair-vehicle').disabled = !permissions.properties.vehicle.repair;
+	document.querySelector('#properties-get-in').disabled = !permissions.properties.vehicle.getin
+	document.querySelector('#properties-engine-on').disabled = !permissions.properties.vehicle.engine
+	document.querySelector('#properties-engine-off').disabled = !permissions.properties.vehicle.engine
+	document.querySelector('#properties-vehicle-lights-on').disabled = !permissions.properties.vehicle.lights;
+	document.querySelector('#properties-vehicle-lights-off').disabled = !permissions.properties.vehicle.lights;
 
 	switch (properties.type) {
 		case 1:

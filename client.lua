@@ -14,9 +14,47 @@ local AdjustMode = -1
 
 local PlaceOnGround = false
 
+local Permissions = {}
+Permissions.maxEntities = 0
+Permissions.spawn = false
+Permissions.deleteOwn = false
+Permissions.deleteOther = false
+Permissions.modifyOwn = false
+Permissions.modifyOther = false
+Permissions.properties = {}
+Permissions.properties.freeze = false
+Permissions.properties.position = false
+Permissions.properties.goTo = false
+Permissions.properties.rotation = false
+Permissions.properties.health = false
+Permissions.properties.invincible = false
+Permissions.properties.visible = false
+Permissions.properties.gravity = false
+Permissions.properties.collision = false
+Permissions.properties.attachments = false
+Permissions.properties.ped = {}
+Permissions.properties.ped.outfit = false
+Permissions.properties.ped.group = false
+Permissions.properties.ped.scenario = false
+Permissions.properties.ped.animation = false
+Permissions.properties.ped.clearTasks = false
+Permissions.properties.ped.weapon = false
+Permissions.properties.ped.mount = false
+Permissions.properties.ped.resurrect = false
+Permissions.properties.ped.ai = false
+Permissions.properties.vehicle = {}
+Permissions.properties.vehicle.repair = false
+Permissions.properties.vehicle.getin = false
+Permissions.properties.vehicle.engine = false
+Permissions.properties.vehicle.lights = false
+Permissions.properties.lights = false
+
+
+RegisterNetEvent('spooner:init')
 RegisterNetEvent('spooner:toggle')
 RegisterNetEvent('spooner:openDatabaseMenu')
 RegisterNetEvent('spooner:openSaveDbMenu')
+RegisterNetEvent('spooner:refreshPermissions')
 
 function SetLightsIntensityForEntity(entity, intensity)
 	Citizen.InvokeNative(0x07C0F87AAC57F2E4, entity, intensity)
@@ -124,6 +162,14 @@ end, false)
 AddEventHandler('spooner:toggle', ToggleSpoonerMode)
 AddEventHandler('spooner:openDatabaseMenu', OpenDatabaseMenu)
 AddEventHandler('spooner:openSaveDbMenu', OpenSaveDbMenu)
+
+AddEventHandler('spooner:init', function(permissions)
+	Permissions = permissions
+end)
+
+AddEventHandler('spooner:refreshPermissions', function()
+	TriggerServerEvent('spooner:init')
+end)
 
 function DrawText(text, x, y, centred)
 	SetTextScale(0.35, 0.35)
@@ -308,7 +354,29 @@ function GetEntityProperties(entity)
 	end
 end
 
+function GetDatabaseSize()
+	local n = 0
+
+	for entity, props in pairs(Database) do
+		n = n + 1
+	end
+
+	return n
+end
+
+function IsDatabaseFull()
+	return Permissions.maxEntities and GetDatabaseSize() >= Permissions.maxEntities
+end
+
 function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, lightsIntensity, lightsColour, lightsType)
+	if not Permissions.spawn then
+		return nil
+	end
+
+	if IsDatabaseFull() then
+		return nil
+	end
+
 	if not IsModelInCdimage(model) then
 		return nil
 	end
@@ -352,6 +420,14 @@ function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, 
 end
 
 function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collisionDisabled)
+	if not Permissions.spawn then
+		return nil
+	end
+
+	if IsDatabaseFull() then
+		return nil
+	end
+
 	if not IsModelInCdimage(model) then
 		return nil
 	end
@@ -382,6 +458,14 @@ function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collisionDisabled)
 end
 
 function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, outfit, addToGroup, animation, scenario, blockNonTemporaryEvents)
+	if not Permissions.spawn then
+		return nil
+	end
+
+	if IsDatabaseFull() then
+		return nil
+	end
+
 	if not IsModelInCdimage(model) then
 		return nil
 	end
@@ -460,7 +544,19 @@ function RequestControl(entity)
 	--end
 end
 
+function CanDeleteEntity(entity)
+	if EntityIsInDatabase(entity) then
+		return Permissions.deleteOwn
+	else
+		return Permissions.deleteOther
+	end
+end
+
 function RemoveEntity(entity)
+	if not CanDeleteEntity(entity) then
+		return
+	end
+
 	if IsPedAPlayer(entity) then
 		return
 	end
@@ -560,7 +656,9 @@ RegisterNUICallback('addEntityToDatabase', function(data, cb)
 end)
 
 RegisterNUICallback('removeEntityFromDatabase', function(data, cb)
-	RemoveEntityFromDatabase(data.handle)
+	if not Permissions.maxEntities and Permissions.modifyOther then
+		RemoveEntityFromDatabase(data.handle)
+	end
 	cb({})
 end)
 
@@ -620,7 +718,20 @@ function UpdateDatabase()
 	end
 end
 
+function CanModifyEntity(entity)
+	if EntityIsInDatabase(entity) then
+		return Permissions.modifyOwn
+	else
+		return Permissions.modifyOther
+	end
+end
+
 function OpenPropertiesMenuForEntity(entity)
+	if not CanModifyEntity(entity) then
+		SetNuiFocus(false, false)
+		return
+	end
+
 	SendNUIMessage({
 		type = 'openPropertiesMenu',
 		entity = entity
@@ -638,19 +749,24 @@ RegisterNUICallback('updatePropertiesMenu', function(data, cb)
 		entity = data.handle,
 		properties = json.encode(GetEntityProperties(data.handle)),
 		inDb = EntityIsInDatabase(data.handle),
-		hasNetworkControl = NetworkHasControlOfEntity(data.handle)
+		hasNetworkControl = NetworkHasControlOfEntity(data.handle),
+		permissions = json.encode(Permissions)
 	})
 end)
 
 RegisterNUICallback('invincibleOn', function(data, cb)
-	RequestControl(data.handle)
-	SetEntityInvincible(data.handle, true)
+	if Permissions.properties.invincible then
+		RequestControl(data.handle)
+		SetEntityInvincible(data.handle, true)
+	end
 	cb({})
 end)
 
 RegisterNUICallback('invincibleOff', function(data, cb)
-	RequestControl(data.handle)
-	SetEntityInvincible(data.handle, false)
+	if Permissions.properties.invincible then
+		RequestControl(data.handle)
+		SetEntityInvincible(data.handle, false)
+	end
 	cb({})
 end)
 
@@ -906,9 +1022,11 @@ function TeleportToCoords(x, y, z, h)
 end
 
 RegisterNUICallback('goToEntity', function(data, cb)
-	DisableSpoonerMode()
-	local x, y, z = table.unpack(GetEntityCoords(data.handle))
-	TeleportToCoords(x, y, z, 0.0)
+	if Permissions.properties.goTo then
+		DisableSpoonerMode()
+		local x, y, z = table.unpack(GetEntityCoords(data.handle))
+		TeleportToCoords(x, y, z, 0.0)
+	end
 	cb({})
 end)
 
@@ -937,10 +1055,12 @@ function CloneEntity(entity)
 end
 
 RegisterNUICallback('cloneEntity', function(data, cb)
-	local clone = CloneEntity(data.handle)
+	if Permissions.spawn then
+		local clone = CloneEntity(data.handle)
 
-	if clone then
-		OpenPropertiesMenuForEntity(clone)
+		if clone then
+			OpenPropertiesMenuForEntity(clone)
+		end
 	end
 
 	cb({})
@@ -959,8 +1079,10 @@ RegisterNUICallback('getIntoVehicle', function(data, cb)
 end)
 
 RegisterNUICallback('repairVehicle', function(data, cb)
-	RequestControl(data.handle)
-	SetVehicleFixed(data.handle)
+	if Permissions.properties.vehicle.repair then
+		RequestControl(data.handle)
+		SetVehicleFixed(data.handle)
+	end
 	cb({})
 end)
 
@@ -1030,57 +1152,59 @@ RegisterNUICallback('getDatabase', function(data, cb)
 end)
 
 RegisterNUICallback('attachTo', function(data, cb)
-	local from = data.from
-	local to = data.to
+	if Permissions.properties.attachments then
+		local from = data.from
+		local to = data.to
 
-	if not to then
-		local props = GetEntityProperties(from)
+		if not to then
+			local props = GetEntityProperties(from)
 
-		if props.attachment.to ~= 0 then
-			to = props.attachment.to
-		else
-			cb({})
-			return
+			if props.attachment.to ~= 0 then
+				to = props.attachment.to
+			else
+				cb({})
+				return
+			end
 		end
-	end
 
-	local x, y, z, pitch, roll, yaw
+		local x, y, z, pitch, roll, yaw
 
-	if data.keepPos then
-		local x1, y1, z1 = table.unpack(GetEntityCoords(from))
-		local x2, y2, z2 = table.unpack(GetEntityCoords(to))
-		local rot = GetEntityRotation(from, 2)
+		if data.keepPos then
+			local x1, y1, z1 = table.unpack(GetEntityCoords(from))
+			local x2, y2, z2 = table.unpack(GetEntityCoords(to))
+			local rot = GetEntityRotation(from, 2)
 
-		x = x1 - x2
-		y = y1 - y2
-		z = z1 - z2
+			x = x1 - x2
+			y = y1 - y2
+			z = z1 - z2
 
-		pitch = rot.x
-		roll = rot.y
-		yaw = rot.z
-	else
-		x = data.x and data.x * 1.0 or 0.0
-		y = data.y and data.y * 1.0 or 0.0
-		z = data.z and data.z * 1.0 or 0.0
-		pitch = data.pitch and data.pitch * 1.0 or 0.0
-		roll = data.roll and data.roll * 1.0 or 0.0
-		yaw = data.yaw and data.yaw * 1.0 or 0.0
-	end
+			pitch = rot.x
+			roll = rot.y
+			yaw = rot.z
+		else
+			x = data.x and data.x * 1.0 or 0.0
+			y = data.y and data.y * 1.0 or 0.0
+			z = data.z and data.z * 1.0 or 0.0
+			pitch = data.pitch and data.pitch * 1.0 or 0.0
+			roll = data.roll and data.roll * 1.0 or 0.0
+			yaw = data.yaw and data.yaw * 1.0 or 0.0
+		end
 
-	RequestControl(from)
-	AttachEntityToEntity(from, to, data.bone, x, y, z, pitch, roll, yaw, false, false, true, false, 0, true, false, false)
+		RequestControl(from)
+		AttachEntityToEntity(from, to, data.bone, x, y, z, pitch, roll, yaw, false, false, true, false, 0, true, false, false)
 
-	if EntityIsInDatabase(from) then
-		AddEntityToDatabase(from, nil, {
-			to = to,
-			bone = data.bone,
-			x = x,
-			y = y,
-			z = z,
-			pitch = pitch,
-			roll = roll,
-			yaw = yaw
-		})
+		if EntityIsInDatabase(from) then
+			AddEntityToDatabase(from, nil, {
+				to = to,
+				bone = data.bone,
+				x = x,
+				y = y,
+				z = z,
+				pitch = pitch,
+				roll = roll,
+				yaw = yaw
+			})
+		end
 	end
 
 	cb({})
@@ -1092,98 +1216,118 @@ RegisterNUICallback('closeMenu', function(data, cb)
 end)
 
 RegisterNUICallback('detach', function(data, cb)
-	RequestControl(data.handle)
-	DetachEntity(data.handle, false, true)
+	if Permissions.properties.attachments then
+		RequestControl(data.handle)
+		DetachEntity(data.handle, false, true)
 
-	if EntityIsInDatabase(data.handle) then
-		AddEntityToDatabase(data.handle, nil, {
-			to = 0,
-			bone = 0,
-			x = 0.0,
-			y = 0.0,
-			z = 0.0,
-			pitch = 0.0,
-			roll = 0.0,
-			yaw = 0.0
-		})
+		if EntityIsInDatabase(data.handle) then
+			AddEntityToDatabase(data.handle, nil, {
+				to = 0,
+				bone = 0,
+				x = 0.0,
+				y = 0.0,
+				z = 0.0,
+				pitch = 0.0,
+				roll = 0.0,
+				yaw = 0.0
+			})
+		end
 	end
 
 	cb({})
 end)
 
 RegisterNUICallback('setEntityHealth', function(data, cb)
-	RequestControl(data.handle)
-	SetEntityHealth(data.handle, data.health, 0)
+	if Permissions.properties.health then
+		RequestControl(data.handle)
+		SetEntityHealth(data.handle, data.health, 0)
+	end
 	cb({})
 end)
 
 RegisterNUICallback('setEntityVisible', function(data, cb)
-	RequestControl(data.handle)
-	SetEntityVisible(data.handle, true)
+	if Permissions.properties.visible then
+		RequestControl(data.handle)
+		SetEntityVisible(data.handle, true)
+	end
 	cb({})
 end)
 
 RegisterNUICallback('setEntityInvisible', function(data, cb)
-	RequestControl(data.handle)
-	SetEntityVisible(data.handle, false)
+	if Permissions.properties.visible then
+		RequestControl(data.handle)
+		SetEntityVisible(data.handle, false)
+	end
 	cb({})
 end)
 
 RegisterNUICallback('gravityOn', function(data, cb)
-	RequestControl(data.handle)
-	SetEntityHasGravity(data.handle, true)
+	if Permissions.properties.gravity then
+		RequestControl(data.handle)
+		SetEntityHasGravity(data.handle, true)
+	end
 	cb({})
 end)
 
 RegisterNUICallback('gravityOff', function(data, cb)
-	RequestControl(data.handle)
-	SetEntityHasGravity(data.handle, false)
+	if Permissions.properties.gravity then
+		RequestControl(data.handle)
+		SetEntityHasGravity(data.handle, false)
+	end
 	cb({})
 end)
 
 RegisterNUICallback('performScenario', function(data, cb)
-	RequestControl(data.handle)
-	ClearPedTasksImmediately(data.handle)
-	TaskStartScenarioInPlace(data.handle, GetHashKey(data.scenario), -1)
+	if Permissions.properties.ped.scenario then
+		RequestControl(data.handle)
+		ClearPedTasksImmediately(data.handle)
+		TaskStartScenarioInPlace(data.handle, GetHashKey(data.scenario), -1)
 
-	if Database[data.handle] then
-		Database[data.handle].animation = nil
-		Database[data.handle].scenario = data.scenario
+		if Database[data.handle] then
+			Database[data.handle].animation = nil
+			Database[data.handle].scenario = data.scenario
+		end
 	end
 
 	cb({})
 end)
 
 RegisterNUICallback('clearPedTasks', function(data, cb)
-	RequestControl(data.handle)
-	ClearPedTasks(data.handle)
+	if Permissions.properties.ped.clearTasks then
+		RequestControl(data.handle)
+		ClearPedTasks(data.handle)
 
-	if Database[data.handle] then
-		Database[data.handle].scenario = nil
-		Database[data.handle].animation = nil
+		if Database[data.handle] then
+			Database[data.handle].scenario = nil
+			Database[data.handle].animation = nil
+		end
 	end
 
 	cb({})
 end)
 
 RegisterNUICallback('clearPedTasksImmediately', function(data, cb)
-	RequestControl(data.handle)
-	ClearPedTasksImmediately(data.handle)
+	if Permissions.properties.ped.clearTasks then
+		RequestControl(data.handle)
+		ClearPedTasksImmediately(data.handle)
 
-	if Database[data.handle] then
-		Database[data.handle].scenario = nil
-		Database[data.handle].animation = nil
+		if Database[data.handle] then
+			Database[data.handle].scenario = nil
+			Database[data.handle].animation = nil
+		end
 	end
 
 	cb({})
 end)
 
 RegisterNUICallback('setOutfit', function(data, cb)
-	RequestControl(data.handle)
-	SetPedOutfitPreset(data.handle, data.outfit)
+	if Permissions.properties.ped.outfit then
+		RequestControl(data.handle)
+		SetPedOutfitPreset(data.handle, data.outfit)
 
-	if EntityIsInDatabase(data.handle) then
-		Database[data.handle].outfit = data.outfit
+		if EntityIsInDatabase(data.handle) then
+			Database[data.handle].outfit = data.outfit
+		end
 	end
 
 	cb({})
@@ -1198,52 +1342,68 @@ function AddToGroup(ped)
 end
 
 RegisterNUICallback('addToGroup', function(data, cb)
-	RequestControl(data.handle)
-	AddToGroup(data.handle)
+	if Permissions.properties.ped.group then
+		RequestControl(data.handle)
+		AddToGroup(data.handle)
+	end
 	cb({})
 end)
 
 RegisterNUICallback('removeFromGroup', function(data, cb)
-	RequestControl(data.handle)
-	RemovePedFromGroup(data.handle)
-	RemoveBlip(GetBlipFromEntity(data.handle))
+	if Permissions.properties.ped.group then
+		RequestControl(data.handle)
+		RemovePedFromGroup(data.handle)
+		RemoveBlip(GetBlipFromEntity(data.handle))
+	end
 	cb({})
 end)
 
 RegisterNUICallback('collisionOn', function(data, cb)
-	RequestControl(data.handle)
-	SetEntityCollision(data.handle, true, true)
+	if Permissions.properties.collision then
+		RequestControl(data.handle)
+		SetEntityCollision(data.handle, true, true)
+	end
 	cb({})
 end)
 
 RegisterNUICallback('collisionOff', function(data, cb)
-	RequestControl(data.handle)
-	SetEntityCollision(data.handle, false, false)
+	if Permissions.properties.collision then
+		RequestControl(data.handle)
+		SetEntityCollision(data.handle, false, false)
+	end
 	cb({})
 end)
 
 RegisterNUICallback('giveWeapon', function(data, cb)
-	RequestControl(data.handle)
-	GiveWeaponToPed_2(data.handle, GetHashKey(data.weapon), 500, true, false, 0, false, 0.5, 1.0, 0, false, 0.0, false)
+	if Permissions.properties.ped.weapon then
+		RequestControl(data.handle)
+		GiveWeaponToPed_2(data.handle, GetHashKey(data.weapon), 500, true, false, 0, false, 0.5, 1.0, 0, false, 0.0, false)
+	end
 	cb({})
 end)
 
 RegisterNUICallback('removeAllWeapons', function(data, cb)
-	RequestControl(data.handle)
-	RemoveAllPedWeapons(data.handle, true, true)
+	if Permissions.properties.ped.weapon then
+		RequestControl(data.handle)
+		RemoveAllPedWeapons(data.handle, true, true)
+	end
 	cb({})
 end)
 
 RegisterNUICallback('resurrectPed', function(data, cb)
-	RequestControl(data.handle)
-	ResurrectPed(data.handle)
+	if Permissions.properties.ped.resurrect then
+		RequestControl(data.handle)
+		ResurrectPed(data.handle)
+	end
 	cb({})
 end)
 
 RegisterNUICallback('getOnMount', function(data, cb)
-	DisableSpoonerMode()
-	RequestControl(data.handle)
-	SetPedOnMount(PlayerPedId(), data.handle, -1, false)
+	if Permissions.properties.ped.mount then
+		DisableSpoonerMode()
+		RequestControl(data.handle)
+		SetPedOnMount(PlayerPedId(), data.handle, -1, false)
+	end
 	cb({})
 end)
 
@@ -1260,111 +1420,127 @@ RegisterNUICallback('engineOff', function(data, cb)
 end)
 
 RegisterNUICallback('setLightsIntensity', function(data, cb)
-	local intensity = data.intensity and data.intensity * 1.0 or 0.0
+	if Permissions.properties.lights then
+		local intensity = data.intensity and data.intensity * 1.0 or 0.0
 
-	RequestControl(data.handle)
-	SetLightsIntensityForEntity(data.handle, intensity)
+		RequestControl(data.handle)
+		SetLightsIntensityForEntity(data.handle, intensity)
 
-	if EntityIsInDatabase(data.handle) then
-		Database[data.handle].lightsIntensity = intensity
+		if EntityIsInDatabase(data.handle) then
+			Database[data.handle].lightsIntensity = intensity
+		end
 	end
 
 	cb({})
 end)
 
 RegisterNUICallback('setLightsColour', function(data, cb)
-	local red = data.red and data.red or 0
-	local green = data.green and data.green or 0
-	local blue = data.blue and data.blue or 0
+	if Permissions.properties.lights then
+		local red = data.red and data.red or 0
+		local green = data.green and data.green or 0
+		local blue = data.blue and data.blue or 0
 
-	RequestControl(data.handle)
-	SetLightsColorForEntity(data.handle, red, green, blue)
+		RequestControl(data.handle)
+		SetLightsColorForEntity(data.handle, red, green, blue)
 
-	if EntityIsInDatabase(data.handle) then
-		Database[data.handle].lightsColour = {
-			red = red,
-			green = green,
-			blue = blue
-		}
+		if EntityIsInDatabase(data.handle) then
+			Database[data.handle].lightsColour = {
+				red = red,
+				green = green,
+				blue = blue
+			}
+		end
 	end
 
 	cb({})
 end)
 
 RegisterNUICallback('setLightsType', function(data, cb)
-	local type = data.type and data.type or 0
+	if Permissions.properties.lights then
+		local type = data.type and data.type or 0
 
-	RequestControl(data.handle)
-	SetLightsTypeForEntity(data.handle, type)
+		RequestControl(data.handle)
+		SetLightsTypeForEntity(data.handle, type)
 
-	if EntityIsInDatabase(data.handle) then
-		Database[data.handle].lightsType = type
+		if EntityIsInDatabase(data.handle) then
+			Database[data.handle].lightsType = type
+		end
 	end
 
 	cb({})
 end)
 
 RegisterNUICallback('setVehicleLightsOn', function(data, cb)
-	RequestControl(data.handle)
-	SetVehicleLights(data.handle, false)
+	if Permissions.properties.vehicle.lights then
+		RequestControl(data.handle)
+		SetVehicleLights(data.handle, false)
+	end
 	cb({})
 end)
 
 RegisterNUICallback('setVehicleLightsOff', function(data, cb)
-	RequestControl(data.handle)
-	SetVehicleLights(data.handle, true)
+	if Permissions.properties.vehicle.lights then
+		RequestControl(data.handle)
+		SetVehicleLights(data.handle, true)
+	end
 	cb({})
 end)
 
 RegisterNUICallback('aiOn', function(data, cb)
-	RequestControl(data.handle)
-	SetBlockingOfNonTemporaryEvents(data.handle, false)
+	if Permissions.properties.ped.ai then
+		RequestControl(data.handle)
+		SetBlockingOfNonTemporaryEvents(data.handle, false)
 
-	if Database[data.handle] then
-		Database[data.handle].blockNonTemporaryEvents = false
+		if Database[data.handle] then
+			Database[data.handle].blockNonTemporaryEvents = false
+		end
 	end
 
 	cb({})
 end)
 
 RegisterNUICallback('aiOff', function(data, cb)
-	RequestControl(data.handle)
-	SetBlockingOfNonTemporaryEvents(data.handle, true)
+	if Permissions.properties.ped.ai then
+		RequestControl(data.handle)
+		SetBlockingOfNonTemporaryEvents(data.handle, true)
 
-	if Database[data.handle] then
-		Database[data.handle].blockNonTemporaryEvents = true
+		if Database[data.handle] then
+			Database[data.handle].blockNonTemporaryEvents = true
+		end
 	end
 
 	cb({})
 end)
 
 RegisterNUICallback('playAnimation', function(data, cb)
-	local speed = data.speed and data.speed * 1.0 or 4.0
-	local duration = data.duration and data.duraction or -1
-	local flags = data.flags and data.flags or 1
-	local playbackRate = data.playbackRate and data.playbackRate * 1.0 or 0.0
+	if Permissions.properties.ped.animation then
+		local speed = data.speed and data.speed * 1.0 or 4.0
+		local duration = data.duration and data.duraction or -1
+		local flags = data.flags and data.flags or 1
+		local playbackRate = data.playbackRate and data.playbackRate * 1.0 or 0.0
 
-	RequestControl(data.handle)
+		RequestControl(data.handle)
 
-	if DoesAnimDictExist(data.dict) then
-		RequestAnimDict(data.dict)
+		if DoesAnimDictExist(data.dict) then
+			RequestAnimDict(data.dict)
 
-		while not HasAnimDictLoaded(data.dict) do
-			Wait(0)
-		end
+			while not HasAnimDictLoaded(data.dict) do
+				Wait(0)
+			end
 
-		TaskPlayAnim(data.handle, data.dict, data.anim, speed, speed, duration, flags, playbackRate, false, false, false, '', false)
+			TaskPlayAnim(data.handle, data.dict, data.anim, speed, speed, duration, flags, playbackRate, false, false, false, '', false)
 
-		if Database[data.handle] then
-			Database[data.handle].animation = {
-				dict = data.dict,
-				anim = data.anim,
-				speed = speed,
-				duration = duration,
-				flags = flags,
-				playbackRate = playbackRate
-			}
-			Database[data.handle].scenario = nil
+			if Database[data.handle] then
+				Database[data.handle].animation = {
+					dict = data.dict,
+					anim = data.anim,
+					speed = speed,
+					duration = duration,
+					flags = flags,
+					playbackRate = playbackRate
+				}
+				Database[data.handle].scenario = nil
+			end
 		end
 	end
 
@@ -1373,6 +1549,8 @@ end)
 
 CreateThread(function()
 	TriggerEvent('chat:addSuggestion', '/spooner', 'Toggle spooner mode', {})
+
+	TriggerServerEvent('spooner:init')
 
 	while true do
 		Wait(0)
@@ -1487,13 +1665,13 @@ CreateThread(function()
 			if IsDisabledControlJustPressed(0, Config.SpawnSelectControl) then
 				if AttachedEntity then
 					AttachedEntity = nil
-				elseif entity then
+				elseif entity and CanModifyEntity(entity) then
 					if IsEntityAttached(entity) then
 						AttachedEntity = GetEntityAttachedTo(entity)
 					else
 						AttachedEntity = entity
 					end
-				elseif CurrentSpawn then
+				elseif CurrentSpawn and Permissions.spawn then
 					local entity
 
 					if CurrentSpawn.type == 1 then
@@ -1517,7 +1695,7 @@ CreateThread(function()
 				end
 			end
 
-			if IsDisabledControlJustReleased(0, Config.ObjectMenuControl) then
+			if IsDisabledControlJustReleased(0, Config.ObjectMenuControl) and Permissions.spawn then
 				SendNUIMessage({
 					type = 'openSpawnMenu'
 				})
@@ -1555,7 +1733,7 @@ CreateThread(function()
 				PlaceOnGround = not PlaceOnGround
 			end
 
-			if entity then
+			if entity and CanModifyEntity(entity) then
 				local posChanged = false
 				local rotChanged = false
 
