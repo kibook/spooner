@@ -171,15 +171,6 @@ AddEventHandler('spooner:refreshPermissions', function()
 	TriggerServerEvent('spooner:init')
 end)
 
-function DrawText(text, x, y, centred)
-	SetTextScale(0.35, 0.35)
-	SetTextColor(255, 255, 255, 255)
-	SetTextCentre(centred)
-	SetTextDropshadow(1, 0, 0, 0, 200)
-	SetTextFontForCurrentCommand(0)
-	DisplayText(CreateVarString(10, "LITERAL_STRING", text), x, y)
-end
-
 function GetInView(x1, y1, z1, pitch, roll, yaw)
 	local rx = -math.sin(math.rad(yaw)) * math.abs(math.cos(math.rad(pitch)))
 	local ry =  math.cos(math.rad(yaw)) * math.abs(math.cos(math.rad(pitch)))
