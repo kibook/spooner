@@ -834,7 +834,11 @@ function SaveDatabase(name)
 	SetResourceKvp(name, json.encode(PrepareDatabaseForSave(Database)))
 end
 
-function LoadDatabase(db, relative)
+function LoadDatabase(db, relative, replace)
+	if replace then
+		RemoveAllFromDatabase()
+	end
+
 	local ax = 0.0
 	local ay = 0.0
 	local az = 0.0
@@ -937,11 +941,11 @@ function LoadDatabase(db, relative)
 	end
 end
 
-function LoadSavedDatabase(name, relative)
+function LoadSavedDatabase(name, relative, replace)
 	local db = json.decode(GetResourceKvpString(name))
 
 	if db then
-		LoadDatabase(db, relative)
+		LoadDatabase(db, relative, replace)
 	end
 end
 
@@ -977,7 +981,7 @@ RegisterNUICallback('saveDb', function(data, cb)
 end)
 
 RegisterNUICallback('loadDb', function(data, cb)
-	LoadSavedDatabase(data.name, data.relative)
+	LoadSavedDatabase(data.name, data.relative, data.replace)
 	cb({})
 end)
 
@@ -1115,7 +1119,7 @@ function ImportDatabase(format, content)
 		local db = json.decode(content)
 
 		if db then
-			LoadDatabase(db, false)
+			LoadDatabase(db, false, false)
 		end
 	end
 end

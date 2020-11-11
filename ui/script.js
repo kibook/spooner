@@ -654,10 +654,12 @@ function closePropertiesMenu(loseFocus) {
 
 function loadDatabase(name) {
 	var relative = document.querySelector('#load-db-relative').checked;
+	var replace = document.querySelector('#replace-db').checked;
 
 	sendMessage('loadDb', {
 		name: name,
-		relative: relative
+		relative: relative,
+		replace: replace
 	});
 }
 
