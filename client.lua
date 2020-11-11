@@ -443,6 +443,11 @@ function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collisionDisabled)
 		SetEntityCollision(veh, false, false)
 	end
 
+	-- Weird fix for the hot air balloon, otherwise it doesn't move with the wind and only travels straight up.
+	if model == GetHashKey('hotairballoon01') then
+		SetVehicleAsNoLongerNeeded(veh)
+	end
+
 	AddEntityToDatabase(veh, name)
 
 	return veh
