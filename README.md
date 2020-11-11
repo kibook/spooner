@@ -14,6 +14,20 @@ Tool for spawning, placing, and removing entities in RedM, inspired by Menyoo's 
 
 [![Object Spooner Example](https://i.imgur.com/foLmX9rm.jpg)](https://imgur.com/foLmX9r)
 
+# Configuration
+
+After installing, you must allow access to the spooner with:
+
+```
+add_ace <principal> spooner allow
+```
+
+For example, to allow all players to use the spooner:
+
+```
+add_ace builtin.everyone spooner allow
+```
+
 # Usage
 
 ## Cursor colours
