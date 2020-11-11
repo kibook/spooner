@@ -208,6 +208,8 @@ function GetLiveEntityProperties(entity)
 		lightsIntensity = nil,
 		lightsColour = nil,
 		lightsType = nil,
+		animation = nil,
+		scenario = nil,
 		attachment = {
 			to = GetEntityAttachedTo(entity),
 			bone = 0,
@@ -233,6 +235,9 @@ function AddEntityToDatabase(entity, name, attachment)
 	local lightsIntensity = Database[entity] and Database[entity].lightsIntensity or nil
 	local lightsColour = Database[entity] and Database[entity].lightsColour or nil
 	local lightsType = Database[entity] and Database[entity].lightsType or nil
+
+	local animation = Database[entity] and Database[entity].animation
+	local scenario = Database[entity] and Database[entity].scenario
 
 	if attachment then
 		attachBone  = attachment.bone
@@ -271,6 +276,9 @@ function AddEntityToDatabase(entity, name, attachment)
 	Database[entity].lightsIntensity = lightsIntensity
 	Database[entity].lightsColour = lightsColour
 	Database[entity].lightsType = lightsType
+
+	Database[entity].animation = animation
+	Database[entity].scenario = scenario
 
 	return Database[entity]
 end
@@ -368,7 +376,7 @@ function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collisionDisabled)
 	return veh
 end
 
-function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, outfit, addToGroup)
+function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, outfit, addToGroup, animation, scenario)
 	if not IsModelInCdimage(model) then
 		return nil
 	end
@@ -403,7 +411,27 @@ function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, out
 		AddToGroup(ped)
 	end
 
+	if animation then
+		if DoesAnimDictExist(animation.dict) then
+			RequestAnimDict(animation.dict)
+
+			while not HasAnimDictLoaded(animation.dict) do
+				Wait(0)
+			end
+
+			TaskPlayAnim(ped, animation.dict, animation.anim, animation.speed, animation.speed, animation.duration, animation.flags, animation.playbackRate, false, false, false, '', false)
+		end
+	end
+
+	if scenario then
+		Wait(500)
+		TaskStartScenarioInPlace(ped, GetHashKey(scenario), -1)
+	end
+
 	AddEntityToDatabase(ped, name)
+	Database[ped].outfit = outfit
+	Database[ped].animation = animation
+	Database[ped].scenario = scenario
 
 	return ped
 end
@@ -745,7 +773,7 @@ function LoadDatabase(db, relative)
 		end
 
 		if spawn.props.type == 1 then
-			entity = SpawnPed(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled, spawn.props.outfit, spawn.props.isInGroup)
+			entity = SpawnPed(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled, spawn.props.outfit, spawn.props.isInGroup, spawn.props.animation, spawn.props.scenario)
 		elseif spawn.props.type == 2 then
 			entity = SpawnVehicle(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled)
 		else
@@ -880,7 +908,7 @@ function CloneEntity(entity)
 	local clone = nil
 
 	if entityType == 1 then
-		clone = SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.outfit, props.isInGroup)
+		clone = SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.outfit, props.isInGroup, props.animation, props.scenario)
 	elseif entityType == 2 then
 		clone = SpawnVehicle(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled)
 	elseif entityType == 3 then
@@ -1107,18 +1135,36 @@ RegisterNUICallback('performScenario', function(data, cb)
 	RequestControl(data.handle)
 	ClearPedTasksImmediately(data.handle)
 	TaskStartScenarioInPlace(data.handle, GetHashKey(data.scenario), -1)
+
+	if Database[data.handle] then
+		Database[data.handle].animation = nil
+		Database[data.handle].scenario = data.scenario
+	end
+
 	cb({})
 end)
 
 RegisterNUICallback('clearPedTasks', function(data, cb)
 	RequestControl(data.handle)
 	ClearPedTasks(data.handle)
+
+	if Database[data.handle] then
+		Database[data.handle].scenario = nil
+		Database[data.handle].animation = nil
+	end
+
 	cb({})
 end)
 
 RegisterNUICallback('clearPedTasksImmediately', function(data, cb)
 	RequestControl(data.handle)
 	ClearPedTasksImmediately(data.handle)
+
+	if Database[data.handle] then
+		Database[data.handle].scenario = nil
+		Database[data.handle].animation = nil
+	end
+
 	cb({})
 end)
 
@@ -1288,6 +1334,18 @@ RegisterNUICallback('playAnimation', function(data, cb)
 		end
 
 		TaskPlayAnim(data.handle, data.dict, data.anim, speed, speed, duration, flags, playbackRate, false, false, false, '', false)
+
+		if Database[data.handle] then
+			Database[data.handle].animation = {
+				dict = data.dict,
+				anim = data.anim,
+				speed = speed,
+				duration = duration,
+				flags = flags,
+				playbackRate = playbackRate
+			}
+			Database[data.handle].scenario = nil
+		end
 	end
 
 	cb({})
@@ -1419,7 +1477,7 @@ CreateThread(function()
 					local entity
 
 					if CurrentSpawn.type == 1 then
-						entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, -1, false)
+						entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, -1, false, nil, nil)
 					elseif CurrentSpawn.type == 2 then
 						entity = SpawnVehicle(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false)
 					elseif CurrentSpawn.type == 3 then
