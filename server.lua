@@ -3,13 +3,19 @@ RegisterNetEvent('spooner:openDatabaseMenu')
 RegisterNetEvent('spooner:openSaveDbMenu')
 
 AddEventHandler('spooner:toggle', function()
-	TriggerClientEvent('spooner:toggle', source)
+	if IsPlayerAceAllowed(source, 'spooner') then
+		TriggerClientEvent('spooner:toggle', source)
+	end
 end)
 
 AddEventHandler('spooner:openDatabaseMenu', function()
-	TriggerClientEvent('spooner:openDatabaseMenu', source)
+	if IsPlayerAceAllowed(source, 'spooner') then
+		TriggerClientEvent('spooner:openDatabaseMenu', source)
+	end
 end)
 
 AddEventHandler('spooner:openSaveDbMenu', function()
-	TriggerClientEvent('spooner:openSaveDbMenu', source)
+	if IsPlayerAceAllowed(source, 'spooner') then
+		TriggerClientEvent('spooner:openSaveDbMenu', source)
+	end
 end)
