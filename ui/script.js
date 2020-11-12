@@ -242,6 +242,9 @@ function closeObjectMenu(selected) {
 }
 
 function performScenario(scenario) {
+	document.querySelectorAll('#scenario-list .object').forEach(e => e.className = 'object');
+	scenario.className = 'object selected';
+
 	sendMessage('performScenario', {
 		handle: currentEntity(),
 		scenario: scenario.innerHTML
