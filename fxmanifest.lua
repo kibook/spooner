@@ -24,6 +24,7 @@ client_scripts {
 	'weapons.lua',
 	'animations.lua',
 	'propsets.lua',
+	'pickups.lua',
 	'client.lua'
 }
 

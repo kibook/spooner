@@ -1,30 +1,32 @@
-local Cam = nil
-local ShowHud = true
-local Speed = Config.Speed
-
 local Database = {}
 
+local Cam = nil
+local Speed = Config.Speed
 local AdjustSpeed = Config.AdjustSpeed
 local RotateSpeed = Config.RotateSpeed
-
 local AttachedEntity = nil
-
 local RotateMode = 2
 local AdjustMode = -1
-
 local PlaceOnGround = false
+local CurrentSpawn = nil
 
 local Permissions = {}
+
 Permissions.maxEntities = 0
+
 Permissions.spawn = {}
 Permissions.spawn.ped = false
 Permissions.spawn.vehicle = false
 Permissions.spawn.object = false
 Permissions.spawn.propset = false
+Permissions.spawn.pickup = false
+
 Permissions.deleteOwn = false
 Permissions.deleteOther = false
+
 Permissions.modifyOwn = false
 Permissions.modifyOther = false
+
 Permissions.properties = {}
 Permissions.properties.freeze = false
 Permissions.properties.position = false
@@ -36,6 +38,8 @@ Permissions.properties.visible = false
 Permissions.properties.gravity = false
 Permissions.properties.collision = false
 Permissions.properties.attachments = false
+Permissions.properties.lights = false
+
 Permissions.properties.ped = {}
 Permissions.properties.ped.outfit = false
 Permissions.properties.ped.group = false
@@ -46,14 +50,12 @@ Permissions.properties.ped.weapon = false
 Permissions.properties.ped.mount = false
 Permissions.properties.ped.resurrect = false
 Permissions.properties.ped.ai = false
+
 Permissions.properties.vehicle = {}
 Permissions.properties.vehicle.repair = false
 Permissions.properties.vehicle.getin = false
 Permissions.properties.vehicle.engine = false
 Permissions.properties.vehicle.lights = false
-Permissions.properties.lights = false
-
-local CurrentSpawn = nil
 
 RegisterNetEvent('spooner:init')
 RegisterNetEvent('spooner:toggle')
@@ -119,6 +121,10 @@ end
 
 function GetEntitiesFromPropset(propSet, itemSet, p2, p3, p4)
 	return Citizen.InvokeNative(0x738271B660FE0695, propSet, itemSet, p2, p3, p4)
+end
+
+function IsPickupTypeValid(pickupHash)
+	return Citizen.InvokeNative(0x007BD043587F7C82, pickupHash)
 end
 
 function EnableSpoonerMode()
@@ -209,6 +215,14 @@ AddEventHandler('spooner:refreshPermissions', function()
 	TriggerServerEvent('spooner:init')
 end)
 
+function GetSpoonerEntityType(entity)
+	return Database[entity] and Database[entity].type or GetEntityType(entity)
+end
+
+function GetSpoonerEntityModel(entity)
+	return Database[entity] and Database[entity].model or GetEntityModel(entity)
+end
+
 function GetInView(x1, y1, z1, pitch, roll, yaw)
 	local rx = -math.sin(math.rad(yaw)) * math.abs(math.cos(math.rad(pitch)))
 	local ry =  math.cos(math.rad(yaw)) * math.abs(math.cos(math.rad(pitch)))
@@ -253,6 +267,12 @@ function GetModelName(model)
 	end
 
 	for _, name in ipairs(Objects) do
+		if model == GetHashKey(name) then
+			return name
+		end
+	end
+
+	for _, name in ipairs(Pickups) do
 		if model == GetHashKey(name) then
 			return name
 		end
@@ -308,7 +328,8 @@ function AddEntityToDatabase(entity, name, attachment)
 		name = Database[entity].name
 	end
 
-	local type = Database[entity] and Database[entity].type or nil
+	local model = Database[entity] and Database[entity].model
+	local type = Database[entity] and Database[entity].type
 
 	local outfit = Database[entity] and Database[entity].outfit or -1
 
@@ -345,6 +366,10 @@ function AddEntityToDatabase(entity, name, attachment)
 
 	if name then
 		Database[entity].name = name
+	end
+
+	if model then
+		Database[entity].model = model
 	end
 
 	if type then
@@ -618,6 +643,32 @@ function SpawnPropset(name, model, x, y, z, heading)
 	--return nil
 end
 
+function SpawnPickup(name, model, x, y, z)
+	if not Permissions.spawn.pickup then
+		return nil
+	end
+
+	if IsDatabaseFull() then
+		return nil
+	end
+
+	if not IsPickupTypeValid(model) then
+		return nil
+	end
+
+	local pickup = CreatePickup(model, x, y, z, 0, 0, false, 0, 0, 0.0, 0)
+
+	if not pickup or pickup < 1 then
+		return nil
+	end
+
+	AddEntityToDatabase(pickup, name)
+	Database[pickup].model = model
+	Database[pickup].type = 5
+
+	return pickup
+end
+
 function RequestControl(entity)
 	local type = GetEntityType(entity)
 
@@ -649,8 +700,12 @@ function RemoveEntity(entity)
 		return
 	end
 
-	if Database[entity] and Database[entity].type == 4 then
+	local entityType = GetSpoonerEntityType(entity)
+
+	if entityType == 4 then
 		DeletePropset(entity)
+	elseif entityType == 5 then
+		RemovePickup(entity)
 	else
 		RequestControl(entity)
 		SetEntityAsMissionEntity(entity, true, true)
@@ -720,6 +775,17 @@ RegisterNUICallback('closePropsetMenu', function(data, cb)
 		CurrentSpawn = {
 			modelName = data.modelName,
 			type = 4
+		}
+	end
+	SetNuiFocus(false, false)
+	cb({})
+end)
+
+RegisterNUICallback('closePickupMenu', function(data, cb)
+	if data.modelName then
+		CurrentSpawn = {
+			modelName = data.modelName,
+			type = 5
 		}
 	end
 	SetNuiFocus(false, false)
@@ -806,10 +872,13 @@ end)
 function UpdateDatabase()
 	local entities = {}
 	local propsets = {}
+	local pickups = {}
 
 	for entity, properties in pairs(Database) do
 		if properties.type == 4 then
 			table.insert(propsets, entity)
+		elseif properties.type == 5 then
+			table.insert(pickups, entity)
 		else
 			table.insert(entities, entity)
 		end
@@ -823,11 +892,19 @@ function UpdateDatabase()
 		end
 	end
 
-	for _, propset in ipairs(propsets)do
+	for _, propset in ipairs(propsets) do
 		if DoesPropsetExist(propset) then
 			AddEntityToDatabase(propset)
 		else
 			RemoveEntityFromDatabase(propset)
+		end
+	end
+
+	for _, pickup in ipairs(pickups) do
+		if DoesPickupExist(pickup) then
+			AddEntityToDatabase(pickup)
+		else
+			RemoveEntityFromDatabase(pickup)
 		end
 	end
 end
@@ -1020,6 +1097,8 @@ function LoadDatabase(db, relative, replace)
 			entity = SpawnPed(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled, spawn.props.outfit, spawn.props.isInGroup, spawn.props.animation, spawn.props.scenario, spawn.props.blockNonTemporaryEvents)
 		elseif spawn.props.type == 2 then
 			entity = SpawnVehicle(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled)
+		elseif spawn.props.type == 5 then
+			entity = SpawnPickup(spawn.props.name, spawn.props.model, x, y, z)
 		else
 			entity = SpawnObject(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled, spawn.props.lightsIntensity, spawn.props.lightsColour, spawn.props.lightsType)
 		end
@@ -1117,6 +1196,7 @@ RegisterNUICallback('init', function(data, cb)
 		weapons = json.encode(Weapons),
 		animations = json.encode(Animations),
 		propsets = json.encode(Propsets),
+		pickups = json.encode(Pickups),
 		adjustSpeed = AdjustSpeed,
 		rotateSpeed = RotateSpeed
 	})
@@ -1151,15 +1231,16 @@ end)
 
 function CloneEntity(entity)
 	local props = GetEntityProperties(entity)
-	local entityType = GetEntityType(entity)
 	local clone = nil
 
-	if entityType == 1 then
+	if props.type == 1 then
 		clone = SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.outfit, props.isInGroup, props.animation, props.scenario, props.blockNonTemporaryEvents)
-	elseif entityType == 2 then
+	elseif props.type == 2 then
 		clone = SpawnVehicle(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled)
-	elseif entityType == 3 then
+	elseif props.type == 3 then
 		clone = SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.lightsIntensity, props.lightsColour, props.lightsType)
+	elseif props.type == 5 then
+		clone = SpawnPickup(props.name, props.model, props.x, props.y, props.z)
 	else
 		return nil
 	end
@@ -1708,8 +1789,8 @@ CreateThread(function()
 			SendNUIMessage({
 				type = 'updateSpoonerHud',
 				entity = entity,
-				entityType = GetEntityType(entity),
-				modelName = GetModelName(GetEntityModel(entity)),
+				entityType = GetSpoonerEntityType(entity),
+				modelName = GetModelName(GetSpoonerEntityModel(entity)),
 				attachedEntity = AttachedEntity,
 				speed = string.format('%.2f', Speed),
 				currentSpawn = CurrentSpawn and CurrentSpawn.modelName,
@@ -1803,6 +1884,8 @@ CreateThread(function()
 						entity = SpawnObject(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, nil, nil, nil)
 					elseif CurrentSpawn.type == 4 then
 						entity = SpawnPropset(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, yaw2)
+					elseif CurrentSpawn.type == 5 then
+						entity = SpawnPickup(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z)
 					end
 
 					if entity then

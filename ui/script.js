@@ -5,6 +5,7 @@ var scenarios = [];
 var weapons = [];
 var animations = {};
 var propsets = [];
+var pickups = [];
 
 var lastSpawnMenu = -1;
 
@@ -147,6 +148,9 @@ function openSpawnMenu() {
 		case 3:
 			document.querySelector('#propset-menu').style.display = 'flex';
 			break;
+		case 4:
+			document.querySelector('#pickup-menu').style.display = 'flex';
+			break;
 		default:
 			document.querySelector('#spawn-menu').style.display = 'flex';
 			break;
@@ -180,6 +184,12 @@ function openPropsetMenu() {
 	document.querySelector('#spawn-menu').style.display = 'none';
 	document.querySelector('#propset-menu').style.display = 'flex';
 	lastSpawnMenu = 3;
+}
+
+function openPickupMenu() {
+	document.querySelector('#spawn-menu').style.display = 'none';
+	document.querySelector('#pickup-menu').style.display = 'flex';
+	lastSpawnMenu = 4;
 }
 
 function closePedMenu(selected) {
@@ -262,6 +272,29 @@ function closePropsetMenu(selected) {
 		});
 
 		var entries = document.querySelectorAll('#propset-list .object');
+
+		for (i = 0; i < entries.length; ++i) {
+			entries[i].className = 'object';
+		}
+
+		selected.className = 'object selected';
+	} else {
+		document.querySelector('#spawn-menu').style.display = 'flex';
+		lastSpawnMenu = -1;
+	}
+}
+
+function closePickupMenu(selected) {
+	document.querySelector('#pickup-menu').style.display = 'none';
+
+	if (selected) {
+		var name = selected.innerHTML;
+
+		sendMessage('closePickupMenu', {
+			modelName: name
+		});
+
+		var entries = document.querySelectorAll('#pickup-list .object');
 
 		for (i = 0; i < entries.length; ++i) {
 			entries[i].className = 'object';
@@ -467,6 +500,24 @@ function populatePropsetList(filter) {
 	});
 }
 
+function populatePickupList(filter) {
+	var pickupList = document.querySelector('#pickup-list');
+
+	pickupList.innerHTML = '';
+
+	pickups.forEach(pickup => {
+		if (!filter || filter == '' || pickup.toLowerCase().includes(filter.toLowerCase())) {
+			var div = document.createElement('div');
+			div.className = 'object';
+			div.innerHTML = pickup;
+			div.addEventListener('click', function(event) {
+				closePickupMenu(this);
+			});
+			pickupList.appendChild(div);
+		}
+	});
+}
+
 function deleteEntity(object) {
 	var handle = object.getAttribute('data-handle');
 
@@ -553,6 +604,9 @@ function updatePropertiesMenu(data) {
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'propset';
 			document.querySelectorAll('.property *').forEach(e => e.disabled = true);
 			document.querySelector('#properties-delete').disabled = false;
+			break;
+		case 5:
+			document.querySelector('#properties-menu-entity-type').innerHTML = 'pickup';
 			break;
 		default:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'entity';
@@ -826,6 +880,7 @@ function updatePermissions(data) {
 	document.querySelector('#spawn-menu-vehicles').disabled = !permissions.spawn.vehicle;
 	document.querySelector('#spawn-menu-objects').disabled = !permissions.spawn.object;
 	document.querySelector('#spawn-menu-propsets').disabled = !permissions.spawn.propset;
+	document.querySelector('#spawn-menu-pickups').disabled = !permissions.spawn.pickup;
 
 	document.querySelector('#properties-freeze').disabled = !permissions.properties.freeze;
 	document.querySelector('#properties-unfreeze').disabled = !permissions.properties.freeze;
@@ -928,6 +983,9 @@ window.addEventListener('load', function() {
 		propsets = JSON.parse(resp.propsets);
 		populatePropsetList();
 
+		pickups = JSON.parse(resp.pickups);
+		populatePickupList();
+
 		document.querySelectorAll('.adjust-speed').forEach(e => e.value = resp.adjustSpeed);
 		document.querySelectorAll('.adjust-input').forEach(e => e.step = resp.adjustSpeed);
 
@@ -979,6 +1037,14 @@ window.addEventListener('load', function() {
 		});
 	});
 
+	document.querySelector('#pickup-spawn-by-name').addEventListener('click', function(event) {
+		document.querySelector('#pickup-menu').style.display = 'none';
+
+		sendMessage('closePickupMenu', {
+			modelName: document.querySelector('#pickup-search-filter').value
+		});
+	});
+
 	document.querySelector('#ped-menu-close-btn').addEventListener('click', function(event) {
 		closePedMenu();
 	});
@@ -993,6 +1059,10 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#propset-menu-close-btn').addEventListener('click', function(event) {
 		closePropsetMenu();
+	});
+
+	document.querySelector('#pickup-menu-close-btn').addEventListener('click', function(event) {
+		closePickupMenu();
 	});
 
 	document.querySelector('#object-database-remove-all-btn').addEventListener('click', function(event) {
@@ -1196,6 +1266,10 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#spawn-menu-propsets').addEventListener('click', function(event) {
 		openPropsetMenu();
+	});
+
+	document.querySelector('#spawn-menu-pickups').addEventListener('click', function(event) {
+		openPickupMenu();
 	});
 
 	document.querySelector('#spawn-menu-close').addEventListener('click', function(event) {
@@ -1481,5 +1555,9 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#animation-search-max-results').addEventListener('input', function(event) {
 		populateAnimationList(document.querySelector('#animation-search-filter').value)
+	});
+
+	document.querySelector('#pickup-search-filter').addEventListener('input', function(event) {
+		populatePickupList(this.value);
 	});
 });
