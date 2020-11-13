@@ -531,6 +531,7 @@ function setFieldIfInactive(id, value) {
 function updatePropertiesMenu(data) {
 	var properties = JSON.parse(data.properties);
 
+	document.querySelectorAll('.property *').forEach(e => e.disabled = false);
 	document.querySelectorAll('.ped-property *').forEach(e => e.disabled = true);
 	document.querySelectorAll('.vehicle-property *').forEach(e => e.disabled = true);
 	document.querySelectorAll('.object-property *').forEach(e => e.disabled = true);
@@ -548,10 +549,13 @@ function updatePropertiesMenu(data) {
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'object';
 			document.querySelectorAll('.object-property *').forEach(e => e.disabled = false);
 			break;
-		default:
-			document.querySelector('#properties-menu-entity-type').innerHTML = 'entity';
+		case 4:
+			document.querySelector('#properties-menu-entity-type').innerHTML = 'propset';
 			document.querySelectorAll('.property *').forEach(e => e.disabled = true);
 			document.querySelector('#properties-delete').disabled = false;
+			break;
+		default:
+			document.querySelector('#properties-menu-entity-type').innerHTML = 'entity';
 			break;
 	}
 
