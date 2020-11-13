@@ -16,7 +16,11 @@ local PlaceOnGround = false
 
 local Permissions = {}
 Permissions.maxEntities = 0
-Permissions.spawn = false
+Permissions.spawn = {}
+Permissions.spawn.ped = false
+Permissions.spawn.vehicle = false
+Permissions.spawn.object = false
+Permissions.spawn.propset = false
 Permissions.deleteOwn = false
 Permissions.deleteOther = false
 Permissions.modifyOwn = false
@@ -49,6 +53,7 @@ Permissions.properties.vehicle.engine = false
 Permissions.properties.vehicle.lights = false
 Permissions.properties.lights = false
 
+local CurrentSpawn = nil
 
 RegisterNetEvent('spooner:init')
 RegisterNetEvent('spooner:toggle')
@@ -86,6 +91,34 @@ end
 
 function IsUsingKeyboard(padIndex)
 	return Citizen.InvokeNative(0xA571D46727E2B718, padIndex)
+end
+
+function RequestPropset(hash)
+	return Citizen.InvokeNative(0xF3DE57A46D5585E9, hash)
+end
+
+function ReleasePropset(hash)
+	return Citizen.InvokeNative(0xB1964A83B345B4AB, hash)
+end
+
+function HasPropsetLoaded(hash)
+	return Citizen.InvokeNative(0x48A88FC684C55FDC, hash)
+end
+
+function CreatePropset(hash, x, y, z, p4, p5, p6, p7, p8)
+	return Citizen.InvokeNative(0xE65C5CBA95F0E510, hash, x, y, z, p4, p5, p6, p7, p8)
+end
+
+function DeletePropset(propSet, p1, p2)
+	return Citizen.InvokeNative(0x58AC173A55D9D7B4, propSet, p1, p2)
+end
+
+function DoesPropsetExist(propSet)
+	return Citizen.InvokeNative(0x7DDDCF815E650FF5, propSet)
+end
+
+function GetEntitiesFromPropset(propSet, itemSet, p2, p3, p4)
+	return Citizen.InvokeNative(0x738271B660FE0695, propSet, itemSet, p2, p3, p4)
 end
 
 function EnableSpoonerMode()
@@ -165,6 +198,11 @@ AddEventHandler('spooner:openSaveDbMenu', OpenSaveDbMenu)
 
 AddEventHandler('spooner:init', function(permissions)
 	Permissions = permissions
+
+	SendNUIMessage({
+		type = 'updatePermissions',
+		permissions = json.encode(permissions)
+	})
 end)
 
 AddEventHandler('spooner:refreshPermissions', function()
@@ -266,6 +304,12 @@ function AddEntityToDatabase(entity, name, attachment)
 		return nil
 	end
 
+	if not name and Database[entity] then
+		name = Database[entity].name
+	end
+
+	local type = Database[entity] and Database[entity].type or nil
+
 	local outfit = Database[entity] and Database[entity].outfit or -1
 
 	local attachBone, attachX, attachY, attachZ, attachPitch, attachRoll, attachYaw
@@ -301,6 +345,10 @@ function AddEntityToDatabase(entity, name, attachment)
 
 	if name then
 		Database[entity].name = name
+	end
+
+	if type then
+		Database[entity].type = type
 	end
 
 	Database[entity].outfit = outfit
@@ -360,7 +408,7 @@ function IsDatabaseFull()
 end
 
 function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, lightsIntensity, lightsColour, lightsType)
-	if not Permissions.spawn then
+	if not Permissions.spawn.object then
 		return nil
 	end
 
@@ -411,7 +459,7 @@ function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, 
 end
 
 function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collisionDisabled)
-	if not Permissions.spawn then
+	if not Permissions.spawn.vehicle then
 		return nil
 	end
 
@@ -454,7 +502,7 @@ function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collisionDisabled)
 end
 
 function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, outfit, addToGroup, animation, scenario, blockNonTemporaryEvents)
-	if not Permissions.spawn then
+	if not Permissions.spawn.ped then
 		return nil
 	end
 
@@ -526,6 +574,50 @@ function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, out
 	return ped
 end
 
+function SpawnPropset(name, model, x, y, z, heading)
+	if not Permissions.spawn.propset then
+		return nil
+	end
+
+	if IsDatabaseFull() then
+		return nil
+	end
+
+	RequestPropset(model)
+	while not HasPropsetLoaded(model) do
+		Wait(0)
+	end
+
+	local propset = CreatePropset(model, x, y, z, 0, heading, 0.0, true, false)
+
+	ReleasePropset(hash)
+
+	if not propset or propset < 1 then
+		return nil
+	end
+
+	-- FIXME: Eventually, individual objects from the propset should be stored in the DB instead of the propset itself, but I'm not sure how to use GetEntitiesFromPropset properly so that it works consistently.
+	AddEntityToDatabase(propset, name)
+	Database[propset].type = 4
+
+	return propset
+
+	--local itemset = CreateItemset(true)
+	--GetEntitiesFromPropset(propset, itemset, 0, false, false)
+	--local size = GetItemsetSize(itemset)
+
+	--if size == 0 then
+	--	DeletePropset(propset, true, true)
+	--else
+	--	for i = 0, size - 1 do
+	--		AddEntityToDatabase(GetIndexedItemInItemset(i, itemset))
+	--	end
+	--end
+	--DeletePropset(propset, false, false)
+	--
+	--return nil
+end
+
 function RequestControl(entity)
 	local type = GetEntityType(entity)
 
@@ -557,9 +649,13 @@ function RemoveEntity(entity)
 		return
 	end
 
-	RequestControl(entity)
-	SetEntityAsMissionEntity(entity, true, true)
-	DeleteEntity(entity)
+	if Database[entity] and Database[entity].type == 4 then
+		DeletePropset(entity)
+	else
+		RequestControl(entity)
+		SetEntityAsMissionEntity(entity, true, true)
+		DeleteEntity(entity)
+	end
 
 	RemoveEntityFromDatabase(entity)
 end
@@ -580,8 +676,6 @@ AddEventHandler('onResourceStop', function(resourceName)
 		--RemoveAllFromDatabase();
 	end
 end)
-
-local CurrentSpawn = nil
 
 RegisterNUICallback('closeSpawnMenu', function(data, cb)
 	SetNuiFocus(false, false)
@@ -615,6 +709,17 @@ RegisterNUICallback('closeObjectMenu', function(data, cb)
 		CurrentSpawn = {
 			modelName = data.modelName,
 			type = 3
+		}
+	end
+	SetNuiFocus(false, false)
+	cb({})
+end)
+
+RegisterNUICallback('closePropsetMenu', function(data, cb)
+	if data.modelName then
+		CurrentSpawn = {
+			modelName = data.modelName,
+			type = 4
 		}
 	end
 	SetNuiFocus(false, false)
@@ -700,9 +805,14 @@ end)
 
 function UpdateDatabase()
 	local entities = {}
+	local propsets = {}
 
 	for entity, properties in pairs(Database) do
-		table.insert(entities, entity)
+		if properties.type == 4 then
+			table.insert(propsets, entity)
+		else
+			table.insert(entities, entity)
+		end
 	end
 
 	for _, entity in ipairs(entities) do
@@ -710,6 +820,14 @@ function UpdateDatabase()
 			AddEntityToDatabase(entity)
 		else
 			RemoveEntityFromDatabase(entity)
+		end
+	end
+
+	for _, propset in ipairs(propsets)do
+		if DoesPropsetExist(propset) then
+			AddEntityToDatabase(propset)
+		else
+			RemoveEntityFromDatabase(propset)
 		end
 	end
 end
@@ -906,7 +1024,7 @@ function LoadDatabase(db, relative, replace)
 			entity = SpawnObject(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled, spawn.props.lightsIntensity, spawn.props.lightsColour, spawn.props.lightsType)
 		end
 
-		if relative then
+		if entity and relative then
 			PlaceOnGroundProperly(entity)
 		end
 
@@ -998,6 +1116,7 @@ RegisterNUICallback('init', function(data, cb)
 		scenarios = json.encode(Scenarios),
 		weapons = json.encode(Weapons),
 		animations = json.encode(Animations),
+		propsets = json.encode(Propsets),
 		adjustSpeed = AdjustSpeed,
 		rotateSpeed = RotateSpeed
 	})
@@ -1045,7 +1164,7 @@ function CloneEntity(entity)
 		return nil
 	end
 
-	if props.attachment and props.attachment.to ~= 0 then
+	if clone and props.attachment and props.attachment.to ~= 0 then
 		AttachEntityToEntity(clone, props.attachment.to, props.attachment.bone, props.attachment.x, props.attachment.y, props.attachment.z, props.attachment.pitch, props.attachment.roll, props.attachment.yaw, false, false, true, false, 0, true, false, false)
 
 		AddEntityToDatabase(clone, nil, props.attachment)
@@ -1055,12 +1174,10 @@ function CloneEntity(entity)
 end
 
 RegisterNUICallback('cloneEntity', function(data, cb)
-	if Permissions.spawn then
-		local clone = CloneEntity(data.handle)
+	local clone = CloneEntity(data.handle)
 
-		if clone then
-			OpenPropertiesMenuForEntity(clone)
-		end
+	if clone then
+		OpenPropertiesMenuForEntity(clone)
 	end
 
 	cb({})
@@ -1547,6 +1664,10 @@ RegisterNUICallback('playAnimation', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('loadPermissions', function(data, cb)
+	cb(json.encode(Permissions))
+end)
+
 CreateThread(function()
 	TriggerEvent('chat:addSuggestion', '/spooner', 'Toggle spooner mode', {})
 
@@ -1671,7 +1792,7 @@ CreateThread(function()
 					else
 						AttachedEntity = entity
 					end
-				elseif CurrentSpawn and Permissions.spawn then
+				elseif CurrentSpawn then
 					local entity
 
 					if CurrentSpawn.type == 1 then
@@ -1680,9 +1801,13 @@ CreateThread(function()
 						entity = SpawnVehicle(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false)
 					elseif CurrentSpawn.type == 3 then
 						entity = SpawnObject(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, nil, nil, nil)
+					elseif CurrentSpawn.type == 4 then
+						entity = SpawnPropset(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, yaw2)
 					end
 
-					PlaceOnGroundProperly(entity)
+					if entity then
+						PlaceOnGroundProperly(entity)
+					end
 				end
 			end
 
@@ -1695,7 +1820,7 @@ CreateThread(function()
 				end
 			end
 
-			if IsDisabledControlJustReleased(0, Config.ObjectMenuControl) and Permissions.spawn then
+			if IsDisabledControlJustReleased(0, Config.ObjectMenuControl) then
 				SendNUIMessage({
 					type = 'openSpawnMenu'
 				})

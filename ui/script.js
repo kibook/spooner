@@ -4,6 +4,7 @@ var objects = [];
 var scenarios = [];
 var weapons = [];
 var animations = {};
+var propsets = [];
 
 var lastSpawnMenu = -1;
 
@@ -143,6 +144,9 @@ function openSpawnMenu() {
 		case 2:
 			document.querySelector('#object-menu').style.display = 'flex';
 			break;
+		case 3:
+			document.querySelector('#propset-menu').style.display = 'flex';
+			break;
 		default:
 			document.querySelector('#spawn-menu').style.display = 'flex';
 			break;
@@ -170,6 +174,12 @@ function openObjectMenu() {
 	document.querySelector('#spawn-menu').style.display = 'none';
 	document.querySelector('#object-menu').style.display = 'flex';
 	lastSpawnMenu = 2;
+}
+
+function openPropsetMenu() {
+	document.querySelector('#spawn-menu').style.display = 'none';
+	document.querySelector('#propset-menu').style.display = 'flex';
+	lastSpawnMenu = 3;
 }
 
 function closePedMenu(selected) {
@@ -229,6 +239,29 @@ function closeObjectMenu(selected) {
 		});
 
 		var entries = document.querySelectorAll('#object-list .object');
+
+		for (i = 0; i < entries.length; ++i) {
+			entries[i].className = 'object';
+		}
+
+		selected.className = 'object selected';
+	} else {
+		document.querySelector('#spawn-menu').style.display = 'flex';
+		lastSpawnMenu = -1;
+	}
+}
+
+function closePropsetMenu(selected) {
+	document.querySelector('#propset-menu').style.display = 'none';
+
+	if (selected) {
+		var name = selected.innerHTML;
+
+		sendMessage('closePropsetMenu', {
+			modelName: name
+		});
+
+		var entries = document.querySelectorAll('#propset-list .object');
 
 		for (i = 0; i < entries.length; ++i) {
 			entries[i].className = 'object';
@@ -416,6 +449,24 @@ function populateAnimationList(filter) {
 	}
 }
 
+function populatePropsetList(filter) {
+	var propsetList = document.querySelector('#propset-list');
+
+	propsetList.innerHTML = '';
+
+	propsets.forEach(propset => {
+		if (!filter || filter == '' || propset.toLowerCase().includes(filter.toLowerCase())) {
+			var div = document.createElement('div');
+			div.className = 'object';
+			div.innerHTML = propset;
+			div.addEventListener('click', function(event) {
+				closePropsetMenu(this);
+			});
+			propsetList.appendChild(div);
+		}
+	});
+}
+
 function deleteEntity(object) {
 	var handle = object.getAttribute('data-handle');
 
@@ -479,53 +530,10 @@ function setFieldIfInactive(id, value) {
 
 function updatePropertiesMenu(data) {
 	var properties = JSON.parse(data.properties);
-	var permissions = JSON.parse(data.permissions);
 
 	document.querySelectorAll('.ped-property *').forEach(e => e.disabled = true);
 	document.querySelectorAll('.vehicle-property *').forEach(e => e.disabled = true);
 	document.querySelectorAll('.object-property *').forEach(e => e.disabled = true);
-
-	document.querySelector('#properties-freeze').disabled = !permissions.properties.freeze;
-	document.querySelector('#properties-unfreeze').disabled = !permissions.properties.freeze;
-	document.querySelector('#properties-x').disabled = !permissions.properties.position;
-	document.querySelector('#properties-y').disabled = !permissions.properties.position;
-	document.querySelector('#properties-z').disabled = !permissions.properties.position;
-	document.querySelector('#properties-place-here').disabled = !permissions.properties.position;
-	document.querySelector('#properties-goto').disabled = !permissions.properties.goTo;
-	document.querySelector('#properties-pitch').disabled = !permissions.properties.rotation;
-	document.querySelector('#properties-roll').disabled = !permissions.properties.rotation;
-	document.querySelector('#properties-yaw').disabled = !permissions.properties.rotation;
-	document.querySelector('#properties-reset-rotation').disabled = !permissions.properties.rotation;
-	document.querySelector('#properties-health').disabled = !permissions.properties.health;
-	document.querySelector('#properties-invincible-on').disabled = !permissions.properties.invincible;
-	document.querySelector('#properties-invincible-off').disabled = !permissions.properties.invincible;
-	document.querySelector('#properties-visible').disabled = !permissions.properties.visible;
-	document.querySelector('#properties-invisible').disabled = !permissions.properties.visible;
-	document.querySelector('#properties-gravity-on').disabled = !permissions.properties.gravity;
-	document.querySelector('#properties-gravity-off').disabled = !permissions.properties.gravity;
-	document.querySelector('#properties-collision-off').disabled = !permissions.properties.collision;
-	document.querySelector('#properties-collision-on').disabled = !permissions.properties.collision;
-	document.querySelector('#properties-clone').disabled = !permissions.spawn;
-	document.querySelector('#properties-attach').disabled = !permissions.properties.attachments;
-	document.querySelector('#properties-outfit').disabled = !permissions.properties.ped.outfit;
-	document.querySelector('#properties-add-to-group').disabled = !permissions.properties.ped.group;
-	document.querySelector('#properties-remove-from-group').disabled = !permissions.properties.ped.group;
-	document.querySelector('#properties-scenario').disabled = !permissions.properties.ped.scenario;
-	document.querySelector('#properties-animation').disabled = !permissions.properties.ped.animation;
-	document.querySelector('#properties-clear-ped-tasks').disabled = !permissions.properties.ped.clearTasks;
-	document.querySelector('#properties-clear-ped-tasks-immediately').disabled = !permissions.properties.ped.clearTasks;
-	document.querySelector('#properties-give-weapon').disabled = !permissions.properties.ped.weapon;
-	document.querySelector('#properties-remove-all-weapons').disabled = !permissions.properties.ped.weapon;
-	document.querySelector('#properties-get-on-mount').disabled = !permissions.properties.ped.mount;
-	document.querySelector('#properties-resurrect-ped').disabled = !permissions.properties.ped.resurrect;
-	document.querySelector('#properties-ai-on').disabled = !permissions.properties.ped.ai;
-	document.querySelector('#properties-ai-off').disabled = !permissions.properties.ped.ai;
-	document.querySelector('#properties-repair-vehicle').disabled = !permissions.properties.vehicle.repair;
-	document.querySelector('#properties-get-in').disabled = !permissions.properties.vehicle.getin
-	document.querySelector('#properties-engine-on').disabled = !permissions.properties.vehicle.engine
-	document.querySelector('#properties-engine-off').disabled = !permissions.properties.vehicle.engine
-	document.querySelector('#properties-vehicle-lights-on').disabled = !permissions.properties.vehicle.lights;
-	document.querySelector('#properties-vehicle-lights-off').disabled = !permissions.properties.vehicle.lights;
 
 	switch (properties.type) {
 		case 1:
@@ -542,6 +550,8 @@ function updatePropertiesMenu(data) {
 			break;
 		default:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'entity';
+			document.querySelectorAll('.property *').forEach(e => e.disabled = true);
+			document.querySelector('#properties-delete').disabled = false;
 			break;
 	}
 
@@ -805,6 +815,56 @@ function openAttachToMenu(fromEntity, data) {
 	document.querySelector('#attachment-options-menu').style.display = 'flex';
 }
 
+function updatePermissions(data) {
+	var permissions = JSON.parse(data.permissions);
+
+	document.querySelector('#spawn-menu-peds').disabled = !permissions.spawn.ped;
+	document.querySelector('#spawn-menu-vehicles').disabled = !permissions.spawn.vehicle;
+	document.querySelector('#spawn-menu-objects').disabled = !permissions.spawn.object;
+	document.querySelector('#spawn-menu-propsets').disabled = !permissions.spawn.propset;
+
+	document.querySelector('#properties-freeze').disabled = !permissions.properties.freeze;
+	document.querySelector('#properties-unfreeze').disabled = !permissions.properties.freeze;
+	document.querySelector('#properties-x').disabled = !permissions.properties.position;
+	document.querySelector('#properties-y').disabled = !permissions.properties.position;
+	document.querySelector('#properties-z').disabled = !permissions.properties.position;
+	document.querySelector('#properties-place-here').disabled = !permissions.properties.position;
+	document.querySelector('#properties-goto').disabled = !permissions.properties.goTo;
+	document.querySelector('#properties-pitch').disabled = !permissions.properties.rotation;
+	document.querySelector('#properties-roll').disabled = !permissions.properties.rotation;
+	document.querySelector('#properties-yaw').disabled = !permissions.properties.rotation;
+	document.querySelector('#properties-reset-rotation').disabled = !permissions.properties.rotation;
+	document.querySelector('#properties-health').disabled = !permissions.properties.health;
+	document.querySelector('#properties-invincible-on').disabled = !permissions.properties.invincible;
+	document.querySelector('#properties-invincible-off').disabled = !permissions.properties.invincible;
+	document.querySelector('#properties-visible').disabled = !permissions.properties.visible;
+	document.querySelector('#properties-invisible').disabled = !permissions.properties.visible;
+	document.querySelector('#properties-gravity-on').disabled = !permissions.properties.gravity;
+	document.querySelector('#properties-gravity-off').disabled = !permissions.properties.gravity;
+	document.querySelector('#properties-collision-off').disabled = !permissions.properties.collision;
+	document.querySelector('#properties-collision-on').disabled = !permissions.properties.collision;
+	document.querySelector('#properties-attach').disabled = !permissions.properties.attachments;
+	document.querySelector('#properties-outfit').disabled = !permissions.properties.ped.outfit;
+	document.querySelector('#properties-add-to-group').disabled = !permissions.properties.ped.group;
+	document.querySelector('#properties-remove-from-group').disabled = !permissions.properties.ped.group;
+	document.querySelector('#properties-scenario').disabled = !permissions.properties.ped.scenario;
+	document.querySelector('#properties-animation').disabled = !permissions.properties.ped.animation;
+	document.querySelector('#properties-clear-ped-tasks').disabled = !permissions.properties.ped.clearTasks;
+	document.querySelector('#properties-clear-ped-tasks-immediately').disabled = !permissions.properties.ped.clearTasks;
+	document.querySelector('#properties-give-weapon').disabled = !permissions.properties.ped.weapon;
+	document.querySelector('#properties-remove-all-weapons').disabled = !permissions.properties.ped.weapon;
+	document.querySelector('#properties-get-on-mount').disabled = !permissions.properties.ped.mount;
+	document.querySelector('#properties-resurrect-ped').disabled = !permissions.properties.ped.resurrect;
+	document.querySelector('#properties-ai-on').disabled = !permissions.properties.ped.ai;
+	document.querySelector('#properties-ai-off').disabled = !permissions.properties.ped.ai;
+	document.querySelector('#properties-repair-vehicle').disabled = !permissions.properties.vehicle.repair;
+	document.querySelector('#properties-get-in').disabled = !permissions.properties.vehicle.getin
+	document.querySelector('#properties-engine-on').disabled = !permissions.properties.vehicle.engine
+	document.querySelector('#properties-engine-off').disabled = !permissions.properties.vehicle.engine
+	document.querySelector('#properties-vehicle-lights-on').disabled = !permissions.properties.vehicle.lights;
+	document.querySelector('#properties-vehicle-lights-off').disabled = !permissions.properties.vehicle.lights;
+}
+
 function currentEntity() {
 	return parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'));
 }
@@ -835,6 +895,9 @@ window.addEventListener('message', function(event) {
 		case 'openHelpMenu':
 			openHelpMenu();
 			break;
+		case 'updatePermissions':
+			updatePermissions(event.data);
+			break;
 	}
 });
 
@@ -857,6 +920,9 @@ window.addEventListener('load', function() {
 
 		animations = JSON.parse(resp.animations);
 		populateAnimationList();
+
+		propsets = JSON.parse(resp.propsets);
+		populatePropsetList();
 
 		document.querySelectorAll('.adjust-speed').forEach(e => e.value = resp.adjustSpeed);
 		document.querySelectorAll('.adjust-input').forEach(e => e.step = resp.adjustSpeed);
@@ -901,6 +967,14 @@ window.addEventListener('load', function() {
 		});
 	});
 
+	document.querySelector('#propset-spawn-by-name').addEventListener('click', function(event) {
+		document.querySelector('#propset-menu').style.display = 'none';
+
+		sendMessage('closePropsetMenu', {
+			modelName: document.querySelector('#propset-search-filter').value
+		});
+	});
+
 	document.querySelector('#ped-menu-close-btn').addEventListener('click', function(event) {
 		closePedMenu();
 	});
@@ -911,6 +985,10 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#object-menu-close-btn').addEventListener('click', function(event) {
 		closeObjectMenu();
+	});
+
+	document.querySelector('#propset-menu-close-btn').addEventListener('click', function(event) {
+		closePropsetMenu();
 	});
 
 	document.querySelector('#object-database-remove-all-btn').addEventListener('click', function(event) {
@@ -1110,6 +1188,10 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#spawn-menu-objects').addEventListener('click', function(event) {
 		openObjectMenu();
+	});
+
+	document.querySelector('#spawn-menu-propsets').addEventListener('click', function(event) {
+		openPropsetMenu();
 	});
 
 	document.querySelector('#spawn-menu-close').addEventListener('click', function(event) {

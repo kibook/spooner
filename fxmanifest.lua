@@ -23,6 +23,7 @@ client_scripts {
 	'scenarios.lua',
 	'weapons.lua',
 	'animations.lua',
+	'propsets.lua',
 	'client.lua'
 }
 

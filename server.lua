@@ -12,7 +12,11 @@ AddEventHandler('spooner:init', function()
 		permissions.maxEntities = Config.MaxEntities
 	end
 
-	permissions.spawn = IsPlayerAceAllowed(source, 'spooner.spawn')
+	permissions.spawn = {}
+	permissions.spawn.ped = IsPlayerAceAllowed(source, 'spooner.spawn.ped')
+	permissions.spawn.vehicle = IsPlayerAceAllowed(source, 'spooner.spawn.vehicle')
+	permissions.spawn.object = IsPlayerAceAllowed(source, 'spooner.spawn.object')
+	permissions.spawn.propset = IsPlayerAceAllowed(source, 'spooner.spawn.propset')
 	permissions.deleteOwn = IsPlayerAceAllowed(source, 'spooner.delete.own')
 	permissions.deleteOther = IsPlayerAceAllowed(source, 'spooner.delete.other')
 	permissions.modifyOwn = IsPlayerAceAllowed(source, 'spooner.modify.own')
