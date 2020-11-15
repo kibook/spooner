@@ -331,10 +331,11 @@ function playAnimation(animation) {
 	sendMessage('playAnimation', {
 		handle: currentEntity(),
 		dict: animation.getAttribute('data-dict'),
-		anim: animation.getAttribute('data-anim'),
-		speed: parseFloat(document.querySelector('#animation-speed').value),
+		name: animation.getAttribute('data-name'),
+		blendInSpeed: parseFloat(document.querySelector('#animation-blend-in-speed').value),
+		blendOutSpeed: parseFloat(document.querySelector('#animation-blend-out-speed').value),
 		duration: parseInt(document.querySelector('#animation-duration').value),
-		flags: parseInt(document.querySelector('#animation-flags').value),
+		flag: parseInt(document.querySelector('#animation-flag').value),
 		playbackRate: parseFloat(document.querySelector('#animation-playback-rate').value)
 	});
 }
@@ -474,7 +475,7 @@ function populateAnimationList(filter) {
 		div.className = 'object';
 		div.innerHTML = results[i].name;
 		div.setAttribute('data-dict', results[i].dict);
-		div.setAttribute('data-anim', results[i].anim);
+		div.setAttribute('data-name', results[i].anim);
 		div.addEventListener('click', function() {
 			playAnimation(this);
 		});

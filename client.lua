@@ -577,7 +577,7 @@ function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, out
 				Wait(0)
 			end
 
-			TaskPlayAnim(ped, animation.dict, animation.anim, animation.speed, animation.speed, animation.duration, animation.flags, animation.playbackRate, false, false, false, '', false)
+			TaskPlayAnim(ped, animation.dict, animation.name, animation.blendInSpeed, animation.blendOutSpeed, animation.duration, animation.flag, animation.playbackRate, false, false, false, '', false)
 		end
 	end
 
@@ -1712,10 +1712,13 @@ end)
 
 RegisterNUICallback('playAnimation', function(data, cb)
 	if Permissions.properties.ped.animation then
-		local speed = data.speed and data.speed * 1.0 or 4.0
+		local blendInSpeed = data.blendInSpeed and data.blendInSpeed * 1.0 or 1.0
+		local blendOutSpeed = data.blendOutSpeed and data.blendOutSpeed * 1.0 or 1.0
 		local duration = data.duration and data.duraction or -1
-		local flags = data.flags and data.flags or 1
-		local playbackRate = data.playbackRate and data.playbackRate * 1.0 or 0.0
+		local flag = data.flag and data.flag or 1
+		local playbackRate = data.playbackRate and data.playbackRate * 1.0 or 1.0
+
+		print(data.handle, data.dict, data.name, blendInSpeed, blendOutSpeed, duration, flag, playbackRate)
 
 		RequestControl(data.handle)
 
@@ -1726,15 +1729,16 @@ RegisterNUICallback('playAnimation', function(data, cb)
 				Wait(0)
 			end
 
-			TaskPlayAnim(data.handle, data.dict, data.anim, speed, speed, duration, flags, playbackRate, false, false, false, '', false)
+			TaskPlayAnim(data.handle, data.dict, data.name, blendInSpeed, blendOutSpeed, duration, flag, playbackRate, false, false, false, '', false)
 
 			if Database[data.handle] then
 				Database[data.handle].animation = {
 					dict = data.dict,
-					anim = data.anim,
-					speed = speed,
+					name = data.name,
+					blendInSpeed = blendOutSpeed,
+					blendOutSpeed = blendOutSpeed,
 					duration = duration,
-					flags = flags,
+					flag = flag,
 					playbackRate = playbackRate
 				}
 				Database[data.handle].scenario = nil
