@@ -1718,8 +1718,6 @@ RegisterNUICallback('playAnimation', function(data, cb)
 		local flag = data.flag and data.flag or 1
 		local playbackRate = data.playbackRate and data.playbackRate * 1.0 or 1.0
 
-		print(data.handle, data.dict, data.name, blendInSpeed, blendOutSpeed, duration, flag, playbackRate)
-
 		RequestControl(data.handle)
 
 		if DoesAnimDictExist(data.dict) then
