@@ -1212,8 +1212,15 @@ RegisterNUICallback('setRotateSpeed', function(data, cb)
 	cb({})
 end)
 
+function GetTeleportTarget()
+	local ped = PlayerPedId()
+	local veh = GetVehiclePedIsIn(ped, false)
+	local mnt = GetMount(ped)
+	return (veh == 0 and (mnt == 0 and ped or mnt) or veh)
+end
+
 function TeleportToCoords(x, y, z, h)
-	local ent = PlayerPedId()
+	local ent = GetTeleportTarget()
 	FreezeEntityPosition(ent, true)
 	SetEntityCoords(ent, x, y, z, 0, 0, 0, 0, 0)
 	SetEntityHeading(ent, h)
