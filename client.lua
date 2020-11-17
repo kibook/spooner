@@ -1376,16 +1376,8 @@ RegisterNUICallback('attachTo', function(data, cb)
 
 		if data.keepPos then
 			local x1, y1, z1 = table.unpack(GetEntityCoords(from))
-			local x2, y2, z2 = table.unpack(GetEntityCoords(to))
-			local rot = GetEntityRotation(from, 2)
-
-			x = x1 - x2
-			y = y1 - y2
-			z = z1 - z2
-
-			pitch = rot.x
-			roll = rot.y
-			yaw = rot.z
+			x, y, z = table.unpack(GetOffsetFromEntityGivenWorldCoords(to, x1, y1, z1))
+			pitch, roll, yaw = table.unpack(GetEntityRotation(from, 2) - GetEntityRotation(to, 2))
 		else
 			x = data.x and data.x * 1.0 or 0.0
 			y = data.y and data.y * 1.0 or 0.0
