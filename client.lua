@@ -1485,8 +1485,7 @@ end)
 RegisterNUICallback('performScenario', function(data, cb)
 	if Permissions.properties.ped.scenario then
 		RequestControl(data.handle)
-		ClearPedTasksImmediately(data.handle)
-		TaskStartScenarioInPlace(data.handle, GetHashKey(data.scenario), -1)
+		TaskStartScenarioInPlace(data.handle, GetHashKey(data.scenario), 0, true)
 
 		if Database[data.handle] then
 			Database[data.handle].animation = nil
