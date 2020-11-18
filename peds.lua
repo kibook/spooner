@@ -672,7 +672,6 @@ Peds = {
 	"CS_MP_Camp_Cook",
 	"CS_MP_CLIFF",
 	"CS_MP_CRIPPS",
-	"CS_MP_cripps_b",
 	"CS_MP_DANNYLEE",
 	"CS_MP_GRACE_LANCING",
 	"CS_MP_GUS_MACMILLAN",
