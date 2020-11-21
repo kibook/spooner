@@ -38,6 +38,7 @@ AddEventHandler('spooner:init', function()
 	permissions.properties.attachments = IsPlayerAceAllowed(source, 'spooner.properties.attachments')
 
 	permissions.properties.ped = {}
+	permissions.properties.ped.changeModel = IsPlayerAceAllowed(source, 'spooner.properties.ped.changeModel')
 	permissions.properties.ped.outfit = IsPlayerAceAllowed(source, 'spooner.properties.ped.oufit')
 	permissions.properties.ped.group = IsPlayerAceAllowed(source, 'spooner.properties.ped.group')
 	permissions.properties.ped.scenario = IsPlayerAceAllowed(source, 'spooner.properties.ped.scenario')

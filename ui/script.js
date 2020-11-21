@@ -626,29 +626,26 @@ function setFieldIfInactive(id, value) {
 function updatePropertiesMenu(data) {
 	var properties = JSON.parse(data.properties);
 
-	document.querySelectorAll('.property *').forEach(e => e.disabled = false);
-	document.querySelectorAll('.player-property *').forEach(e => e.disabled = true);
-	document.querySelectorAll('.ped-property *').forEach(e => e.disabled = true);
-	document.querySelectorAll('.vehicle-property *').forEach(e => e.disabled = true);
-	document.querySelectorAll('.object-property *').forEach(e => e.disabled = true);
+	document.querySelectorAll('.player-property').forEach(e => e.style.display = 'none');
+	document.querySelectorAll('.ped-property').forEach(e => e.style.display = 'none');
+	document.querySelectorAll('.vehicle-property').forEach(e => e.style.display = 'none');
+	document.querySelectorAll('.object-property').forEach(e => e.style.display = 'none');
 
 	switch (properties.type) {
 		case 1:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'ped';
-			document.querySelectorAll('.ped-property *').forEach(e => e.disabled = false);
+			document.querySelectorAll('.ped-property').forEach(e => e.style.display = 'block');
 			break;
 		case 2:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'vehicle';
-			document.querySelectorAll('.vehicle-property *').forEach(e => e.disabled = false);
+			document.querySelectorAll('.vehicle-property').forEach(e => e.style.display = 'block');
 			break;
 		case 3:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'object';
-			document.querySelectorAll('.object-property *').forEach(e => e.disabled = false);
+			document.querySelectorAll('.object-property').forEach(e => e.style.display = 'block');
 			break;
 		case 4:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'propset';
-			document.querySelectorAll('.property *').forEach(e => e.disabled = true);
-			document.querySelector('#properties-delete').disabled = false;
 			break;
 		case 5:
 			document.querySelector('#properties-menu-entity-type').innerHTML = 'pickup';
@@ -659,7 +656,7 @@ function updatePropertiesMenu(data) {
 	}
 
 	if (properties.playerName) {
-		document.querySelectorAll('.player-property *').forEach(e => e.disabled = false);
+		document.querySelectorAll('.player-property').forEach(e => e.style.display = 'block');
 	}
 
 	var entity = document.querySelector('#properties-menu-entity-id');
@@ -708,12 +705,6 @@ function updatePropertiesMenu(data) {
 	} else {
 		document.querySelector('#properties-collision-on').style.display = 'none';
 		document.querySelector('#properties-collision-off').style.display = 'block';
-	}
-
-	if (data.inDb && properties.type == 3) {
-		document.querySelector('#properties-lights-options').disabled = false;
-	} else {
-		document.querySelector('#properties-lights-options').disabled = true;
 	}
 
 	if (properties.lightsIntensity) {
@@ -956,6 +947,7 @@ function updatePermissions(data) {
 	document.querySelector('#properties-collision-off').disabled = !permissions.properties.collision;
 	document.querySelector('#properties-collision-on').disabled = !permissions.properties.collision;
 	document.querySelector('#properties-attach').disabled = !permissions.properties.attachments;
+	document.querySelector('#properties-player-model').disabled = !permissions.properties.ped.changeModel;
 	document.querySelector('#properties-outfit').disabled = !permissions.properties.ped.outfit;
 	document.querySelector('#properties-add-to-group').disabled = !permissions.properties.ped.group;
 	document.querySelector('#properties-remove-from-group').disabled = !permissions.properties.ped.group;

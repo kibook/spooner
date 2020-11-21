@@ -41,6 +41,7 @@ Permissions.properties.attachments = false
 Permissions.properties.lights = false
 
 Permissions.properties.ped = {}
+Permissions.properties.ped.changeModel = false
 Permissions.properties.ped.outfit = false
 Permissions.properties.ped.group = false
 Permissions.properties.ped.scenario = false
@@ -761,19 +762,6 @@ RegisterNUICallback('closePedMenu', function(data, cb)
 	cb({})
 end)
 
-RegisterNUICallback('setPlayerModel', function(data, cb)
-	if data.modelName then
-		local model = GetHashKey(data.modelName)
-
-		if LoadModel(model) then
-			SetPlayerModel(PlayerId(), model, true)
-		end
-	end
-	cb({
-		handle = PlayerPedId()
-	})
-end)
-
 RegisterNUICallback('closeVehicleMenu', function(data, cb)
 	if data.modelName then
 		CurrentSpawn = {
@@ -966,8 +954,7 @@ RegisterNUICallback('updatePropertiesMenu', function(data, cb)
 		entity = data.handle,
 		properties = json.encode(GetEntityProperties(data.handle)),
 		inDb = EntityIsInDatabase(data.handle),
-		hasNetworkControl = NetworkHasControlOfEntity(data.handle),
-		permissions = json.encode(Permissions)
+		hasNetworkControl = NetworkHasControlOfEntity(data.handle)
 	})
 end)
 
@@ -1732,6 +1719,19 @@ RegisterNUICallback('aiOff', function(data, cb)
 	end
 
 	cb({})
+end)
+
+RegisterNUICallback('setPlayerModel', function(data, cb)
+	if Permissions.properties.ped.changeModel and data.modelName then
+		local model = GetHashKey(data.modelName)
+
+		if LoadModel(model) then
+			SetPlayerModel(PlayerId(), model, true)
+		end
+	end
+	cb({
+		handle = PlayerPedId()
+	})
 end)
 
 RegisterNUICallback('playAnimation', function(data, cb)
