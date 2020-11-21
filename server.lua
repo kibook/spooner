@@ -39,7 +39,7 @@ AddEventHandler('spooner:init', function()
 
 	permissions.properties.ped = {}
 	permissions.properties.ped.changeModel = IsPlayerAceAllowed(source, 'spooner.properties.ped.changeModel')
-	permissions.properties.ped.outfit = IsPlayerAceAllowed(source, 'spooner.properties.ped.oufit')
+	permissions.properties.ped.outfit = IsPlayerAceAllowed(source, 'spooner.properties.ped.outfit')
 	permissions.properties.ped.group = IsPlayerAceAllowed(source, 'spooner.properties.ped.group')
 	permissions.properties.ped.scenario = IsPlayerAceAllowed(source, 'spooner.properties.ped.scenario')
 	permissions.properties.ped.animation = IsPlayerAceAllowed(source, 'spooner.properties.ped.animation')
