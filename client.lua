@@ -281,10 +281,22 @@ function GetModelName(model)
 	return string.format('%x', model)
 end
 
+function GetPlayerFromPed(ped)
+	for _, playerId in ipairs(GetActivePlayers()) do
+		if ped == GetPlayerPed(playerId) then
+			return playerId
+		end
+	end
+
+	return nil
+end
+
 function GetLiveEntityProperties(entity)
 	local model = GetEntityModel(entity)
 	local x, y, z = table.unpack(GetEntityCoords(entity))
 	local pitch, roll, yaw = table.unpack(GetEntityRotation(entity, 2))
+	local isPlayer = IsPedAPlayer(entity)
+	local player = isPlayer and GetPlayerFromPed(entity)
 
 	return {
 		name = GetModelName(model),
@@ -306,6 +318,8 @@ function GetLiveEntityProperties(entity)
 		animation = nil,
 		scenario = nil,
 		blockNonTemporaryEvents = false,
+		isSelf = entity == PlayerPedId(),
+		playerName = player and GetPlayerName(player),
 		attachment = {
 			to = GetEntityAttachedTo(entity),
 			bone = 0,
@@ -432,6 +446,20 @@ function IsDatabaseFull()
 	return Permissions.maxEntities and GetDatabaseSize() >= Permissions.maxEntities
 end
 
+function LoadModel(model)
+	if IsModelInCdimage(model) then
+		RequestModel(model)
+
+		while not HasModelLoaded(model) do
+			Wait(0)
+		end
+
+		return true
+	else
+		return false
+	end
+end
+
 function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, lightsIntensity, lightsColour, lightsType)
 	if not Permissions.spawn.object then
 		return nil
@@ -441,13 +469,8 @@ function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, 
 		return nil
 	end
 
-	if not IsModelInCdimage(model) then
+	if not LoadModel(model) then
 		return nil
-	end
-
-	RequestModel(model)
-	while not HasModelLoaded(model) do
-		Wait(0)
 	end
 
 	local object = CreateObjectNoOffset(model, x, y, z, true, false, true)
@@ -492,13 +515,8 @@ function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collisionDisabled)
 		return nil
 	end
 
-	if not IsModelInCdimage(model) then
+	if not LoadModel(model) then
 		return nil
-	end
-
-	RequestModel(model)
-	while not HasModelLoaded(model) do
-		Wait(0)
 	end
 
 	local veh = CreateVehicle(model, x, y, z, 0.0, true, false)
@@ -535,13 +553,8 @@ function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, out
 		return nil
 	end
 
-	if not IsModelInCdimage(model) then
+	if not LoadModel(model) then
 		return nil
-	end
-
-	RequestModel(model)
-	while not HasModelLoaded(model) do
-		Wait(0)
 	end
 
 	local ped = CreatePed_2(model, x, y, z, 0.0, true, false)
@@ -746,6 +759,19 @@ RegisterNUICallback('closePedMenu', function(data, cb)
 	end
 	SetNuiFocus(false, false)
 	cb({})
+end)
+
+RegisterNUICallback('setPlayerModel', function(data, cb)
+	if data.modelName then
+		local model = GetHashKey(data.modelName)
+
+		if LoadModel(model) then
+			SetPlayerModel(PlayerId(), model, true)
+		end
+	end
+	cb({
+		handle = PlayerPedId()
+	})
 end)
 
 RegisterNUICallback('closeVehicleMenu', function(data, cb)

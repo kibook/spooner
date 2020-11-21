@@ -188,6 +188,9 @@
 		</div>
 		<div id="ped-options-menu" class="menu">
 			<div id="ped-options" class="list">
+				<div class="property player-property">
+					<button id="properties-player-model">Change Model</button>
+				</div>
 				<div class="property">
 					<div class="label">Outfit</div>
 					<input type="number" id="properties-outfit" min="-1" step="1">
@@ -359,6 +362,14 @@
 			<div id="pickup-list" class="list"></div>
 			<button id="pickup-spawn-by-name">Spawn By Name</button>
 			<button id="pickup-menu-close-btn">Back</button>
+		</div>
+		<div id="player-model-menu" class="menu">
+			<div id="player-model-search">
+				<input type="text" id="player-model-search-filter" class="search-filter" value="">
+			</div>
+			<div id="player-model-list" class="list"></div>
+			<button id="player-model-spawn-by-name">Spawn By Name</button>
+			<button id="player-model-menu-close-btn">Back</button>
 		</div>
 		<div id="help-menu">
 			<h1>Object Spooner Help</h1>

@@ -360,6 +360,38 @@ function populatePedList(filter) {
 	}
 }
 
+function setPlayerModel(modelName) {
+	sendMessage('setPlayerModel', {
+		modelName: modelName
+	}).then(resp => resp.json()).then(resp => {
+		document.getElementById('properties-menu-entity-id').setAttribute('data-handle', resp.handle);
+		clearInterval(propertiesMenuUpdate);
+		propertiesMenuUpdate = setInterval(function() {
+			sendUpdatePropertiesMenuMessage(resp.handle, false);
+		}, 500);
+	});
+}
+
+function populatePlayerModelList(filter) {
+	var pedList = document.querySelector('#player-model-list');
+
+	pedList.innerHTML = '';
+
+	for (i = 0; i < peds.length; ++i) {
+		var name = peds[i];
+
+		if (!filter || filter == '' || name.toLowerCase().includes(filter.toLowerCase())) {
+			var div = document.createElement('div');
+			div.className = 'object';
+			div.innerHTML = name;
+			div.addEventListener('click', function(event) {
+				setPlayerModel(this.innerHTML);
+			});
+			pedList.appendChild(div);
+		}
+	}
+}
+
 function populateVehicleList(filter) {
 	var vehicleList = document.querySelector('#vehicle-list');
 
@@ -541,9 +573,20 @@ function openDatabase(data) {
 
 	Object.keys(database).forEach(function(handle) {
 		var entityId = parseInt(handle);
+
 		var div = document.createElement('div');
-		div.className = 'object';
-		div.innerHTML = entityId.toString(16) + ' ' + database[handle].name;
+		if (database[handle].isSelf) {
+			div.className = 'object self';
+		} else {
+			div.className = 'object'
+		}
+
+		if (database[handle].playerName) {
+			div.innerHTML = entityId.toString(16) + ' ' + database[handle].name + ' (' + database[handle].playerName + ')';
+		} else {
+			div.innerHTML = entityId.toString(16) + ' ' + database[handle].name;
+		}
+
 		div.setAttribute('data-handle', handle);
 		div.addEventListener('click', function(event) {
 			document.querySelector('#object-database').style.display = 'none';
@@ -584,6 +627,7 @@ function updatePropertiesMenu(data) {
 	var properties = JSON.parse(data.properties);
 
 	document.querySelectorAll('.property *').forEach(e => e.disabled = false);
+	document.querySelectorAll('.player-property *').forEach(e => e.disabled = true);
 	document.querySelectorAll('.ped-property *').forEach(e => e.disabled = true);
 	document.querySelectorAll('.vehicle-property *').forEach(e => e.disabled = true);
 	document.querySelectorAll('.object-property *').forEach(e => e.disabled = true);
@@ -614,9 +658,17 @@ function updatePropertiesMenu(data) {
 			break;
 	}
 
+	if (properties.playerName) {
+		document.querySelectorAll('.player-property *').forEach(e => e.disabled = false);
+	}
+
 	var entity = document.querySelector('#properties-menu-entity-id');
 	entity.setAttribute('data-handle', data.entity);
-	entity.innerHTML = data.entity.toString(16);
+	if (properties.playerName) {
+		entity.innerHTML = data.entity.toString(16) + ' (' + properties.playerName + ')';
+	} else {
+		entity.innerHTML = data.entity.toString(16);
+	}
 
 	document.querySelector('#properties-model').innerHTML = properties.name;
 
@@ -965,6 +1017,7 @@ window.addEventListener('load', function() {
 	sendMessage('init', {}).then(resp => resp.json()).then(function(resp) {
 		peds = JSON.parse(resp.peds);
 		populatePedList();
+		populatePlayerModelList();
 
 		vehicles = JSON.parse(resp.vehicles);
 		populateVehicleList();
@@ -998,6 +1051,10 @@ window.addEventListener('load', function() {
 		populatePedList(this.value);
 	});
 
+	document.querySelector('#player-model-search-filter').addEventListener('input', function(event) {
+		populatePlayerModelList(this.value);
+	});
+
 	document.querySelector('#vehicle-search-filter').addEventListener('input', function(event) {
 		populateVehicleList(this.value);
 	});
@@ -1012,6 +1069,11 @@ window.addEventListener('load', function() {
 		sendMessage('closePedMenu', {
 			modelName: document.querySelector('#ped-search-filter').value
 		});
+	});
+
+	document.querySelector('#player-model-spawn-by-name').addEventListener('click', function(event) {
+		document.querySelector('#player-model-menu').style.display = 'none';
+		setPlayerModel(document.querySelector('#player-model-search-filter').value);
 	});
 
 	document.querySelector('#vehicle-spawn-by-name').addEventListener('click', function(event) {
@@ -1048,6 +1110,11 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#ped-menu-close-btn').addEventListener('click', function(event) {
 		closePedMenu();
+	});
+
+	document.getElementById('player-model-menu-close-btn').addEventListener('click', function(event) {
+		document.querySelector('#player-model-menu').style.display = 'none';
+		document.querySelector('#ped-options-menu').style.display = 'flex';
 	});
 
 	document.querySelector('#vehicle-menu-close-btn').addEventListener('click', function(event) {
@@ -1560,5 +1627,10 @@ window.addEventListener('load', function() {
 
 	document.querySelector('#pickup-search-filter').addEventListener('input', function(event) {
 		populatePickupList(this.value);
+	});
+
+	document.getElementById('properties-player-model').addEventListener('click', function(event) {
+		document.querySelector('#ped-options-menu').style.display = 'none';
+		document.querySelector('#player-model-menu').style.display = 'flex';
 	});
 });

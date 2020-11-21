@@ -192,6 +192,10 @@ input:disabled {
 	color: white;
 }
 
+.self {
+	background-color: rgba(255, 0, 0, 0.3);
+}
+
 #properties-menu .label, #properties-menu .value {
 	display: inline;
 }
