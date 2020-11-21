@@ -19,11 +19,17 @@ AddEventHandler('spooner:init', function()
 	permissions.spawn.propset = IsPlayerAceAllowed(source, 'spooner.spawn.propset')
 	permissions.spawn.pickup = IsPlayerAceAllowed(source, 'spooner.spawn.pickup')
 
-	permissions.deleteOwn = IsPlayerAceAllowed(source, 'spooner.delete.own')
-	permissions.deleteOther = IsPlayerAceAllowed(source, 'spooner.delete.other')
+	permissions.delete = {}
+	permissions.delete.own = IsPlayerAceAllowed(source, 'spooner.delete.own')
+	permissions.delete.other = IsPlayerAceAllowed(source, 'spooner.delete.other')
+	permissions.delete.networked = IsPlayerAceAllowed(source, 'spooner.delete.networked')
+	permissions.delete.nonNetworked = IsPlayerAceAllowed(source, 'spooner.delete.nonNetworked')
 
-	permissions.modifyOwn = IsPlayerAceAllowed(source, 'spooner.modify.own')
-	permissions.modifyOther = IsPlayerAceAllowed(source, 'spooner.modify.other')
+	permissions.modify = {}
+	permissions.modify.own = IsPlayerAceAllowed(source, 'spooner.modify.own')
+	permissions.modify.other = IsPlayerAceAllowed(source, 'spooner.modify.other')
+	permissions.modify.networked = IsPlayerAceAllowed(source, 'spooner.modify.networked')
+	permissions.modify.nonNetworked = IsPlayerAceAllowed(source, 'spooner.modify.nonNetworked')
 
 	permissions.properties = {}
 	permissions.properties.freeze = IsPlayerAceAllowed(source, 'spooner.properties.freeze')

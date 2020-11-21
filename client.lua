@@ -21,11 +21,17 @@ Permissions.spawn.object = false
 Permissions.spawn.propset = false
 Permissions.spawn.pickup = false
 
-Permissions.deleteOwn = false
-Permissions.deleteOther = false
+Permissions.delete = {}
+Permissions.delete.own = false
+Permissions.delete.other = false
+Permissions.delete.networked = false
+Permissions.delete.nonNetworked = false
 
-Permissions.modifyOwn = false
-Permissions.modifyOther = false
+Permissions.modify = {}
+Permissions.modify.own = false
+Permissions.modify.other = false
+Permissions.modify.networked = false
+Permissions.modify.nonNetworked = false
 
 Permissions.properties = {}
 Permissions.properties.freeze = false
@@ -699,9 +705,17 @@ end
 
 function CanDeleteEntity(entity)
 	if EntityIsInDatabase(entity) then
-		return Permissions.deleteOwn
+		if NetworkGetEntityIsNetworked(entity) then
+			return Permissions.delete.own and Permissions.delete.networked
+		else
+			return Permissions.delete.own and Permissions.delete.nonNetworked
+		end
 	else
-		return Permissions.deleteOther
+		if NetworkGetEntityIsNetworked(entity) then
+			return Permissions.delete.other and Permissions.delete.networked
+		else
+			return Permissions.delete.other and Permissions.delete.nonNetworked
+		end
 	end
 end
 
@@ -837,7 +851,7 @@ RegisterNUICallback('addEntityToDatabase', function(data, cb)
 end)
 
 RegisterNUICallback('removeEntityFromDatabase', function(data, cb)
-	if not Permissions.maxEntities and Permissions.modifyOther then
+	if not Permissions.maxEntities and Permissions.modify.other then
 		RemoveEntityFromDatabase(data.handle)
 	end
 	cb({})
@@ -925,9 +939,17 @@ end
 
 function CanModifyEntity(entity)
 	if EntityIsInDatabase(entity) then
-		return Permissions.modifyOwn
+		if NetworkGetEntityIsNetworked(entity) then
+			return Permissions.modify.own and Permissions.modify.networked
+		else
+			return Permissions.modify.own and Permissions.modify.nonNetworked
+		end
 	else
-		return Permissions.modifyOther
+		if NetworkGetEntityIsNetworked(entity) then
+			return Permissions.modify.other and Permissions.modify.networked
+		else
+			return Permissions.modify.other and Permissions.modify.nonNetworked
+		end
 	end
 end
 
