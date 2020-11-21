@@ -385,6 +385,8 @@ function populatePlayerModelList(filter) {
 			div.className = 'object';
 			div.innerHTML = name;
 			div.addEventListener('click', function(event) {
+				pedList.querySelectorAll('.object').forEach(e => e.className = 'object');
+				this.className = 'object selected';
 				setPlayerModel(this.innerHTML);
 			});
 			pedList.appendChild(div);
