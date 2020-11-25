@@ -60,3 +60,6 @@ Config.GroupMemberBlipSprite = -214162151
 
 -- Max entities that can be spawned at a time by players without spooner.noEntityLimit
 Config.MaxEntities = 10
+
+-- Whether to automatically remove all entities from players' databases when the resource is stopped
+Config.CleanUpOnStop = true

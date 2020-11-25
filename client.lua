@@ -756,7 +756,10 @@ end
 AddEventHandler('onResourceStop', function(resourceName)
 	if GetCurrentResourceName() == resourceName then
 		DisableSpoonerMode()
-		--RemoveAllFromDatabase();
+
+		if Config.CleanUpOnStop then
+			RemoveAllFromDatabase();
+		end
 	end
 end)
 
