@@ -1846,7 +1846,7 @@ RegisterNUICallback('playAnimation', function(data, cb)
 				Database[data.handle].animation = {
 					dict = data.dict,
 					name = data.name,
-					blendInSpeed = blendOutSpeed,
+					blendInSpeed = blendInSpeed,
 					blendOutSpeed = blendOutSpeed,
 					duration = duration,
 					flag = flag,
