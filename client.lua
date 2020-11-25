@@ -1344,6 +1344,68 @@ function ConvertDatabaseToMapEditorXml(creator, database)
 	return xml
 end
 
+function ToQuaternion(pitch, roll, yaw)
+	local cp = math.cos(pitch * 0.5)
+	local sp = math.sin(pitch * 0.5)
+	local cr = math.cos(pitch * 0.5)
+	local sr = math.sin(pitch * 0.5)
+	local cy = math.cos(pitch * 0.5)
+	local sy = math.sin(pitch * 0.5)
+
+	return {
+		w = cr * cp * cy + sr * sp * sy,
+		x = sr * cp * cy - cr * sp * sy,
+		y = cr * sp * cy + sr * cp * sy,
+		z = cr * cp * sy - sr * sp * cy
+	}
+end
+
+function ConvertDatabaseToYmap(database)
+	local minX, maxX, minY, maxY, minZ, maxZ
+
+	local entitiesXml = '\t<entities>\n'
+
+	for entity, properties in pairs(database) do
+		local q = ToQuaternion(properties.pitch, properties.roll, properties.yaw)
+
+		if not minX or properties.x < minX then
+			minX = properties.x
+		end
+		if not maxX or properties.x > maxX then
+			maxX = properties.x
+		end
+		if not minY or properties.y < minY then
+			minY = properties.y
+		end
+		if not maxY or properties.y > maxY then
+			maxY = properties.y
+		end
+		if not minZ or properties.z < minZ then
+			minZ = properties.z
+		end
+		if not maxZ or properties.z > maxZ then
+			maxZ = properties.z
+		end
+
+		entitiesXml = entitiesXml .. string.format('\t\t<Item type="CEntityDef">\n\t\t\t<archetypeName>%s</archetypeName>\n\t\t\t<position x="%f" y="%f" z="%f"/>\n\t\t\t<rotation w="%f" x="%f" y="%f" z="%f"/>\n\t\t</Item>\n', properties.name, properties.x, properties.y, properties.z, q.w, q.x, q.y, q.z)
+	end
+
+	entitiesXml = entitiesXml .. '\t</entities>\n'
+
+	local xml = '<CMapData>\n'
+
+	xml = xml .. string.format('\t<streamingExtentsMin x="%f" y="%f" z="%f"/>\n', minX - 400, minY - 400, minZ - 400)
+	xml = xml .. string.format('\t<streamingExtentsMax x="%f" y="%f" z="%f"/>\n', maxX + 400, maxY + 400, maxZ + 400)
+	xml = xml .. string.format('\t<entitiesExtentsMin x="%f" y="%f" z="%f"/>\n', minX, minY, minZ)
+	xml = xml .. string.format('\t<entitiesExtentsMax x="%f" y="%f" z="%f"/>\n', maxX, maxY, maxZ)
+
+	xml = xml .. entitiesXml
+
+	xml = xml .. '</CMapData>'
+
+	return xml
+end
+
 function ExportDatabase(format)
 	UpdateDatabase()
 
@@ -1351,6 +1413,8 @@ function ExportDatabase(format)
 		return json.encode(PrepareDatabaseForSave(Database))
 	elseif format == 'map-editor-xml' then
 		return ConvertDatabaseToMapEditorXml(GetPlayerName(), PrepareDatabaseForSave(Database))
+	elseif format == 'ymap' then
+		return ConvertDatabaseToYmap(PrepareDatabaseForSave(Database))
 	end
 end
 
