@@ -36,7 +36,9 @@ For example:
 add_ace builtin.everyone spooner.view allow
 add_ace builtin.everyone spooner.spawn allow
 add_ace builtin.everyone spooner.modify.own allow
+add_ace builtin.everyone spooner.modify.networked allow
 add_ace builtin.everyone spooner.delete.own allow
+add_ace builtin.everyone spooner.delete.networked allow
 add_ace builtin.everyone spooner.properties allow
 
 add_ace group.admin spooner.noEntityLimit allow
@@ -44,7 +46,7 @@ add_ace group.admin spooner.modify.other allow
 add_ace group.admin spooner.delete.other allow
 ```
 
-The above configuration would allow all users to spawn a limited number of entities, and only modify or delete the objects they spawn, while an admin can spawn any number of entities and modify or delete other players' entities.
+The above configuration would allow all users to spawn a limited number of entities, and only modify or delete the objects they spawn, while an admin can spawn any number of entities and modify or delete other players' entities. Both groups can only modify or delete networked entities (those which are synchronized between clients).
 
 If you need to change any permissions while the server is running, after adding/removing any spooner-related aces, run `spooner_refresh_perms` to refresh the permissions on all clients, or restart the resource.
 
