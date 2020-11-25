@@ -13,7 +13,7 @@ Tool for spawning, placing, and removing entities in RedM, inspired by Menyoo's 
 
 # Example
 
-[![Object Spooner Example](https://i.imgur.com/foLmX9rm.jpg)](https://imgur.com/foLmX9r)
+[![Object Spooner Example](https://i.imgur.com/HLzNYUIm.jpg)](https://imgur.com/HLzNYUI)
 
 # Install
 
