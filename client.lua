@@ -22,16 +22,20 @@ Permissions.spawn.propset = false
 Permissions.spawn.pickup = false
 
 Permissions.delete = {}
-Permissions.delete.own = false
-Permissions.delete.other = false
-Permissions.delete.networked = false
-Permissions.delete.nonNetworked = false
+Permissions.delete.own = {}
+Permissions.delete.own.networked = false
+Permissions.delete.own.nonNetworked = false
+Permissions.delete.other = {}
+Permissions.delete.other.networked = false
+Permissions.delete.other.nonNetworked = false
 
 Permissions.modify = {}
-Permissions.modify.own = false
-Permissions.modify.other = false
-Permissions.modify.networked = false
-Permissions.modify.nonNetworked = false
+Permissions.modify.own = {}
+Permissions.modify.own.networked = false
+Permissions.modify.own.nonNetworked = false
+Permissions.modify.other = {}
+Permissions.modify.other.networked = false
+Permissions.modify.other.nonNetworked = false
 
 Permissions.properties = {}
 Permissions.properties.freeze = false
@@ -706,15 +710,15 @@ end
 function CanDeleteEntity(entity)
 	if EntityIsInDatabase(entity) then
 		if NetworkGetEntityIsNetworked(entity) then
-			return Permissions.delete.own and Permissions.delete.networked
+			return Permissions.delete.own.networked
 		else
-			return Permissions.delete.own and Permissions.delete.nonNetworked
+			return Permissions.delete.own.nonNetworked
 		end
 	else
 		if NetworkGetEntityIsNetworked(entity) then
-			return Permissions.delete.other and Permissions.delete.networked
+			return Permissions.delete.other.networked
 		else
-			return Permissions.delete.other and Permissions.delete.nonNetworked
+			return Permissions.delete.other.nonNetworked
 		end
 	end
 end
@@ -943,15 +947,15 @@ end
 function CanModifyEntity(entity)
 	if EntityIsInDatabase(entity) then
 		if NetworkGetEntityIsNetworked(entity) then
-			return Permissions.modify.own and Permissions.modify.networked
+			return Permissions.modify.own.networked
 		else
-			return Permissions.modify.own and Permissions.modify.nonNetworked
+			return Permissions.modify.own.nonNetworked
 		end
 	else
 		if NetworkGetEntityIsNetworked(entity) then
-			return Permissions.modify.other and Permissions.modify.networked
+			return Permissions.modify.other.networked
 		else
-			return Permissions.modify.other and Permissions.modify.nonNetworked
+			return Permissions.modify.other.nonNetworked
 		end
 	end
 end

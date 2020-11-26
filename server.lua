@@ -20,16 +20,20 @@ AddEventHandler('spooner:init', function()
 	permissions.spawn.pickup = IsPlayerAceAllowed(source, 'spooner.spawn.pickup')
 
 	permissions.delete = {}
-	permissions.delete.own = IsPlayerAceAllowed(source, 'spooner.delete.own')
-	permissions.delete.other = IsPlayerAceAllowed(source, 'spooner.delete.other')
-	permissions.delete.networked = IsPlayerAceAllowed(source, 'spooner.delete.networked')
-	permissions.delete.nonNetworked = IsPlayerAceAllowed(source, 'spooner.delete.nonNetworked')
+	permissions.delete.own = {}
+	permissions.delete.own.networked = IsPlayerAceAllowed(source, 'spooner.delete.own.networked')
+	permissions.delete.own.nonNetworked = IsPlayerAceAllowed(source, 'spooner.delete.own.nonNetworked')
+	permissions.delete.other = {}
+	permissions.delete.other.networked = IsPlayerAceAllowed(source, 'spooner.delete.other.networked')
+	permissions.delete.other.nonNetworked = IsPlayerAceAllowed(source, 'spooner.delete.other.nonNetworked')
 
 	permissions.modify = {}
-	permissions.modify.own = IsPlayerAceAllowed(source, 'spooner.modify.own')
-	permissions.modify.other = IsPlayerAceAllowed(source, 'spooner.modify.other')
-	permissions.modify.networked = IsPlayerAceAllowed(source, 'spooner.modify.networked')
-	permissions.modify.nonNetworked = IsPlayerAceAllowed(source, 'spooner.modify.nonNetworked')
+	permissions.modify.own = {}
+	permissions.modify.own.networked = IsPlayerAceAllowed(source, 'spooner.modify.own.networked')
+	permissions.modify.own.nonNetworked = IsPlayerAceAllowed(source, 'spooner.modify.own.nonNetworked')
+	permissions.modify.other = {}
+	permissions.modify.other.networked = IsPlayerAceAllowed(source, 'spooner.modify.other.networked')
+	permissions.modify.other.nonNetworked = IsPlayerAceAllowed(source, 'spooner.modify.other.nonNetworked')
 
 	permissions.properties = {}
 	permissions.properties.freeze = IsPlayerAceAllowed(source, 'spooner.properties.freeze')
