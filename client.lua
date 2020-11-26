@@ -331,6 +331,7 @@ function GetLiveEntityProperties(entity)
 		blockNonTemporaryEvents = false,
 		isSelf = entity == PlayerPedId(),
 		playerName = player and GetPlayerName(player),
+		weapons = {},
 		attachment = {
 			to = GetEntityAttachedTo(entity),
 			bone = 0,
@@ -368,6 +369,8 @@ function AddEntityToDatabase(entity, name, attachment)
 	local scenario = Database[entity] and Database[entity].scenario
 
 	local blockNonTemporaryEvents = Database[entity] and Database[entity].blockNonTemporaryEvents or false
+
+	local weapons = Database[entity] and Database[entity].weapons or {}
 
 	if attachment then
 		attachBone  = attachment.bone
@@ -419,6 +422,8 @@ function AddEntityToDatabase(entity, name, attachment)
 	Database[entity].scenario = scenario
 
 	Database[entity].blockNonTemporaryEvents = blockNonTemporaryEvents
+
+	Database[entity].weapons = weapons
 
 	return Database[entity]
 end
@@ -555,7 +560,7 @@ function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collisionDisabled)
 	return veh
 end
 
-function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, outfit, addToGroup, animation, scenario, blockNonTemporaryEvents)
+function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, outfit, addToGroup, animation, scenario, blockNonTemporaryEvents, weapons)
 	if not Permissions.spawn.ped then
 		return nil
 	end
@@ -614,11 +619,18 @@ function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, out
 		SetBlockingOfNonTemporaryEvents(ped, true)
 	end
 
+	if weapons then
+		for _, weapon in ipairs(weapons) do
+			GiveWeaponToPed_2(ped, GetHashKey(weapon), 500, true, false, 0, false, 0.5, 1.0, 0, false, 0.0, false)
+		end
+	end
+
 	AddEntityToDatabase(ped, name)
 	Database[ped].outfit = outfit
 	Database[ped].animation = animation
 	Database[ped].scenario = scenario
 	Database[ped].blockNonTemporaryEvents = blockNonTemporaryEvents
+	Database[ped].weapons = weapons
 
 	return ped
 end
@@ -1136,7 +1148,7 @@ function LoadDatabase(db, relative, replace)
 		end
 
 		if spawn.props.type == 1 then
-			entity = SpawnPed(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled, spawn.props.outfit, spawn.props.isInGroup, spawn.props.animation, spawn.props.scenario, spawn.props.blockNonTemporaryEvents)
+			entity = SpawnPed(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled, spawn.props.outfit, spawn.props.isInGroup, spawn.props.animation, spawn.props.scenario, spawn.props.blockNonTemporaryEvents, spawn.props.weapons)
 		elseif spawn.props.type == 2 then
 			entity = SpawnVehicle(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled)
 		elseif spawn.props.type == 5 then
@@ -1283,7 +1295,7 @@ function CloneEntity(entity)
 	local clone = nil
 
 	if props.type == 1 then
-		clone = SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.outfit, props.isInGroup, props.animation, props.scenario, props.blockNonTemporaryEvents)
+		clone = SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.outfit, props.isInGroup, props.animation, props.scenario, props.blockNonTemporaryEvents, props.weapons)
 	elseif props.type == 2 then
 		clone = SpawnVehicle(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled)
 	elseif props.type == 3 then
@@ -1680,6 +1692,10 @@ RegisterNUICallback('giveWeapon', function(data, cb)
 	if Permissions.properties.ped.weapon then
 		RequestControl(data.handle)
 		GiveWeaponToPed_2(data.handle, GetHashKey(data.weapon), 500, true, false, 0, false, 0.5, 1.0, 0, false, 0.0, false)
+
+		if Database[data.handle] then
+			table.insert(Database[data.handle].weapons, data.weapon)
+		end
 	end
 	cb({})
 end)
@@ -1688,6 +1704,10 @@ RegisterNUICallback('removeAllWeapons', function(data, cb)
 	if Permissions.properties.ped.weapon then
 		RequestControl(data.handle)
 		RemoveAllPedWeapons(data.handle, true, true)
+
+		if Database[data.handle] then
+			Database[data.handle].weapons = {}
+		end
 	end
 	cb({})
 end)
@@ -1996,7 +2016,7 @@ CreateThread(function()
 					local entity
 
 					if CurrentSpawn.type == 1 then
-						entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, -1, false, nil, nil, false)
+						entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, -1, false, nil, nil, false, nil)
 					elseif CurrentSpawn.type == 2 then
 						entity = SpawnVehicle(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false)
 					elseif CurrentSpawn.type == 3 then
