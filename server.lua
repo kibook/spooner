@@ -63,7 +63,7 @@ AddEventHandler('spooner:init', function()
 	permissions.properties.vehicle.repair = IsPlayerAceAllowed(source, 'spooner.properties.vehicle.repair')
 	permissions.properties.vehicle.getin = IsPlayerAceAllowed(source, 'spooner.properties.vehicle.getin')
 	permissions.properties.vehicle.engine = IsPlayerAceAllowed(source, 'spooner.properties.vehicle.engine')
-	permissions.properties.vehicle.lights = IsPlayerAceAllowed(source, 'spooiner.properties.vehicle.lights')
+	permissions.properties.vehicle.lights = IsPlayerAceAllowed(source, 'spooner.properties.vehicle.lights')
 
 	TriggerClientEvent('spooner:init', source, permissions)
 end)
