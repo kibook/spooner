@@ -1057,6 +1057,10 @@ window.addEventListener('load', function() {
 		populateObjectList(this.value);
 	});
 
+	document.getElementById('propset-search-filter').addEventListener('input', function(event) {
+		populatePropsetList(this.value);
+	});
+
 	document.querySelector('#ped-spawn-by-name').addEventListener('click', function(event) {
 		document.querySelector('#ped-menu').style.display = 'none';
 
