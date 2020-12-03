@@ -42,9 +42,14 @@ function updateSpoonerHud(data) {
 
 	var entityInfo = document.querySelector('#entity-info');
 	var entityId = document.querySelector('#entity-id');
+	var entityNetId = document.querySelector('#entity-net-id');
 	
 	if (data.entity) {
-		entityId.innerHTML = data.entity.toString(16);
+		if (data.netId) {
+			entityId.innerHTML = data.entity.toString(16) + ' [' + data.netId.toString(16) + ']';
+		} else {
+			entityId.innerHTML = data.entity.toString(16);
+		}
 		entityInfo.style.display = 'block';
 	} else {
 		entityInfo.style.display = 'none';
@@ -584,9 +589,17 @@ function openDatabase(data) {
 		}
 
 		if (database[handle].playerName) {
-			div.innerHTML = entityId.toString(16) + ' ' + database[handle].name + ' (' + database[handle].playerName + ')';
+			if (database[handle].netId) {
+				div.innerHTML = entityId.toString(16) + ' [' + database[handle].netId.toString(16) + '] ' + database[handle].name + ' (' + database[handle].playerName + ')';
+			} else {
+				div.innerHTML = entityId.toString(16) + ' ' + database[handle].name + ' (' + database[handle].playerName + ')';
+			}
 		} else {
-			div.innerHTML = entityId.toString(16) + ' ' + database[handle].name;
+			if (database[handle].netId) {
+				div.innerHTML = entityId.toString(16) + ' [' + database[handle].netId.toString(16) + '] ' + database[handle].name;
+			} else {
+				div.innerHTML = entityId.toString(16) + ' ' + database[handle].name;
+			}
 		}
 
 		div.setAttribute('data-handle', handle);
@@ -664,9 +677,17 @@ function updatePropertiesMenu(data) {
 	var entity = document.querySelector('#properties-menu-entity-id');
 	entity.setAttribute('data-handle', data.entity);
 	if (properties.playerName) {
-		entity.innerHTML = data.entity.toString(16) + ' (' + properties.playerName + ')';
+		if (properties.netId) {
+			entity.innerHTML = data.entity.toString(16) + ' [' + properties.netId.toString(16) + '] (' + properties.playerName + ')';
+		} else {
+			entity.innerHTML = data.entity.toString(16) + ' (' + properties.playerName + ')';
+		}
 	} else {
-		entity.innerHTML = data.entity.toString(16);
+		if (properties.netId) {
+			entity.innerHTML = data.entity.toString(16) + ' [' + properties.netId.toString(16) + ']';
+		} else {
+			entity.innerHTML = data.entity.toString(16);
+		}
 	}
 
 	document.querySelector('#properties-model').innerHTML = properties.name;
@@ -692,6 +713,14 @@ function updatePropertiesMenu(data) {
 	setFieldIfInactive('properties-outfit', properties.outfit);
 
 	document.querySelector('#properties-request-control').disabled = data.hasNetworkControl || properties.type == 0;
+
+	if (properties.isFrozen) {
+		document.getElementById('properties-freeze').style.display = 'none';
+		document.getElementById('properties-unfreeze').style.display = 'block';
+	} else {
+		document.getElementById('properties-unfreeze').style.display = 'none';
+		document.getElementById('properties-freeze').style.display = 'block';
+	}
 
 	if (properties.isInGroup) {
 		document.querySelector('#properties-add-to-group').style.display = 'none';

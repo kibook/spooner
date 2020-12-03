@@ -138,6 +138,10 @@ function IsPickupTypeValid(pickupHash)
 	return Citizen.InvokeNative(0x007BD043587F7C82, pickupHash)
 end
 
+function IsEntityFrozen(entity)
+	return Citizen.InvokeNative(0x083D497D57B7400F, entity)
+end
+
 function EnableSpoonerMode()
 	local x, y, z = table.unpack(GetGameplayCamCoord())
 	local pitch, roll, yaw = table.unpack(GetGameplayCamRot(2))
@@ -332,6 +336,7 @@ function GetLiveEntityProperties(entity)
 		isSelf = entity == PlayerPedId(),
 		playerName = player and GetPlayerName(player),
 		weapons = {},
+		isFrozen = IsEntityFrozen(entity),
 		attachment = {
 			to = GetEntityAttachedTo(entity),
 			bone = 0,
@@ -341,7 +346,8 @@ function GetLiveEntityProperties(entity)
 			pitch = 0.0,
 			roll = 0.0,
 			yaw = 0.0
-		}
+		},
+		netId = NetworkGetEntityIsNetworked(entity) and NetworkGetNetworkIdFromEntity(entity)
 	}
 end
 
@@ -1928,6 +1934,7 @@ CreateThread(function()
 			SendNUIMessage({
 				type = 'updateSpoonerHud',
 				entity = entity,
+				netId = NetworkGetEntityIsNetworked(entity) and ObjToNet(entity),
 				entityType = GetSpoonerEntityType(entity),
 				modelName = GetModelName(GetSpoonerEntityModel(entity)),
 				attachedEntity = AttachedEntity,
