@@ -253,10 +253,6 @@ function GetInView(x1, y1, z1, pitch, roll, yaw)
 		return endCoords, nil, 0
 	end
 
-	--if IsPedAPlayer(entityHit) then
-	--	return endCoords, nil, 0
-	--end
-
 	local x3, y3, z3 = table.unpack(GetEntityCoords(entityHit))
 
 	local distance = GetDistanceBetweenCoords(x1, y1, z1, x3, y3, z3, true)
@@ -719,10 +715,6 @@ function RequestControl(entity)
 	end
 
 	NetworkRequestControlOfEntity(entity)
-
-	--while not NetworkHasControlOfEntity(entity) do
-	--	Wait(0)
-	--end
 end
 
 function CanDeleteEntity(entity)
