@@ -333,6 +333,7 @@ function GetLiveEntityProperties(entity)
 		playerName = player and GetPlayerName(player),
 		weapons = {},
 		isFrozen = IsEntityFrozen(entity),
+		isVisible = IsEntityVisible(entity),
 		attachment = {
 			to = GetEntityAttachedTo(entity),
 			bone = 0,

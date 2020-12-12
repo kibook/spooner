@@ -759,6 +759,14 @@ function updatePropertiesMenu(data) {
 	} else {
 		setFieldIfInactive('properties-lights-type', 0);
 	}
+
+	if (properties.isVisible) {
+		document.getElementById('properties-visible').style.display = 'none';
+		document.getElementById('properties-invisible').style.display = 'block';
+	} else {
+		document.getElementById('properties-invisible').style.display = 'none';
+		document.getElementById('properties-visible').style.display = 'block';
+	}
 }
 
 function sendUpdatePropertiesMenuMessage(handle, open) {
