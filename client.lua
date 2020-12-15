@@ -610,6 +610,8 @@ function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, out
 			end
 
 			TaskPlayAnim(ped, animation.dict, animation.name, animation.blendInSpeed, animation.blendOutSpeed, animation.duration, animation.flag, animation.playbackRate, false, false, false, '', false)
+
+			RemoveAnimDict(animation.dict)
 		end
 	end
 
@@ -1864,6 +1866,8 @@ RegisterNUICallback('playAnimation', function(data, cb)
 			end
 
 			TaskPlayAnim(data.handle, data.dict, data.name, blendInSpeed, blendOutSpeed, duration, flag, playbackRate, false, false, false, '', false)
+
+			RemoveAnimDict(data.dict)
 
 			if Database[data.handle] then
 				Database[data.handle].animation = {
