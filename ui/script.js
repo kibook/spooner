@@ -558,6 +558,19 @@ function populatePickupList(filter) {
 	});
 }
 
+function populateBoneList() {
+	var boneList = document.getElementById('attachment-bone');
+
+	boneList.innerHTML = '';
+
+	bones.forEach(bone => {
+		var option = document.createElement('option');
+		option.value = bone;
+		option.innerHTML = bone;
+		boneList.appendChild(option);
+	})
+}
+
 function deleteEntity(object) {
 	var handle = object.getAttribute('data-handle');
 
@@ -877,7 +890,7 @@ function attachTo(fromEntity, toEntity) {
 	sendMessage('attachTo', {
 		from: fromEntity,
 		to: toEntity,
-		bone: parseInt(document.querySelector('#attachment-bone').value),
+		bone: document.getElementById('attachment-bone').value,
 		x: parseFloat(document.querySelector('#attachment-x').value),
 		y: parseFloat(document.querySelector('#attachment-y').value),
 		z: parseFloat(document.querySelector('#attachment-z').value),
@@ -1070,6 +1083,9 @@ window.addEventListener('load', function() {
 
 		pickups = JSON.parse(resp.pickups);
 		populatePickupList();
+
+		bones = JSON.parse(resp.bones);
+		populateBoneList();
 
 		document.querySelectorAll('.adjust-speed').forEach(e => e.value = resp.adjustSpeed);
 		document.querySelectorAll('.adjust-input').forEach(e => e.step = resp.adjustSpeed);
@@ -1421,7 +1437,7 @@ window.addEventListener('load', function() {
 		sendMessage('attachTo', {
 			from: currentEntity(),
 			to: null,
-			bone: parseInt(document.querySelector('#attachment-bone').value),
+			bone: document.getElementById('attachment-bone').value,
 			x: parseFloat(document.querySelector('#attachment-x').value),
 			y: parseFloat(document.querySelector('#attachment-y').value),
 			z: parseFloat(document.querySelector('#attachment-z').value),

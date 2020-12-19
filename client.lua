@@ -302,6 +302,10 @@ function GetPlayerFromPed(ped)
 	return nil
 end
 
+function GetBoneIndex(entity, boneName)
+	return boneName and GetEntityBoneIndexByName(entity, boneName) or 0
+end
+
 function GetLiveEntityProperties(entity)
 	local model = GetEntityModel(entity)
 	local x, y, z = table.unpack(GetEntityCoords(entity))
@@ -336,7 +340,7 @@ function GetLiveEntityProperties(entity)
 		isVisible = IsEntityVisible(entity),
 		attachment = {
 			to = GetEntityAttachedTo(entity),
-			bone = 0,
+			bone = nil,
 			x = 0.0,
 			y = 0.0,
 			z = 0.0,
@@ -384,7 +388,7 @@ function AddEntityToDatabase(entity, name, attachment)
 		attachRoll  = attachment.roll
 		attachYaw   = attachment.yaw
 	else
-		attachBone  = (Database[entity] and Database[entity].attachment.bone  or 0)
+		attachBone  = (Database[entity] and Database[entity].attachment.bone)
 		attachX     = (Database[entity] and Database[entity].attachment.x     or 0.0)
 		attachY     = (Database[entity] and Database[entity].attachment.y     or 0.0)
 		attachZ     = (Database[entity] and Database[entity].attachment.z     or 0.0)
@@ -1084,6 +1088,16 @@ function SaveDatabase(name)
 	SetResourceKvp(name, json.encode(PrepareDatabaseForSave(Database)))
 end
 
+function FindBoneName(entity, boneIndex)
+	for _, boneName in ipairs(Bones) do
+		if GetEntityBoneIndexByName(entity, boneName) == boneIndex then
+			return boneName
+		end
+	end
+
+	return nil
+end
+
 function LoadDatabase(db, relative, replace)
 	if replace then
 		RemoveAllFromDatabase()
@@ -1177,7 +1191,14 @@ function LoadDatabase(db, relative, replace)
 			local roll  = spawn.props.attachment.roll * 1.0
 			local yaw   = spawn.props.attachment.yaw * 1.0
 
-			AttachEntityToEntity(from, to, bone, x, y, z, pitch, roll, yaw, false, false, true, false, 0, true, false, false)
+			-- For backwards compatibility with older method of storing bone index directly
+			if type(bone) == 'number' then
+				bone = FindBoneName(to, bone)
+			end
+
+			local boneIndex = GetBoneIndex(to, bone)
+
+			AttachEntityToEntity(from, to, boneIndex, x, y, z, pitch, roll, yaw, false, false, true, false, 0, true, false, false)
 
 			AddEntityToDatabase(from, nil, {
 				to = to,
@@ -1252,6 +1273,7 @@ RegisterNUICallback('init', function(data, cb)
 		animations = json.encode(Animations),
 		propsets = json.encode(Propsets),
 		pickups = json.encode(Pickups),
+		bones = json.encode(Bones),
 		adjustSpeed = AdjustSpeed,
 		rotateSpeed = RotateSpeed
 	})
@@ -1308,7 +1330,9 @@ function CloneEntity(entity)
 	end
 
 	if clone and props.attachment and props.attachment.to ~= 0 then
-		AttachEntityToEntity(clone, props.attachment.to, props.attachment.bone, props.attachment.x, props.attachment.y, props.attachment.z, props.attachment.pitch, props.attachment.roll, props.attachment.yaw, false, false, true, false, 0, true, false, false)
+		local boneIndex = GetBoneIndex(props.attachment.to, props.attachment.bone)
+
+		AttachEntityToEntity(clone, props.attachment.to, boneIndex, props.attachment.x, props.attachment.y, props.attachment.z, props.attachment.pitch, props.attachment.roll, props.attachment.yaw, false, false, true, false, 0, true, false, false)
 
 		AddEntityToDatabase(clone, nil, props.attachment)
 	end
@@ -1506,8 +1530,10 @@ RegisterNUICallback('attachTo', function(data, cb)
 			yaw = data.yaw and data.yaw * 1.0 or 0.0
 		end
 
+		local boneIndex = GetBoneIndex(to, data.bone)
+
 		RequestControl(from)
-		AttachEntityToEntity(from, to, data.bone, x, y, z, pitch, roll, yaw, false, false, true, false, 0, true, false, false)
+		AttachEntityToEntity(from, to, boneIndex, x, y, z, pitch, roll, yaw, false, false, true, false, 0, true, false, false)
 
 		if EntityIsInDatabase(from) then
 			AddEntityToDatabase(from, nil, {
@@ -1539,7 +1565,7 @@ RegisterNUICallback('detach', function(data, cb)
 		if EntityIsInDatabase(data.handle) then
 			AddEntityToDatabase(data.handle, nil, {
 				to = 0,
-				bone = 0,
+				bone = nil,
 				x = 0.0,
 				y = 0.0,
 				z = 0.0,
