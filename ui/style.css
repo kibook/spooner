@@ -352,3 +352,7 @@ textarea {
 .attachment-option {
 	padding: 0.5vh 0;
 }
+
+#attachment-bone {
+	width: 100%;
+}
