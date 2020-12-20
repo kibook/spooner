@@ -601,18 +601,14 @@ function openDatabase(data) {
 			div.className = 'object'
 		}
 
-		if (database[handle].playerName) {
-			if (database[handle].netId) {
+		if (database[handle].netId) {
+			if (database[handle].playerName) {
 				div.innerHTML = entityId.toString(16) + ' [' + database[handle].netId.toString(16) + '] ' + database[handle].name + ' (' + database[handle].playerName + ')';
 			} else {
-				div.innerHTML = entityId.toString(16) + ' ' + database[handle].name + ' (' + database[handle].playerName + ')';
+				div.innerHTML = entityId.toString(16) + ' [' + database[handle].netId.toString(16) + '] ' + database[handle].name;
 			}
 		} else {
-			if (database[handle].netId) {
-				div.innerHTML = entityId.toString(16) + ' [' + database[handle].netId.toString(16) + '] ' + database[handle].name;
-			} else {
-				div.innerHTML = entityId.toString(16) + ' ' + database[handle].name;
-			}
+			div.innerHTML = entityId.toString(16) + ' ' + database[handle].name;
 		}
 
 		div.setAttribute('data-handle', handle);
@@ -689,18 +685,14 @@ function updatePropertiesMenu(data) {
 
 	var entity = document.querySelector('#properties-menu-entity-id');
 	entity.setAttribute('data-handle', data.entity);
-	if (properties.playerName) {
-		if (properties.netId) {
+	if (properties.netId) {
+		if (properties.playerName) {
 			entity.innerHTML = data.entity.toString(16) + ' [' + properties.netId.toString(16) + '] (' + properties.playerName + ')';
 		} else {
-			entity.innerHTML = data.entity.toString(16) + ' (' + properties.playerName + ')';
+			entity.innerHTML = data.entity.toString(16) + ' [' + properties.netId.toString(16) + ']';
 		}
 	} else {
-		if (properties.netId) {
-			entity.innerHTML = data.entity.toString(16) + ' [' + properties.netId.toString(16) + ']';
-		} else {
-			entity.innerHTML = data.entity.toString(16);
-		}
+		entity.innerHTML = data.entity.toString(16);
 	}
 
 	document.querySelector('#properties-model').innerHTML = properties.name;
@@ -928,7 +920,16 @@ function openAttachToMenu(fromEntity, data) {
 			div.className = 'object';
 		}
 
-		div.innerHTML = toEntity.toString(16) + ' ' + database[handle].name;
+		if (database[handle].netId) {
+			if (database[handle].playerName) {
+				div.innerHTML = toEntity.toString(16) + ' [' + database[handle].netId.toString(16) + '] ' + database[handle].name + ' (' + database[handle].playerName + ')';
+			} else {
+				div.innerHTML = toEntity.toString(16) + ' [' + database[handle].netId.toString(16) + '] ' + database[handle].name;
+			}
+		} else {
+			div.innerHTML = toEntity.toString(16) + ' ' + database[handle].name;
+		}
+
 		div.setAttribute('data-handle', handle);
 		div.addEventListener('click', function(event) {
 			document.querySelector('#attachment-options-menu').style.display = 'none';
