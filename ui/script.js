@@ -1014,6 +1014,7 @@ function updatePermissions(data) {
 	document.querySelector('#properties-resurrect-ped').disabled = !permissions.properties.ped.resurrect;
 	document.querySelector('#properties-ai-on').disabled = !permissions.properties.ped.ai;
 	document.querySelector('#properties-ai-off').disabled = !permissions.properties.ped.ai;
+	document.querySelector('#properties-knock-off-props').disabled = !permissions.properties.ped.knockOffProps;
 	document.querySelector('#properties-repair-vehicle').disabled = !permissions.properties.vehicle.repair;
 	document.querySelector('#properties-get-in').disabled = !permissions.properties.vehicle.getin
 	document.querySelector('#properties-engine-on').disabled = !permissions.properties.vehicle.engine
@@ -1684,5 +1685,11 @@ window.addEventListener('load', function() {
 	document.getElementById('properties-player-model').addEventListener('click', function(event) {
 		document.querySelector('#ped-options-menu').style.display = 'none';
 		document.querySelector('#player-model-menu').style.display = 'flex';
+	});
+
+	document.getElementById('properties-knock-off-props').addEventListener('click', function(event) {
+		sendMessage('knockOffProps', {
+			handle: currentEntity()
+		});
 	});
 });

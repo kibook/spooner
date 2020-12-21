@@ -61,6 +61,7 @@ Permissions.properties.ped.weapon = false
 Permissions.properties.ped.mount = false
 Permissions.properties.ped.resurrect = false
 Permissions.properties.ped.ai = false
+Permissions.properties.ped.knockOffProps = false
 
 Permissions.properties.vehicle = {}
 Permissions.properties.vehicle.repair = false
@@ -1915,6 +1916,14 @@ end)
 
 RegisterNUICallback('loadPermissions', function(data, cb)
 	cb(json.encode(Permissions))
+end)
+
+RegisterNUICallback('knockOffProps', function(data, cb)
+	if Permissions.properties.ped.knockOffProps then
+		KnockOffPedProp(data.handle, true, true, true, true)
+	end
+
+	cb({})
 end)
 
 CreateThread(function()
