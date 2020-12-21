@@ -18,6 +18,7 @@ AddEventHandler('spooner:init', function()
 	permissions.spawn.object = IsPlayerAceAllowed(source, 'spooner.spawn.object')
 	permissions.spawn.propset = IsPlayerAceAllowed(source, 'spooner.spawn.propset')
 	permissions.spawn.pickup = IsPlayerAceAllowed(source, 'spooner.spawn.pickup')
+	permissions.spawn.byName = IsPlayerAceAllowed(source, 'spooner.spawn.byName')
 
 	permissions.delete = {}
 	permissions.delete.own = {}

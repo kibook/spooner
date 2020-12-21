@@ -790,8 +790,17 @@ RegisterNUICallback('closeSpawnMenu', function(data, cb)
 	cb({})
 end)
 
+function Contains(list, item)
+	for _, value in ipairs(list) do
+		if value == item then
+			return true
+		end
+	end
+	return false
+end
+
 RegisterNUICallback('closePedMenu', function(data, cb)
-	if data.modelName then
+	if data.modelName and (Permissions.spawn.byName or Contains(Peds, data.modelName)) then
 		CurrentSpawn = {
 			modelName = data.modelName,
 			type = 1
@@ -802,7 +811,7 @@ RegisterNUICallback('closePedMenu', function(data, cb)
 end)
 
 RegisterNUICallback('closeVehicleMenu', function(data, cb)
-	if data.modelName then
+	if data.modelName and (Permissions.spawn.byName or Contains(Vehicles, data.modelName)) then
 		CurrentSpawn = {
 			modelName = data.modelName,
 			type = 2
@@ -813,7 +822,7 @@ RegisterNUICallback('closeVehicleMenu', function(data, cb)
 end)
 
 RegisterNUICallback('closeObjectMenu', function(data, cb)
-	if data.modelName then
+	if data.modelName and (Permissions.spawn.byName or Contains(Objects, data.modelName)) then
 		CurrentSpawn = {
 			modelName = data.modelName,
 			type = 3
@@ -824,7 +833,7 @@ RegisterNUICallback('closeObjectMenu', function(data, cb)
 end)
 
 RegisterNUICallback('closePropsetMenu', function(data, cb)
-	if data.modelName then
+	if data.modelName and (Permissions.spawn.byName or Contains(Propsets, data.modelName)) then
 		CurrentSpawn = {
 			modelName = data.modelName,
 			type = 4
@@ -835,7 +844,7 @@ RegisterNUICallback('closePropsetMenu', function(data, cb)
 end)
 
 RegisterNUICallback('closePickupMenu', function(data, cb)
-	if data.modelName then
+	if data.modelName and (Permissions.spawn.byName or Contains(Pickups, data.modelName)) then
 		CurrentSpawn = {
 			modelName = data.modelName,
 			type = 5

@@ -978,6 +978,7 @@ function updatePermissions(data) {
 	document.querySelector('#spawn-menu-objects').disabled = !permissions.spawn.object;
 	document.querySelector('#spawn-menu-propsets').disabled = !permissions.spawn.propset;
 	document.querySelector('#spawn-menu-pickups').disabled = !permissions.spawn.pickup;
+	document.querySelectorAll('.spawn-by-name').forEach(e => e.disabled = !permissions.spawn.byName);
 
 	document.querySelector('#properties-freeze').disabled = !permissions.properties.freeze;
 	document.querySelector('#properties-unfreeze').disabled = !permissions.properties.freeze;
