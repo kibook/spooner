@@ -62,6 +62,7 @@ Permissions.properties.ped.mount = false
 Permissions.properties.ped.resurrect = false
 Permissions.properties.ped.ai = false
 Permissions.properties.ped.knockOffProps = false
+Permissions.properties.ped.walkStyle = false
 
 Permissions.properties.vehicle = {}
 Permissions.properties.vehicle.repair = false
@@ -380,6 +381,8 @@ function AddEntityToDatabase(entity, name, attachment)
 
 	local weapons = Database[entity] and Database[entity].weapons or {}
 
+	local walkStyle = Database[entity] and Database[entity].walkStyle
+
 	if attachment then
 		attachBone  = attachment.bone
 		attachX     = attachment.x
@@ -433,6 +436,8 @@ function AddEntityToDatabase(entity, name, attachment)
 
 	Database[entity].weapons = weapons
 
+	Database[entity].walkStyle = walkStyle
+
 	return Database[entity]
 end
 
@@ -481,6 +486,18 @@ function LoadModel(model)
 		return true
 	else
 		return false
+	end
+end
+
+function SetWalkStyle(ped, base, style)
+	Citizen.InvokeNative(0x923583741DC87BCE, ped, base)
+	Citizen.InvokeNative(0x89F5E7ADECCCB49C, ped, style)
+
+	if Database[ped] then
+		Database[ped].walkStyle = {
+			base = base,
+			style = style
+		}
 	end
 end
 
@@ -568,7 +585,7 @@ function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collisionDisabled)
 	return veh
 end
 
-function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, outfit, addToGroup, animation, scenario, blockNonTemporaryEvents, weapons)
+function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, outfit, addToGroup, animation, scenario, blockNonTemporaryEvents, weapons, walkStyle)
 	if not Permissions.spawn.ped then
 		return nil
 	end
@@ -635,12 +652,17 @@ function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, out
 		end
 	end
 
+	if walkStyle then
+		SetWalkStyle(ped, walkStyle.base, walkStyle.style)
+	end
+
 	AddEntityToDatabase(ped, name)
 	Database[ped].outfit = outfit
 	Database[ped].animation = animation
 	Database[ped].scenario = scenario
 	Database[ped].blockNonTemporaryEvents = blockNonTemporaryEvents
 	Database[ped].weapons = weapons
+	Database[ped].walkStyle = walkStyle
 
 	return ped
 end
@@ -1173,7 +1195,7 @@ function LoadDatabase(db, relative, replace)
 		end
 
 		if spawn.props.type == 1 then
-			entity = SpawnPed(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled, spawn.props.outfit, spawn.props.isInGroup, spawn.props.animation, spawn.props.scenario, spawn.props.blockNonTemporaryEvents, spawn.props.weapons)
+			entity = SpawnPed(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled, spawn.props.outfit, spawn.props.isInGroup, spawn.props.animation, spawn.props.scenario, spawn.props.blockNonTemporaryEvents, spawn.props.weapons, spawn.props.walkStyle)
 		elseif spawn.props.type == 2 then
 			entity = SpawnVehicle(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled)
 		elseif spawn.props.type == 5 then
@@ -1284,6 +1306,8 @@ RegisterNUICallback('init', function(data, cb)
 		propsets = json.encode(Propsets),
 		pickups = json.encode(Pickups),
 		bones = json.encode(Bones),
+		walkStyleBases = json.encode(WalkStyleBases),
+		walkStyles = json.encode(WalkStyles),
 		adjustSpeed = AdjustSpeed,
 		rotateSpeed = RotateSpeed
 	})
@@ -1328,7 +1352,7 @@ function CloneEntity(entity)
 	local clone = nil
 
 	if props.type == 1 then
-		clone = SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.outfit, props.isInGroup, props.animation, props.scenario, props.blockNonTemporaryEvents, props.weapons)
+		clone = SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.outfit, props.isInGroup, props.animation, props.scenario, props.blockNonTemporaryEvents, props.weapons, props.walkStyle)
 	elseif props.type == 2 then
 		clone = SpawnVehicle(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled)
 	elseif props.type == 3 then
@@ -1935,6 +1959,14 @@ RegisterNUICallback('knockOffProps', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('setWalkStyle', function(data, cb)
+	if Permissions.properties.ped.walkStyle then
+		SetWalkStyle(data.handle, data.base, data.style)
+	end
+
+	cb({})
+end)
+
 CreateThread(function()
 	TriggerEvent('chat:addSuggestion', '/spooner', 'Toggle spooner mode', {})
 
@@ -2064,7 +2096,7 @@ CreateThread(function()
 					local entity
 
 					if CurrentSpawn.type == 1 then
-						entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, -1, false, nil, nil, false, nil)
+						entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, -1, false, nil, nil, false, nil, nil)
 					elseif CurrentSpawn.type == 2 then
 						entity = SpawnVehicle(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false)
 					elseif CurrentSpawn.type == 3 then

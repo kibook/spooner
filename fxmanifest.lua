@@ -26,6 +26,7 @@ client_scripts {
 	'propsets.lua',
 	'pickups.lua',
 	'bones.lua',
+	'walkstyles.lua',
 	'client.lua'
 }
 

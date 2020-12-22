@@ -6,6 +6,8 @@ var weapons = [];
 var animations = {};
 var propsets = [];
 var pickups = [];
+var walkStyleBases = [];
+var walkStyles = [];
 
 var lastSpawnMenu = -1;
 
@@ -345,6 +347,17 @@ function playAnimation(animation) {
 	});
 }
 
+function setWalkStyle(selected) {
+	sendMessage('setWalkStyle', {
+		handle: currentEntity(),
+		base: selected.getAttribute('data-base'),
+		style: selected.getAttribute('data-style')
+	});
+
+	document.querySelectorAll('#walk-style-list .object').forEach(e => e.className = 'object');
+	selected.className = 'object selected';
+}
+
 function populatePedList(filter) {
 	var pedList = document.querySelector('#ped-list');
 
@@ -568,7 +581,31 @@ function populateBoneList() {
 		option.value = bone;
 		option.innerHTML = bone;
 		boneList.appendChild(option);
-	})
+	});
+}
+
+function populateWalkStyleList(filter) {
+	var walkStyleList = document.getElementById('walk-style-list');
+
+	walkStyleList.innerHTML = '';
+
+	walkStyleBases.forEach(base => {
+		walkStyles.forEach(style => {
+			var name = base + ': ' + style;
+
+			if (!filter || filter == '' || name.toLowerCase().includes(filter.toLowerCase())) {
+				var div = document.createElement('div');
+				div.className = 'object';
+				div.innerHTML = name;
+				div.setAttribute('data-base', base);
+				div.setAttribute('data-style', style);
+				div.addEventListener('click', function(event) {
+					setWalkStyle(this);
+				});
+				walkStyleList.appendChild(div);
+			}
+		});
+	});
 }
 
 function deleteEntity(object) {
@@ -1089,6 +1126,10 @@ window.addEventListener('load', function() {
 
 		bones = JSON.parse(resp.bones);
 		populateBoneList();
+
+		walkStyleBases = JSON.parse(resp.walkStyleBases);
+		walkStyles = JSON.parse(resp.walkStyles);
+		populateWalkStyleList();
 
 		document.querySelectorAll('.adjust-speed').forEach(e => e.value = resp.adjustSpeed);
 		document.querySelectorAll('.adjust-input').forEach(e => e.step = resp.adjustSpeed);
@@ -1692,5 +1733,19 @@ window.addEventListener('load', function() {
 		sendMessage('knockOffProps', {
 			handle: currentEntity()
 		});
+	});
+
+	document.getElementById('walk-style-search-filter').addEventListener('input', function(event) {
+		populateWalkStyleList(this.value);
+	});
+
+	document.getElementById('properties-walk-style').addEventListener('click', function(event) {
+		document.getElementById('ped-options-menu').style.display = 'none';
+		document.getElementById('walk-style-menu').style.display = 'flex';
+	});
+
+	document.getElementById('walk-style-menu-close').addEventListener('click', function(event) {
+		document.getElementById('walk-style-menu').style.display = 'none';
+		document.getElementById('ped-options-menu').style.display = 'flex';
 	});
 });

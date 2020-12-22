@@ -61,6 +61,7 @@ AddEventHandler('spooner:init', function()
 	permissions.properties.ped.resurrect = IsPlayerAceAllowed(source, 'spooner.properties.ped.resurrect')
 	permissions.properties.ped.ai = IsPlayerAceAllowed(source, 'spooner.properties.ped.ai')
 	permissions.properties.ped.knockOffProps = IsPlayerAceAllowed(source, 'spooner.properties.ped.knockOffProps')
+	permissions.properties.ped.walkStyle = IsPlayerAceAllowed(source, 'spooner.properties.ped.walkStyle')
 
 	permissions.properties.vehicle = {}
 	permissions.properties.vehicle.repair = IsPlayerAceAllowed(source, 'spooner.properties.vehicle.repair')
