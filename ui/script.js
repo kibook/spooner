@@ -1748,4 +1748,10 @@ window.addEventListener('load', function() {
 		document.getElementById('walk-style-menu').style.display = 'none';
 		document.getElementById('ped-options-menu').style.display = 'flex';
 	});
+
+	document.getElementById('store-deleted').addEventListener('input', function(event) {
+		sendMessage('setStoreDeleted', {
+			toggle: this.checked
+		});
+	});
 });

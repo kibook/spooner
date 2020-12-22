@@ -287,6 +287,10 @@
 					<input id="replace-db" type="checkbox">
 					<span>Replace current DB</span>
 				</div>
+				<div>
+					<input id="store-deleted" type="checkbox">
+					<span>Save/Load deletions</span>
+				</div>
 			</div>
 			<div id="save-db-options">
 				<input id="save-db-name" type="text">
@@ -507,6 +511,8 @@
 					<li>To import a database or export the current database, click <strong>Import/Export</strong>.</li>
 				</ul>
 				<p>Checking the <strong>Load relative to cursor position</strong> box will spawn the entities in the selected database relative to the current cursor position, rather than exactly where they were originally placed.</p>
+				<p>Checking the <strong>Replace current DB</strong> box will replace your current database with the loaded database, rather than merging the two.</p>
+				<p>Checking the <strong>Save/Load deletions</strong> box will save what entities you delete, and delete them again when the database is loaded.</p>
 				<h3>Import/Export menu</h3>
 				<p>The <strong>Import/Export</strong> menu allows you to import a database into your current database, or export your current database in either JSON or Map Editor XML format.</p>
 			</div>

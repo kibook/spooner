@@ -10,6 +10,9 @@ local AdjustMode = -1
 local PlaceOnGround = false
 local CurrentSpawn = nil
 
+local StoreDeleted = false
+local DeletedEntities = {}
+
 local Permissions = {}
 
 Permissions.maxEntities = 0
@@ -763,6 +766,17 @@ function CanDeleteEntity(entity)
 	end
 end
 
+function StoreDeletedEntity(entity)
+	local props = GetLiveEntityProperties(entity)
+
+	table.insert(DeletedEntities, {
+		x = props.x,
+		y = props.y,
+		z = props.z,
+		model = props.model,
+	})
+end
+
 function RemoveEntity(entity)
 	if not CanDeleteEntity(entity) then
 		return
@@ -779,6 +793,10 @@ function RemoveEntity(entity)
 	elseif entityType == 5 then
 		RemovePickup(entity)
 	else
+		if StoreDeleted and not EntityIsInDatabase(entity) then
+			StoreDeletedEntity(entity)
+		end
+
 		RequestControl(entity)
 		SetEntityAsMissionEntity(entity, true, true)
 		DeleteEntity(entity)
@@ -1101,8 +1119,8 @@ RegisterNUICallback('placeEntityHere', function(data, cb)
 	})
 end)
 
-function PrepareDatabaseForSave(database)
-	local db = json.decode(json.encode(database))
+function PrepareDatabaseForSave()
+	local db = json.decode(json.encode(Database))
 
 	for entity, props in pairs(db) do
 		if props.attachment.to == PlayerPedId() then
@@ -1112,12 +1130,15 @@ function PrepareDatabaseForSave(database)
 
 	db[tostring(PlayerPedId())] = nil
 
-	return db
+	return {
+		spawn = db,
+		delete = DeletedEntities
+	}
 end
 
 function SaveDatabase(name)
 	UpdateDatabase()
-	SetResourceKvp(name, json.encode(PrepareDatabaseForSave(Database)))
+	SetResourceKvp(name, json.encode(PrepareDatabaseForSave()))
 end
 
 function FindBoneName(entity, boneIndex)
@@ -1128,6 +1149,14 @@ function FindBoneName(entity, boneIndex)
 	end
 
 	return nil
+end
+
+function RemoveDeletedEntity(x, y, z, hash)
+	local handle = GetClosestObjectOfType(x, y, z, 1.0, hash, false, false, false)
+
+	if handle ~= 0 then
+		DeleteEntity(handle)
+	end
 end
 
 function LoadDatabase(db, relative, replace)
@@ -1142,7 +1171,19 @@ function LoadDatabase(db, relative, replace)
 	local spawns = {}
 	local handles = {}
 
-	for entity, props in pairs(db) do
+	-- For backwards compatibility with older DB format
+	if not (db.spawn and db.delete) then
+		db = {spawn = db, delete = {}}
+	end
+
+	if StoreDeleted then
+		for _, deleted in pairs(db.delete) do
+			RemoveDeletedEntity(deleted.x, deleted.y, deleted.z, deleted.model)
+			table.insert(DeletedEntities, deleted)
+		end
+	end
+
+	for entity, props in pairs(db.spawn) do
 		if relative then
 			ax = ax + props.x
 			ay = ay + props.y
@@ -1407,7 +1448,11 @@ end)
 function ConvertDatabaseToMapEditorXml(creator, database)
 	local xml = '<Map>\n\t<MapMeta Creator="' .. creator .. '"/>\n'
 
-	for entity, properties in pairs(database) do
+	for _, properties in ipairs(database.delete) do
+		xml = xml .. string.format('\t<DeletedObject Hash="%s" Position_x="%s" Position_y="%s" Position_z="%s"/>\n', properties.model, properties.x, properties.y, properties.z)
+	end
+
+	for entity, properties in pairs(database.spawn) do
 		if properties.type == 1 then
 			xml = xml .. string.format('\t<Ped Hash="%s" Position_x="%s" Position_y="%s" Position_z="%s" Rotation_x="%s" Rotation_Y="%s" Rotation_z="%s" Preset="%d"/>\n', properties.model, properties.x, properties.y, properties.z, properties.pitch, properties.roll, properties.yaw, properties.outfit)
 		elseif properties.type == 2 then
@@ -1443,7 +1488,7 @@ function ConvertDatabaseToYmap(database)
 
 	local entitiesXml = '\t<entities>\n'
 
-	for entity, properties in pairs(database) do
+	for entity, properties in pairs(database.spawn) do
 		local q = ToQuaternion(properties.pitch, properties.roll, properties.yaw)
 
 		if not minX or properties.x < minX then
@@ -1488,11 +1533,11 @@ function ExportDatabase(format)
 	UpdateDatabase()
 
 	if format == 'spooner-db-json' then
-		return json.encode(PrepareDatabaseForSave(Database))
+		return json.encode(PrepareDatabaseForSave())
 	elseif format == 'map-editor-xml' then
-		return ConvertDatabaseToMapEditorXml(GetPlayerName(), PrepareDatabaseForSave(Database))
+		return ConvertDatabaseToMapEditorXml(GetPlayerName(), PrepareDatabaseForSave())
 	elseif format == 'ymap' then
-		return ConvertDatabaseToYmap(PrepareDatabaseForSave(Database))
+		return ConvertDatabaseToYmap(PrepareDatabaseForSave())
 	end
 end
 
@@ -1962,6 +2007,17 @@ end)
 RegisterNUICallback('setWalkStyle', function(data, cb)
 	if Permissions.properties.ped.walkStyle then
 		SetWalkStyle(data.handle, data.base, data.style)
+	end
+
+	cb({})
+end)
+
+RegisterNUICallback('setStoreDeleted', function(data, cb)
+	if StoreDeleted then
+		StoreDeleted = false
+		DeletedEntities = {}
+	else
+		StoreDeleted = true
 	end
 
 	cb({})
