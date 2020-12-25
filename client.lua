@@ -307,8 +307,24 @@ function GetPlayerFromPed(ped)
 	return nil
 end
 
-function GetBoneIndex(entity, boneName)
-	return boneName and GetEntityBoneIndexByName(entity, boneName) or 0
+function GetBoneIndex(entity, bone)
+	if not bone then
+		return 0
+	elseif type(bone) == 'number' then
+		return bone
+	else
+		return GetEntityBoneIndexByName(entity, bone)
+	end
+end
+
+function FindBoneName(entity, boneIndex)
+	for _, boneName in ipairs(Bones) do
+		if GetEntityBoneIndexByName(entity, boneName) == boneIndex then
+			return boneName
+		end
+	end
+
+	return boneIndex
 end
 
 function GetLiveEntityProperties(entity)
@@ -1141,16 +1157,6 @@ function SaveDatabase(name)
 	SetResourceKvp(name, json.encode(PrepareDatabaseForSave()))
 end
 
-function FindBoneName(entity, boneIndex)
-	for _, boneName in ipairs(Bones) do
-		if GetEntityBoneIndexByName(entity, boneName) == boneIndex then
-			return boneName
-		end
-	end
-
-	return nil
-end
-
 function RemoveDeletedEntity(x, y, z, hash)
 	local handle = GetClosestObjectOfType(x, y, z, 1.0, hash, false, false, false)
 
@@ -1264,7 +1270,6 @@ function LoadDatabase(db, relative, replace)
 			local roll  = spawn.props.attachment.roll * 1.0
 			local yaw   = spawn.props.attachment.yaw * 1.0
 
-			-- For backwards compatibility with older method of storing bone index directly
 			if type(bone) == 'number' then
 				bone = FindBoneName(to, bone)
 			end
@@ -1582,6 +1587,7 @@ RegisterNUICallback('attachTo', function(data, cb)
 	if Permissions.properties.attachments then
 		local from = data.from
 		local to = data.to
+		local bone = data.bone
 
 		if not to then
 			local props = GetEntityProperties(from)
@@ -1609,7 +1615,11 @@ RegisterNUICallback('attachTo', function(data, cb)
 			yaw = data.yaw and data.yaw * 1.0 or 0.0
 		end
 
-		local boneIndex = GetBoneIndex(to, data.bone)
+		if type(bone) == 'number' then
+			bone = FindBoneName(to, bone)
+		end
+
+		local boneIndex = GetBoneIndex(to, bone)
 
 		RequestControl(from)
 		AttachEntityToEntity(from, to, boneIndex, x, y, z, pitch, roll, yaw, false, false, true, false, 0, true, false, false)
@@ -1617,7 +1627,7 @@ RegisterNUICallback('attachTo', function(data, cb)
 		if EntityIsInDatabase(from) then
 			AddEntityToDatabase(from, nil, {
 				to = to,
-				bone = data.bone,
+				bone = bone,
 				x = x,
 				y = y,
 				z = z,

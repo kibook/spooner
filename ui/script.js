@@ -571,10 +571,10 @@ function populatePickupList(filter) {
 	});
 }
 
-function populateBoneList() {
-	var boneList = document.getElementById('attachment-bone');
+function populateBoneNameList() {
+	var boneList = document.getElementById('attachment-bone-name');
 
-	boneList.innerHTML = '';
+	boneList.innerHTML = '<option></option>';
 
 	bones.forEach(bone => {
 		var option = document.createElement('option');
@@ -916,10 +916,13 @@ function getIntoVehicle(handle) {
 }
 
 function attachTo(fromEntity, toEntity) {
+	var boneName = document.getElementById('attachment-bone-name').value;
+	var boneIndex = parseInt(document.getElementById('attachment-bone-index').value);
+
 	sendMessage('attachTo', {
 		from: fromEntity,
 		to: toEntity,
-		bone: document.getElementById('attachment-bone').value,
+		bone: boneName == '' ? boneIndex : boneName,
 		x: parseFloat(document.querySelector('#attachment-x').value),
 		y: parseFloat(document.querySelector('#attachment-y').value),
 		z: parseFloat(document.querySelector('#attachment-z').value),
@@ -990,7 +993,14 @@ function openAttachToMenu(fromEntity, data) {
 		list.appendChild(div);
 	}
 
-	document.querySelector('#attachment-bone').value = properties.attachment.bone;
+	if (typeof properties.attachment.bone == 'number') {
+		document.getElementById('attachment-bone-name').value = '';
+		document.getElementById('attachment-bone-index').value = properties.attachment.bone;
+	} else {
+		document.getElementById('attachment-bone-index').value = '';
+		document.getElementById('attachment-bone-name').value = properties.attachment.bone;
+	}
+
 	document.querySelector('#attachment-x').value = properties.attachment.x;
 	document.querySelector('#attachment-y').value = properties.attachment.y;
 	document.querySelector('#attachment-z').value = properties.attachment.z;
@@ -1125,7 +1135,7 @@ window.addEventListener('load', function() {
 		populatePickupList();
 
 		bones = JSON.parse(resp.bones);
-		populateBoneList();
+		populateBoneNameList();
 
 		walkStyleBases = JSON.parse(resp.walkStyleBases);
 		walkStyles = JSON.parse(resp.walkStyles);
@@ -1478,10 +1488,13 @@ window.addEventListener('load', function() {
 	});
 
 	document.querySelectorAll('.set-attach').forEach(e => e.addEventListener('input', function(event) {
+		var boneName = document.getElementById('attachment-bone-name').value;
+		var boneIndex = parseInt(document.getElementById('attachment-bone-index').value);
+
 		sendMessage('attachTo', {
 			from: currentEntity(),
 			to: null,
-			bone: document.getElementById('attachment-bone').value,
+			bone: boneName == '' ? boneIndex : boneName,
 			x: parseFloat(document.querySelector('#attachment-x').value),
 			y: parseFloat(document.querySelector('#attachment-y').value),
 			z: parseFloat(document.querySelector('#attachment-z').value),
