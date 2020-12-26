@@ -2084,10 +2084,13 @@ CreateThread(function()
 				placeOnGround = PlaceOnGround,
 				adjustSpeed = AdjustSpeed,
 				rotateSpeed = RotateSpeed,
-				x = string.format('%.2f', spawnPos.x),
-				y = string.format('%.2f', spawnPos.y),
-				z = string.format('%.2f', spawnPos.z),
-				heading = string.format('%.2f', yaw2)
+				cursorX = string.format('%.2f', spawnPos.x),
+				cursorY = string.format('%.2f', spawnPos.y),
+				cursorZ = string.format('%.2f', spawnPos.z),
+				camX = string.format('%.2f', x2),
+				camY = string.format('%.2f', y2),
+				camZ = string.format('%.2f', z2),
+				camHeading = string.format('%.2f', yaw2)
 			})
 
 			if Speed < Config.MinSpeed then

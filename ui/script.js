@@ -115,10 +115,13 @@ function updateSpoonerHud(data) {
 		document.querySelector('#place-on-ground').innerHTML = 'Off';
 	}
 
-	document.querySelector('#cam-x').innerHTML = data.x;
-	document.querySelector('#cam-y').innerHTML = data.y;
-	document.querySelector('#cam-z').innerHTML = data.z;
-	document.querySelector('#cam-heading').innerHTML = data.heading;
+	document.getElementById('cam-x').innerHTML = data.camX;
+	document.getElementById('cam-y').innerHTML = data.camY;
+	document.getElementById('cam-z').innerHTML = data.camZ;
+	document.getElementById('cam-heading').innerHTML = data.camHeading;
+	document.getElementById('cursor-x').innerHTML = data.cursorX;
+	document.getElementById('cursor-y').innerHTML = data.cursorY;
+	document.getElementById('cursor-z').innerHTML = data.cursorZ;
 
 	document.querySelector('#adjust-speed').innerHTML = data.adjustSpeed;
 	document.querySelector('#rotate-speed').innerHTML = data.rotateSpeed;

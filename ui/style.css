@@ -119,12 +119,16 @@ input:disabled {
 	padding: 1vh 1vw;
 }
 
-#cam-info {
+#cam-cursor-info {
 	position: absolute;
 	top: 50%;
 	left: 1%;
 	transform: translate(0, -50%);
 	color: white;
+}
+
+#cursor-info {
+	margin-top: 1vh;
 }
 
 .menu {
