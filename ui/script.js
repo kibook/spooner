@@ -1078,6 +1078,60 @@ function currentEntity() {
 	return parseInt(document.querySelector('#properties-menu-entity-id').getAttribute('data-handle'));
 }
 
+function openEntitySelect(menuId, onEntitySelect, ignoreEntity) {
+	var menu = document.getElementById(menuId);
+
+	var entitySelect = document.getElementById('entity-select-menu');
+	entitySelect.innerHTML = '';
+
+	var entitySelectClose = document.createElement('button');
+	entitySelectClose.innerHTML = 'Back';
+	entitySelectClose.addEventListener('click', event => {
+		entitySelect.style.display = 'none';
+		menu.style.display = 'flex';
+	});
+
+	var entitySelectList = document.createElement('div');
+	entitySelectList.className = 'list';
+
+	sendMessage('getDatabase', {}).then(resp => resp.json()).then(resp => {
+		var database = JSON.parse(resp.database);
+
+		Object.keys(database).forEach(key => {
+			var handle = parseInt(key);
+
+			if (handle != ignoreEntity) {
+				var div = document.createElement('div');
+				div.className = 'object';
+
+				if (database[key].netId) {
+					if (database[key].playerName) {
+						div.innerHTML = handle.toString(16) + ' [' + database[key].netId.toString(16) + '] ' + database[key].name + ' (' + database[handle].playerName + ')';
+					} else {
+						div.innerHTML = handle.toString(16) + ' [' + database[key].netId.toString(16) + '] ' + database[key].name;
+					}
+				} else {
+					div.innerHTML = handle.toString(16) + ' ' + database[key].name;
+				}
+
+				div.addEventListener('click', event => {
+					onEntitySelect(handle);
+					entitySelect.style.display = 'none';
+					menu.style.display = 'flex';
+				});
+
+				entitySelectList.appendChild(div);
+			}
+		});
+
+		entitySelect.appendChild(entitySelectList);
+		entitySelect.appendChild(entitySelectClose);
+
+		menu.style.display = 'none';
+		entitySelect.style.display = 'flex';
+	});
+}
+
 window.addEventListener('message', function(event) {
 	switch (event.data.type) {
 		case 'showSpoonerHud':
@@ -1769,5 +1823,15 @@ window.addEventListener('load', function() {
 		sendMessage('setStoreDeleted', {
 			toggle: this.checked
 		});
+	});
+
+	document.getElementById('properties-clone-to-target').addEventListener('click', function(event) {
+		var handle = currentEntity();
+		openEntitySelect('ped-options-menu', function(entity) {
+			sendMessage('clonePedToTarget', {
+				handle: handle,
+				target: entity
+			});
+		}, handle);
 	});
 });

@@ -66,6 +66,7 @@ Permissions.properties.ped.resurrect = false
 Permissions.properties.ped.ai = false
 Permissions.properties.ped.knockOffProps = false
 Permissions.properties.ped.walkStyle = false
+Permissions.properties.ped.cloneToTarget = false
 
 Permissions.properties.vehicle = {}
 Permissions.properties.vehicle.repair = false
@@ -2028,6 +2029,14 @@ RegisterNUICallback('setStoreDeleted', function(data, cb)
 		DeletedEntities = {}
 	else
 		StoreDeleted = true
+	end
+
+	cb({})
+end)
+
+RegisterNUICallback('clonePedToTarget', function(data, cb)
+	if Permissions.properties.ped.cloneToTarget and CanModifyEntity(data.target) then
+		ClonePedToTarget(data.handle, data.target)
 	end
 
 	cb({})
