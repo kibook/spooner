@@ -1461,7 +1461,7 @@ RegisterNUICallback('getIntoVehicle', function(data, cb)
 end)
 
 RegisterNUICallback('repairVehicle', function(data, cb)
-	if Permissions.properties.vehicle.repair then
+	if Permissions.properties.vehicle.repair and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		SetVehicleFixed(data.handle)
 	end
