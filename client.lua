@@ -67,6 +67,7 @@ Permissions.properties.ped.ai = false
 Permissions.properties.ped.knockOffProps = false
 Permissions.properties.ped.walkStyle = false
 Permissions.properties.ped.cloneToTarget = false
+Permissions.properties.ped.lookAtEntity = false
 
 Permissions.properties.vehicle = {}
 Permissions.properties.vehicle.repair = false
@@ -2062,6 +2063,15 @@ RegisterNUICallback('clonePedToTarget', function(data, cb)
 	if Permissions.properties.ped.cloneToTarget and CanModifyEntity(data.target) then
 		RequestControl(data.handle)
 		ClonePedToTarget(data.handle, data.target)
+	end
+
+	cb({})
+end)
+
+RegisterNUICallback('lookAtEntity', function(data, cb)
+	if Permissions.properties.ped.lookAtEntity and CanModifyEntity(data.handle) then
+		RequestControl(data.handle)
+		TaskLookAtEntity(data.handle, data.target, -1)
 	end
 
 	cb({})

@@ -1834,4 +1834,14 @@ window.addEventListener('load', function() {
 			});
 		}, handle);
 	});
+
+	document.getElementById('properties-look-at-entity').addEventListener('click', function(event) {
+		var handle = currentEntity();
+		openEntitySelect('ped-options-menu', function(entity) {
+			sendMessage('lookAtEntity', {
+				handle: handle,
+				target: entity
+			});
+		}, handle);
+	});
 });

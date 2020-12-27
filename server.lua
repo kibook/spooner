@@ -63,6 +63,7 @@ AddEventHandler('spooner:init', function()
 	permissions.properties.ped.knockOffProps = IsPlayerAceAllowed(source, 'spooner.properties.ped.knockOffProps')
 	permissions.properties.ped.walkStyle = IsPlayerAceAllowed(source, 'spooner.properties.ped.walkStyle')
 	permissions.properties.ped.cloneToTarget = IsPlayerAceAllowed(source, 'spooner.properties.ped.cloneToTarget')
+	permissions.properties.ped.lookAtEntity = IsPlayerAceAllowed(source, 'spooner.properties.ped.lookAtEntity')
 
 	permissions.properties.vehicle = {}
 	permissions.properties.vehicle.repair = IsPlayerAceAllowed(source, 'spooner.properties.vehicle.repair')
