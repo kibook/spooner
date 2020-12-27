@@ -2077,6 +2077,15 @@ RegisterNUICallback('lookAtEntity', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('clearLookAt', function(data, cb)
+	if Permissions.properties.ped.lookAtEntity and CanModifyEntity(data.handle) then
+		RequestControl(data.handle)
+		TaskClearLookAt(data.handle)
+	end
+
+	cb({})
+end)
+
 CreateThread(function()
 	TriggerEvent('chat:addSuggestion', '/spooner', 'Toggle spooner mode', {})
 

@@ -1844,4 +1844,10 @@ window.addEventListener('load', function() {
 			});
 		}, handle);
 	});
+
+	document.getElementById('properties-clear-look-at').addEventListener('click', function(event) {
+		sendMessage('clearLookAt', {
+			handle: currentEntity()
+		});
+	});
 });
