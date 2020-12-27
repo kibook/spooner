@@ -949,42 +949,52 @@ RegisterNUICallback('removeEntityFromDatabase', function(data, cb)
 end)
 
 RegisterNUICallback('freezeEntity', function(data, cb)
-	RequestControl(data.handle)
-	FreezeEntityPosition(data.handle, true)
+	if Permissions.properties.freeze and CanModifyEntity(data.handle) then
+		RequestControl(data.handle)
+		FreezeEntityPosition(data.handle, true)
+	end
 	cb({})
 end)
 
 RegisterNUICallback('unfreezeEntity', function(data, cb)
-	RequestControl(data.handle)
-	FreezeEntityPosition(data.handle, false)
+	if Permissions.properties.freeze and CanModifyEntity(data.handle) then
+		RequestControl(data.handle)
+		FreezeEntityPosition(data.handle, false)
+	end
 	cb({})
 end)
 
 RegisterNUICallback('setEntityRotation', function(data, cb)
-	local pitch = data.pitch and data.pitch * 1.0 or 0.0
-	local roll  = data.roll  and data.roll  * 1.0 or 0.0
-	local yaw   = data.yaw   and data.yaw   * 1.0 or 0.0
+	if Permissions.properties.rotation and CanModifyEntity(data.handle) then
+		local pitch = data.pitch and data.pitch * 1.0 or 0.0
+		local roll  = data.roll  and data.roll  * 1.0 or 0.0
+		local yaw   = data.yaw   and data.yaw   * 1.0 or 0.0
 
-	RequestControl(data.handle)
-	SetEntityRotation(data.handle, pitch, roll, yaw, 2)
+		RequestControl(data.handle)
+		SetEntityRotation(data.handle, pitch, roll, yaw, 2)
+	end
 
 	cb({})
 end)
 
 RegisterNUICallback('setEntityCoords', function(data, cb)
-	local x = data.x and data.x * 1.0 or 0.0
-	local y = data.y and data.y * 1.0 or 0.0
-	local z = data.z and data.z * 1.0 or 0.0
+	if Permissions.properties.position and CanModifyEntity(data.handle) then
+		local x = data.x and data.x * 1.0 or 0.0
+		local y = data.y and data.y * 1.0 or 0.0
+		local z = data.z and data.z * 1.0 or 0.0
 
-	RequestControl(data.handle)
-	SetEntityCoordsNoOffset(data.handle, x, y, z)
+		RequestControl(data.handle)
+		SetEntityCoordsNoOffset(data.handle, x, y, z)
+	end
 
 	cb({})
 end)
 
 RegisterNUICallback('resetRotation', function(data, cb)
-	RequestControl(data.handle)
-	SetEntityRotation(data.handle, 0.0, 0.0, 0.0, 2)
+	if Permissions.properties.rotation and CanModifyEntity(data.handle) then
+		RequestControl(data.handle)
+		SetEntityRotation(data.handle, 0.0, 0.0, 0.0, 2)
+	end
 	cb({})
 end)
 
@@ -1072,7 +1082,7 @@ RegisterNUICallback('updatePropertiesMenu', function(data, cb)
 end)
 
 RegisterNUICallback('invincibleOn', function(data, cb)
-	if Permissions.properties.invincible then
+	if Permissions.properties.invincible and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		SetEntityInvincible(data.handle, true)
 	end
@@ -1080,7 +1090,7 @@ RegisterNUICallback('invincibleOn', function(data, cb)
 end)
 
 RegisterNUICallback('invincibleOff', function(data, cb)
-	if Permissions.properties.invincible then
+	if Permissions.properties.invincible and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		SetEntityInvincible(data.handle, false)
 	end
@@ -1114,26 +1124,30 @@ function PlaceOnGroundProperly(entity)
 end
 
 RegisterNUICallback('placeEntityHere', function(data, cb)
-	local x, y, z = table.unpack(GetCamCoord(Cam))
-	local pitch, roll, yaw = table.unpack(GetCamRot(Cam, 2))
+	if Permissions.properties.position and CanModifyEntity(data.handle) then
+		local x, y, z = table.unpack(GetCamCoord(Cam))
+		local pitch, roll, yaw = table.unpack(GetCamRot(Cam, 2))
 
-	local spawnPos, entity, distance = GetInView(x, y, z, pitch, roll, yaw)
+		local spawnPos, entity, distance = GetInView(x, y, z, pitch, roll, yaw)
 
-	RequestControl(data.handle)
-	SetEntityCoordsNoOffset(data.handle, spawnPos.x, spawnPos.y, spawnPos.z)
-	PlaceOnGroundProperly(data.handle)
+		RequestControl(data.handle)
+		SetEntityCoordsNoOffset(data.handle, spawnPos.x, spawnPos.y, spawnPos.z)
+		PlaceOnGroundProperly(data.handle)
 
-	x, y, z = table.unpack(GetEntityCoords(data.handle))
-	pitch, roll, yaw = table.unpack(GetEntityRotation(data.handle, 2))
+		x, y, z = table.unpack(GetEntityCoords(data.handle))
+		pitch, roll, yaw = table.unpack(GetEntityRotation(data.handle, 2))
 
-	cb({
-		x = x,
-		y = y,
-		z = z,
-		pitch = pitch,
-		roll = roll,
-		yaw = yaw
-	})
+		cb({
+			x = x,
+			y = y,
+			z = z,
+			pitch = pitch,
+			roll = roll,
+			yaw = yaw
+		})
+	else
+		cb({})
+	end
 end)
 
 function PrepareDatabaseForSave()
@@ -1437,9 +1451,11 @@ RegisterNUICallback('closeHelpMenu', function(data, cb)
 end)
 
 RegisterNUICallback('getIntoVehicle', function(data, cb)
-	DisableSpoonerMode()
-	RequestControl(data.handle)
-	TaskWarpPedIntoVehicle(PlayerPedId(), data.handle, -1)
+	if Permissions.properties.vehicle.getin then
+		DisableSpoonerMode()
+		RequestControl(data.handle)
+		TaskWarpPedIntoVehicle(PlayerPedId(), data.handle, -1)
+	end
 	cb({})
 end)
 
@@ -1572,7 +1588,9 @@ RegisterNUICallback('closeImportExportDbWindow', function(data, cb)
 end)
 
 RegisterNUICallback('requestControl', function(data, cb)
-	RequestControl(data.handle)
+	if CanModifyEntity(data.handle) then
+		RequestControl(data.handle)
+	end
 	cb({})
 end)
 
@@ -1585,7 +1603,7 @@ RegisterNUICallback('getDatabase', function(data, cb)
 end)
 
 RegisterNUICallback('attachTo', function(data, cb)
-	if Permissions.properties.attachments then
+	if Permissions.properties.attachments and CanModifyEntity(data.from) then
 		local from = data.from
 		local to = data.to
 		local bone = data.bone
@@ -1648,7 +1666,7 @@ RegisterNUICallback('closeMenu', function(data, cb)
 end)
 
 RegisterNUICallback('detach', function(data, cb)
-	if Permissions.properties.attachments then
+	if Permissions.properties.attachments and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		DetachEntity(data.handle, false, true)
 
@@ -1670,7 +1688,7 @@ RegisterNUICallback('detach', function(data, cb)
 end)
 
 RegisterNUICallback('setEntityHealth', function(data, cb)
-	if Permissions.properties.health then
+	if Permissions.properties.health and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		SetEntityHealth(data.handle, data.health, 0)
 	end
@@ -1678,7 +1696,7 @@ RegisterNUICallback('setEntityHealth', function(data, cb)
 end)
 
 RegisterNUICallback('setEntityVisible', function(data, cb)
-	if Permissions.properties.visible then
+	if Permissions.properties.visible and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		SetEntityVisible(data.handle, true)
 	end
@@ -1686,7 +1704,7 @@ RegisterNUICallback('setEntityVisible', function(data, cb)
 end)
 
 RegisterNUICallback('setEntityInvisible', function(data, cb)
-	if Permissions.properties.visible then
+	if Permissions.properties.visible and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		SetEntityVisible(data.handle, false)
 	end
@@ -1694,7 +1712,7 @@ RegisterNUICallback('setEntityInvisible', function(data, cb)
 end)
 
 RegisterNUICallback('gravityOn', function(data, cb)
-	if Permissions.properties.gravity then
+	if Permissions.properties.gravity and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		SetEntityHasGravity(data.handle, true)
 	end
@@ -1702,7 +1720,7 @@ RegisterNUICallback('gravityOn', function(data, cb)
 end)
 
 RegisterNUICallback('gravityOff', function(data, cb)
-	if Permissions.properties.gravity then
+	if Permissions.properties.gravity and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		SetEntityHasGravity(data.handle, false)
 	end
@@ -1710,7 +1728,7 @@ RegisterNUICallback('gravityOff', function(data, cb)
 end)
 
 RegisterNUICallback('performScenario', function(data, cb)
-	if Permissions.properties.ped.scenario then
+	if Permissions.properties.ped.scenario and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		TaskStartScenarioInPlace(data.handle, GetHashKey(data.scenario), 0, true)
 
@@ -1724,7 +1742,7 @@ RegisterNUICallback('performScenario', function(data, cb)
 end)
 
 RegisterNUICallback('clearPedTasks', function(data, cb)
-	if Permissions.properties.ped.clearTasks then
+	if Permissions.properties.ped.clearTasks and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		ClearPedTasks(data.handle)
 
@@ -1738,7 +1756,7 @@ RegisterNUICallback('clearPedTasks', function(data, cb)
 end)
 
 RegisterNUICallback('clearPedTasksImmediately', function(data, cb)
-	if Permissions.properties.ped.clearTasks then
+	if Permissions.properties.ped.clearTasks and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		ClearPedTasksImmediately(data.handle)
 
@@ -1752,7 +1770,7 @@ RegisterNUICallback('clearPedTasksImmediately', function(data, cb)
 end)
 
 RegisterNUICallback('setOutfit', function(data, cb)
-	if Permissions.properties.ped.outfit then
+	if Permissions.properties.ped.outfit and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		SetPedOutfitPreset(data.handle, data.outfit)
 
@@ -1773,7 +1791,7 @@ function AddToGroup(ped)
 end
 
 RegisterNUICallback('addToGroup', function(data, cb)
-	if Permissions.properties.ped.group then
+	if Permissions.properties.ped.group and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		AddToGroup(data.handle)
 	end
@@ -1781,7 +1799,7 @@ RegisterNUICallback('addToGroup', function(data, cb)
 end)
 
 RegisterNUICallback('removeFromGroup', function(data, cb)
-	if Permissions.properties.ped.group then
+	if Permissions.properties.ped.group and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		RemovePedFromGroup(data.handle)
 		RemoveBlip(GetBlipFromEntity(data.handle))
@@ -1790,7 +1808,7 @@ RegisterNUICallback('removeFromGroup', function(data, cb)
 end)
 
 RegisterNUICallback('collisionOn', function(data, cb)
-	if Permissions.properties.collision then
+	if Permissions.properties.collision and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		SetEntityCollision(data.handle, true, true)
 	end
@@ -1798,7 +1816,7 @@ RegisterNUICallback('collisionOn', function(data, cb)
 end)
 
 RegisterNUICallback('collisionOff', function(data, cb)
-	if Permissions.properties.collision then
+	if Permissions.properties.collision and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		SetEntityCollision(data.handle, false, false)
 	end
@@ -1806,7 +1824,7 @@ RegisterNUICallback('collisionOff', function(data, cb)
 end)
 
 RegisterNUICallback('giveWeapon', function(data, cb)
-	if Permissions.properties.ped.weapon then
+	if Permissions.properties.ped.weapon and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		GiveWeaponToPed_2(data.handle, GetHashKey(data.weapon), 500, true, false, 0, false, 0.5, 1.0, 0, false, 0.0, false)
 
@@ -1818,7 +1836,7 @@ RegisterNUICallback('giveWeapon', function(data, cb)
 end)
 
 RegisterNUICallback('removeAllWeapons', function(data, cb)
-	if Permissions.properties.ped.weapon then
+	if Permissions.properties.ped.weapon and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		RemoveAllPedWeapons(data.handle, true, true)
 
@@ -1830,7 +1848,7 @@ RegisterNUICallback('removeAllWeapons', function(data, cb)
 end)
 
 RegisterNUICallback('resurrectPed', function(data, cb)
-	if Permissions.properties.ped.resurrect then
+	if Permissions.properties.ped.resurrect and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		ResurrectPed(data.handle)
 	end
@@ -1838,7 +1856,7 @@ RegisterNUICallback('resurrectPed', function(data, cb)
 end)
 
 RegisterNUICallback('getOnMount', function(data, cb)
-	if Permissions.properties.ped.mount then
+	if Permissions.properties.ped.mount and CanModifyEntity(data.handle) then
 		DisableSpoonerMode()
 		RequestControl(data.handle)
 		SetPedOnMount(PlayerPedId(), data.handle, -1, false)
@@ -1847,19 +1865,23 @@ RegisterNUICallback('getOnMount', function(data, cb)
 end)
 
 RegisterNUICallback('engineOn', function(data, cb)
-	RequestControl(data.handle)
-	SetVehicleEngineOn(data.handle, true, true)
+	if Permissions.properties.vehicle.engine and CanModifyEntity(data.handle) then
+		RequestControl(data.handle)
+		SetVehicleEngineOn(data.handle, true, true)
+	end
 	cb({})
 end)
 
 RegisterNUICallback('engineOff', function(data, cb)
-	RequestControl(data.handle)
-	SetVehicleEngineOn(data.handle, false, true)
+	if Permissions.properties.vehicle.engine and CanModifyEntity(data.handle) then
+		RequestControl(data.handle)
+		SetVehicleEngineOn(data.handle, false, true)
+	end
 	cb({})
 end)
 
 RegisterNUICallback('setLightsIntensity', function(data, cb)
-	if Permissions.properties.lights then
+	if Permissions.properties.lights and CanModifyEntity(data.handle) then
 		local intensity = data.intensity and data.intensity * 1.0 or 0.0
 
 		RequestControl(data.handle)
@@ -1874,7 +1896,7 @@ RegisterNUICallback('setLightsIntensity', function(data, cb)
 end)
 
 RegisterNUICallback('setLightsColour', function(data, cb)
-	if Permissions.properties.lights then
+	if Permissions.properties.lights and CanModifyEntity(data.handle) then
 		local red = data.red and data.red or 0
 		local green = data.green and data.green or 0
 		local blue = data.blue and data.blue or 0
@@ -1895,7 +1917,7 @@ RegisterNUICallback('setLightsColour', function(data, cb)
 end)
 
 RegisterNUICallback('setLightsType', function(data, cb)
-	if Permissions.properties.lights then
+	if Permissions.properties.lights and CanModifyEntity(data.handle) then
 		local type = data.type and data.type or 0
 
 		RequestControl(data.handle)
@@ -1910,7 +1932,7 @@ RegisterNUICallback('setLightsType', function(data, cb)
 end)
 
 RegisterNUICallback('setVehicleLightsOn', function(data, cb)
-	if Permissions.properties.vehicle.lights then
+	if Permissions.properties.vehicle.lights and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		SetVehicleLights(data.handle, false)
 	end
@@ -1918,7 +1940,7 @@ RegisterNUICallback('setVehicleLightsOn', function(data, cb)
 end)
 
 RegisterNUICallback('setVehicleLightsOff', function(data, cb)
-	if Permissions.properties.vehicle.lights then
+	if Permissions.properties.vehicle.lights and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		SetVehicleLights(data.handle, true)
 	end
@@ -1926,7 +1948,7 @@ RegisterNUICallback('setVehicleLightsOff', function(data, cb)
 end)
 
 RegisterNUICallback('aiOn', function(data, cb)
-	if Permissions.properties.ped.ai then
+	if Permissions.properties.ped.ai and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		SetBlockingOfNonTemporaryEvents(data.handle, false)
 
@@ -1939,7 +1961,7 @@ RegisterNUICallback('aiOn', function(data, cb)
 end)
 
 RegisterNUICallback('aiOff', function(data, cb)
-	if Permissions.properties.ped.ai then
+	if Permissions.properties.ped.ai and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		SetBlockingOfNonTemporaryEvents(data.handle, true)
 
@@ -1965,7 +1987,7 @@ RegisterNUICallback('setPlayerModel', function(data, cb)
 end)
 
 RegisterNUICallback('playAnimation', function(data, cb)
-	if Permissions.properties.ped.animation then
+	if Permissions.properties.ped.animation and CanModifyEntity(data.handle) then
 		local blendInSpeed = data.blendInSpeed and data.blendInSpeed * 1.0 or 1.0
 		local blendOutSpeed = data.blendOutSpeed and data.blendOutSpeed * 1.0 or 1.0
 		local duration = data.duration and data.duraction or -1
@@ -2008,7 +2030,8 @@ RegisterNUICallback('loadPermissions', function(data, cb)
 end)
 
 RegisterNUICallback('knockOffProps', function(data, cb)
-	if Permissions.properties.ped.knockOffProps then
+	if Permissions.properties.ped.knockOffProps and CanModifyEntity(data.handle) then
+		RequestControl(data.handle)
 		KnockOffPedProp(data.handle, true, true, true, true)
 	end
 
@@ -2016,7 +2039,8 @@ RegisterNUICallback('knockOffProps', function(data, cb)
 end)
 
 RegisterNUICallback('setWalkStyle', function(data, cb)
-	if Permissions.properties.ped.walkStyle then
+	if Permissions.properties.ped.walkStyle and CanModifyEntity(data.handle) then
+		RequestControl(data.handle)
 		SetWalkStyle(data.handle, data.base, data.style)
 	end
 
@@ -2036,6 +2060,7 @@ end)
 
 RegisterNUICallback('clonePedToTarget', function(data, cb)
 	if Permissions.properties.ped.cloneToTarget and CanModifyEntity(data.target) then
+		RequestControl(data.handle)
 		ClonePedToTarget(data.handle, data.target)
 	end
 
