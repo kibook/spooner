@@ -2061,7 +2061,7 @@ end)
 
 RegisterNUICallback('clonePedToTarget', function(data, cb)
 	if Permissions.properties.ped.cloneToTarget and CanModifyEntity(data.target) then
-		RequestControl(data.handle)
+		RequestControl(data.target)
 		ClonePedToTarget(data.handle, data.target)
 	end
 
