@@ -360,3 +360,19 @@ textarea {
 #attachment-bone-container {
 	display: flex;
 }
+
+.labelled-input-group {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-gap: 0 0.5vw;
+}
+
+.labelled-input {
+	display: contents;
+}
+
+.labelled-input .input-label {
+	display: flex;
+	font-size: 0.75vw;
+	align-items: center;
+}
