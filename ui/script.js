@@ -70,9 +70,6 @@ function updateSpoonerHud(data) {
 	document.querySelector('#speed').innerHTML = data.speed;
 
 	switch(data.adjustMode) {
-		case -1:
-			document.querySelector('#adjust-mode').innerHTML = 'Free';
-			break;
 		case 0:
 			document.querySelector('#adjust-mode').innerHTML = 'X';
 			break;
@@ -86,6 +83,9 @@ function updateSpoonerHud(data) {
 			document.querySelector('#adjust-mode').innerHTML = 'Rotate';
 			break;
 		case 4:
+			document.querySelector('#adjust-mode').innerHTML = 'Free';
+			break;
+		case 5:
 			document.querySelector('#adjust-mode').innerHTML = 'Off';
 			break;
 
@@ -103,7 +103,7 @@ function updateSpoonerHud(data) {
 			break;
 	}
 
-	if (data.adjustMode == -1) {
+	if (data.adjustMode == 4) {
 		document.querySelector('#place-on-ground-container').style.display = 'none';
 	} else {
 		document.querySelector('#place-on-ground-container').style.display = 'block';

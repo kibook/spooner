@@ -64,7 +64,7 @@ If you need to change any permissions while the server is running, after adding/
 |----------------|----------------------------------------------------------------------------------|
 | W/A/S/D        | Move                                                                             |
 | Spacebar/Shift | Up/Down                                                                          |
-| E              | Spawn
+| E              | Spawn                                                                            |
 | Left click     | Entity highlighted: Attach, Entity attached: Detach                              |
 | Right click    | Delete selected entity                                                           |
 | C/V            | Rotate                                                                           |
@@ -72,6 +72,7 @@ If you need to change any permissions while the server is running, after adding/
 | Q/Z/Arrow keys | Adjust selected entity position                                                  |
 | I              | Cycle between controlled mouse adjustment modes                                  |
 | U              | Toggle whether entities stick to the ground in controlled mouse adjustment modes |
+| 7              | Turn off mouse adjustment                                                        |
 | 8              | Return to Free mouse adjustment mode                                             |
 | G              | Clone selected entity                                                            |
 | F              | Open the Spawn menu                                                              |

@@ -6,7 +6,7 @@ local AdjustSpeed = Config.AdjustSpeed
 local RotateSpeed = Config.RotateSpeed
 local AttachedEntity = nil
 local RotateMode = 2
-local AdjustMode = -1
+local AdjustMode = 4
 local PlaceOnGround = false
 local CurrentSpawn = nil
 
@@ -2273,11 +2273,19 @@ CreateThread(function()
 			end
 
 			if IsDisabledControlJustPressed(0, Config.AdjustModeControl) then
-				AdjustMode = (AdjustMode + 1) % 5
+				if AdjustMode < 4 then
+					AdjustMode = (AdjustMode + 1) % 4
+				else
+					AdjustMode = 0
+				end
 			end
 
 			if IsDisabledControlJustPressed(0, Config.FreeAdjustModeControl) then
-				AdjustMode = -1
+				AdjustMode = 4
+			end
+
+			if IsDisabledControlJustPressed(0, Config.AdjustOffControl) then
+				AdjustMode = 5
 			end
 
 			if IsDisabledControlJustPressed(0, Config.PlaceOnGroundControl) then
@@ -2380,10 +2388,7 @@ CreateThread(function()
 					end
 
 					if AttachedEntity then
-						if AdjustMode == -1 then
-							SetEntityCoordsNoOffset(AttachedEntity, spawnPos.x, spawnPos.y, spawnPos.z)
-							PlaceOnGroundProperly(AttachedEntity)
-						elseif AdjustMode ~= 4 then
+						if AdjustMode < 4 then
 							x2 = x1
 							y2 = y1
 							z2 = z1
@@ -2405,10 +2410,12 @@ CreateThread(function()
 									SetEntityRotation(AttachedEntity, epitch2, eroll2, eyaw2 - axisX * Config.SpeedLr)
 								end
 							end
+						elseif AdjustMode == 4 then
+							SetEntityCoordsNoOffset(AttachedEntity, spawnPos.x, spawnPos.y, spawnPos.z)
+						end
 
-							if PlaceOnGround then
-								PlaceOnGroundProperly(AttachedEntity)
-							end
+						if PlaceOnGround or AdjustMode == 4 then
+							PlaceOnGroundProperly(AttachedEntity)
 						end
 					end
 				end
