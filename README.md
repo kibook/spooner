@@ -64,7 +64,8 @@ If you need to change any permissions while the server is running, after adding/
 |----------------|----------------------------------------------------------------------------------|
 | W/A/S/D        | Move                                                                             |
 | Spacebar/Shift | Up/Down                                                                          |
-| Left click     | No entity selected: Spawn, Entity highlighted: Attach, Entity attached: Detach   |
+| E              | Spawn
+| Left click     | Entity highlighted: Attach, Entity attached: Detach                              |
 | Right click    | Delete selected entity                                                           |
 | C/V            | Rotate                                                                           |
 | B              | Change rotation axis                                                             |

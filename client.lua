@@ -2205,7 +2205,27 @@ CreateThread(function()
 				y2 = y2 - dy2
 			end
 
-			if IsDisabledControlJustPressed(0, Config.SpawnSelectControl) then
+			if IsDisabledControlJustPressed(0, Config.SpawnControl) and CurrentSpawn then
+				local entity
+
+				if CurrentSpawn.type == 1 then
+					entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, -1, false, nil, nil, false, nil, nil)
+				elseif CurrentSpawn.type == 2 then
+					entity = SpawnVehicle(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false)
+				elseif CurrentSpawn.type == 3 then
+					entity = SpawnObject(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, nil, nil, nil)
+				elseif CurrentSpawn.type == 4 then
+					entity = SpawnPropset(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, yaw2)
+				elseif CurrentSpawn.type == 5 then
+					entity = SpawnPickup(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z)
+				end
+
+				if entity then
+					PlaceOnGroundProperly(entity)
+				end
+			end
+
+			if IsDisabledControlJustPressed(0, Config.SelectControl) then
 				if AttachedEntity then
 					AttachedEntity = nil
 				elseif entity and CanModifyEntity(entity) then
@@ -2213,24 +2233,6 @@ CreateThread(function()
 						AttachedEntity = GetEntityAttachedTo(entity)
 					else
 						AttachedEntity = entity
-					end
-				elseif CurrentSpawn then
-					local entity
-
-					if CurrentSpawn.type == 1 then
-						entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, -1, false, nil, nil, false, nil, nil)
-					elseif CurrentSpawn.type == 2 then
-						entity = SpawnVehicle(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false)
-					elseif CurrentSpawn.type == 3 then
-						entity = SpawnObject(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, nil, nil, nil)
-					elseif CurrentSpawn.type == 4 then
-						entity = SpawnPropset(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, yaw2)
-					elseif CurrentSpawn.type == 5 then
-						entity = SpawnPickup(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z)
-					end
-
-					if entity then
-						PlaceOnGroundProperly(entity)
 					end
 				end
 			end
