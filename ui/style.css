@@ -239,6 +239,14 @@ input:disabled {
 	padding: 1vh 0;
 }
 
+#save-db-options {
+	display: flex;
+}
+
+#save-db-name {
+	flex-grow: 1;
+}
+
 .database {
 	padding: 0.25vh 0.25vw;
 }
