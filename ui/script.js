@@ -781,7 +781,14 @@ function updatePropertiesMenu(data) {
 
 	setFieldIfInactive('properties-outfit', properties.outfit);
 
-	document.querySelector('#properties-request-control').disabled = data.hasNetworkControl || properties.type == 0;
+	if (properties.netId) {
+		document.getElementById('properties-request-control').disabled = data.hasNetworkControl || properties.type == 0;
+		document.getElementById('properties-register-as-networked').style.display = 'none';
+		document.getElementById('properties-request-control').style.display = 'block';
+	} else {
+		document.getElementById('properties-request-control').style.display = 'none';
+		document.getElementById('properties-register-as-networked').style.display = 'block';
+	}
 
 	if (properties.isFrozen) {
 		document.getElementById('properties-freeze').style.display = 'none';
@@ -1096,6 +1103,7 @@ function updatePermissions(data) {
 	document.querySelector('#properties-engine-off').disabled = !permissions.properties.vehicle.engine
 	document.querySelector('#properties-vehicle-lights-on').disabled = !permissions.properties.vehicle.lights;
 	document.querySelector('#properties-vehicle-lights-off').disabled = !permissions.properties.vehicle.lights;
+	document.getElementById('properties-register-as-networked').disabled = !permissions.properties.registerAsNetworked;
 }
 
 function currentEntity() {
@@ -1871,6 +1879,12 @@ window.addEventListener('load', function() {
 
 	document.getElementById('properties-clear-look-at').addEventListener('click', function(event) {
 		sendMessage('clearLookAt', {
+			handle: currentEntity()
+		});
+	});
+
+	document.getElementById('properties-register-as-networked').addEventListener('click', function(event) {
+		sendMessage('registerAsNetworked', {
 			handle: currentEntity()
 		});
 	});

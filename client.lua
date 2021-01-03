@@ -52,6 +52,7 @@ Permissions.properties.gravity = false
 Permissions.properties.collision = false
 Permissions.properties.attachments = false
 Permissions.properties.lights = false
+Permissions.properties.registerAsNetworked = false
 
 Permissions.properties.ped = {}
 Permissions.properties.ped.changeModel = false
@@ -2103,6 +2104,14 @@ RegisterNUICallback('clearLookAt', function(data, cb)
 	if Permissions.properties.ped.lookAtEntity and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		TaskClearLookAt(data.handle)
+	end
+
+	cb({})
+end)
+
+RegisterNUICallback('registerAsNetworked', function(data, cb)
+	if Permissions.properties.registerAsNetworked and CanModifyEntity(data.handle) then
+		NetworkRegisterEntityAsNetworked(data.handle)
 	end
 
 	cb({})

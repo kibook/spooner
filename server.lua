@@ -48,6 +48,7 @@ AddEventHandler('spooner:init', function()
 	permissions.properties.collision = IsPlayerAceAllowed(source, 'spooner.properties.collision')
 	permissions.properties.attachments = IsPlayerAceAllowed(source, 'spooner.properties.attachments')
 	permissions.properties.lights = IsPlayerAceAllowed(source, 'spooner.properties.lights')
+	permissions.properties.registerAsNetworked = IsPlayerAceAllowed(source, 'spooner.properties.registerAsNetworked')
 
 	permissions.properties.ped = {}
 	permissions.properties.ped.changeModel = IsPlayerAceAllowed(source, 'spooner.properties.ped.changeModel')
