@@ -261,9 +261,9 @@ function GetInView(x1, y1, z1, pitch, roll, yaw)
 		return endCoords, nil, 0
 	end
 
-	local x3, y3, z3 = table.unpack(GetEntityCoords(entityHit))
+	local entityCoords = GetEntityCoords(entityHit)
 
-	local distance = GetDistanceBetweenCoords(x1, y1, z1, x3, y3, z3, true)
+	local distance = #(vector3(x1, y1, z1) - entityCoords)
 
 	if distance >= 100.0 then
 		return endCoords, nil, distance
