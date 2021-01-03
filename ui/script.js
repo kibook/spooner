@@ -1333,7 +1333,7 @@ window.addEventListener('load', function() {
 		closePickupMenu();
 	});
 
-	document.querySelector('#object-database-remove-all-btn').addEventListener('click', function(event) {
+	document.querySelector('#object-database-delete-all-btn').addEventListener('click', function(event) {
 		removeAllFromDatabase();
 	});
 
