@@ -618,7 +618,7 @@ function deleteEntity(object) {
 
 	sendMessage('deleteEntity', {
 		handle: parseInt(handle)
-	});
+	}).then(resp => resp.json()).then(resp => openDatabase(resp));
 
 	if (!document.querySelector('#object-database-list .object')) {
 		closeDatabase();
@@ -629,10 +629,29 @@ function openDatabase(data) {
 	var objectList = document.querySelector('#object-database-list');
 	var database = JSON.parse(data.database);
 
+	var keys = Object.keys(database);
+
+	var totalEntities = keys.length;
+	var totalPeds = 0;
+	var totalVehicles = 0;
+	var totalObjects = 0;
+
 	objectList.innerHTML = '';
 
-	Object.keys(database).forEach(function(handle) {
+	keys.forEach(function(handle) {
 		var entityId = parseInt(handle);
+
+		switch (database[handle].type) {
+			case 1:
+				++totalPeds;
+				break;
+			case 2:
+				++totalVehicles;
+				break;
+			case 3:
+				++totalObjects;
+				break;
+		}
 
 		var div = document.createElement('div');
 		if (database[handle].isSelf) {
@@ -663,6 +682,11 @@ function openDatabase(data) {
 		});
 		objectList.appendChild(div);
 	});
+
+	document.getElementById('object-database-total-entities').innerHTML = keys.length;
+	document.getElementById('object-database-total-peds').innerHTML = totalPeds;
+	document.getElementById('object-database-total-vehicles').innerHTML = totalVehicles;
+	document.getElementById('object-database-total-objects').innerHTML = totalObjects;
 
 	document.querySelector('#object-database').style.display = 'flex';
 }

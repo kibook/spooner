@@ -384,3 +384,11 @@ textarea {
 	font-size: 0.75vw;
 	align-items: center;
 }
+
+#object-database-stats {
+	border-bottom: 1px solid white;
+}
+
+.object-database-stat {
+	display: inline-block;
+}

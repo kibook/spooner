@@ -919,7 +919,9 @@ end)
 
 RegisterNUICallback('deleteEntity', function(data, cb)
 	RemoveEntity(data.handle)
-	cb({})
+	cb({
+		database = json.encode(Database)
+	})
 end)
 
 RegisterNUICallback('removeAllFromDatabase', function(data, cb)
