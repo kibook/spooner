@@ -1552,15 +1552,35 @@ function ConvertDatabaseToYmap(database)
 	return xml
 end
 
+function ConvertDatabaseToPropPlacerJson(database)
+	local props = {}
+
+	for entity, properties in pairs(database.spawn) do
+		props[properties.yaw .. '-' .. properties.x] = {
+			prophash = properties.model,
+			x = properties.x,
+			y = properties.y,
+			z = properties.z,
+			heading = properties.yaw
+		}
+	end
+
+	return json.encode(props)
+end
+
 function ExportDatabase(format)
 	UpdateDatabase()
 
+	local db = PrepareDatabaseForSave()
+
 	if format == 'spooner-db-json' then
-		return json.encode(PrepareDatabaseForSave())
+		return json.encode(db)
 	elseif format == 'map-editor-xml' then
-		return ConvertDatabaseToMapEditorXml(GetPlayerName(), PrepareDatabaseForSave())
+		return ConvertDatabaseToMapEditorXml(GetPlayerName(), db)
 	elseif format == 'ymap' then
-		return ConvertDatabaseToYmap(PrepareDatabaseForSave())
+		return ConvertDatabaseToYmap(db)
+	elseif format == 'propplacer' then
+		return ConvertDatabaseToPropPlacerJson(db)
 	end
 end
 
