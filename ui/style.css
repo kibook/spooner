@@ -386,6 +386,7 @@ textarea {
 }
 
 #object-database-stats {
+	font-size: 0.75vw;
 	border-bottom: 1px solid white;
 }
 

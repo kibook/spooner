@@ -635,6 +635,7 @@ function openDatabase(data) {
 	var totalPeds = 0;
 	var totalVehicles = 0;
 	var totalObjects = 0;
+	var totalNetworked = 0;
 
 	objectList.innerHTML = '';
 
@@ -651,6 +652,10 @@ function openDatabase(data) {
 			case 3:
 				++totalObjects;
 				break;
+		}
+
+		if (database[handle].netId) {
+			++totalNetworked;
 		}
 
 		var div = document.createElement('div');
@@ -687,6 +692,7 @@ function openDatabase(data) {
 	document.getElementById('object-database-total-peds').innerHTML = totalPeds;
 	document.getElementById('object-database-total-vehicles').innerHTML = totalVehicles;
 	document.getElementById('object-database-total-objects').innerHTML = totalObjects;
+	document.getElementById('object-database-total-networked').innerHTML = totalNetworked;
 
 	document.querySelector('#object-database').style.display = 'flex';
 }
