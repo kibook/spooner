@@ -2457,3 +2457,15 @@ CreateThread(function()
 		end
 	end
 end)
+
+CreateThread(function()
+	while true do
+		Wait(1000)
+
+		for entity, _ in pairs(Database) do
+			if not NetworkGetEntityIsNetworked(entity) then
+				NetworkRegisterEntityAsNetworked(entity)
+			end
+		end
+	end
+end)
