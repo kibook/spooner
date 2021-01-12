@@ -1571,6 +1571,24 @@ function ConvertDatabaseToPropPlacerJson(database)
 	return json.encode(props)
 end
 
+function BackupDbs()
+	local dbs = {}
+
+	for _, name in ipairs(GetSavedDatabases()) do
+		dbs[name] = GetResourceKvpString(name)
+	end
+
+	return json.encode(dbs)
+end
+
+function RestoreDbs(content)
+	local dbs = json.decode(content)
+
+	for name, db in pairs(dbs) do
+		SetResourceKvp(name, db)
+	end
+end
+
 function ExportDatabase(format)
 	UpdateDatabase()
 
@@ -1584,6 +1602,8 @@ function ExportDatabase(format)
 		return ConvertDatabaseToYmap(db)
 	elseif format == 'propplacer' then
 		return ConvertDatabaseToPropPlacerJson(db)
+	elseif format == 'backup' then
+		return BackupDbs()
 	end
 end
 
@@ -1594,6 +1614,8 @@ function ImportDatabase(format, content)
 		if db then
 			LoadDatabase(db, false, false)
 		end
+	elseif format == 'backup' then
+		RestoreDbs(content)
 	end
 end
 

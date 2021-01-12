@@ -1894,4 +1894,26 @@ window.addEventListener('load', function() {
 			handle: currentEntity()
 		});
 	});
+
+	document.getElementById('import-export-format').addEventListener('input', function(event) {
+		var importButton = document.getElementById('import-db');
+
+		switch (this.value) {
+			case 'spooner-db-json':
+				importButton.disabled = false;
+				break;
+			case 'map-editor-xml':
+				importButton.disabled = true;
+				break;
+			case 'ymap':
+				importButton.disabled = true;
+				break;
+			case 'propplacer':
+				importButton.disabled = true;
+				break;
+			case 'backup':
+				importButton.disabled = false;
+				break;
+		}
+	});
 });
