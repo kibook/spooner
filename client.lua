@@ -1575,7 +1575,7 @@ function BackupDbs()
 	local dbs = {}
 
 	for _, name in ipairs(GetSavedDatabases()) do
-		dbs[name] = GetResourceKvpString(name)
+		dbs[name] = json.decode(GetResourceKvpString(name))
 	end
 
 	return json.encode(dbs)
@@ -1585,7 +1585,7 @@ function RestoreDbs(content)
 	local dbs = json.decode(content)
 
 	for name, db in pairs(dbs) do
-		SetResourceKvp(name, db)
+		SetResourceKvp(name, json.encode(db))
 	end
 end
 
