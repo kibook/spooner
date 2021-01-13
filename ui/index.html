@@ -389,7 +389,7 @@
 					<option value="map-editor-xml">Map Editor XML</option>
 					<option value="ymap">Ymap</option>
 					<option value="propplacer">propplacer JSON</option>
-					<option value="backup">Spooner DBs Backup</option>
+					<option value="backup">Spooner Backup</option>
 				</select>
 				<input type="text" id="import-url" placeholder="Import from URL">
 				<button id="import-db">Import</button>
@@ -549,7 +549,7 @@
 					</tr>
 					<tr>
 						<td class="control">7</td>
-						<td>Turn off mouse adjustment, so the entity can only be moved with C/V/Q/Z/Arrow Keys</td>
+						<td>Turn <strong>Off</strong> mouse adjustment, so the entity can only be moved with C/V/Q/Z/Arrow Keys</td>
 					</tr>
 					<tr>
 						<td class="control">8</td>
@@ -589,7 +589,7 @@
 				<ul>
 					<li>Left-click on an entity to open it in the <strong>Properties</strong> menu</li>
 					<li>Right-click on an entity to delete it</li>
-					<li>Click <strong>Remove All</strong> to delete all entities in the database</li>
+					<li>Click <strong>Delete All</strong> to delete all entities in the database</li>
 				</ul>
 				<h3>Properties menu - <span class="control">e</span></h3>
 				<p>The <strong>Properties</strong> menu lists and allows you to edit properties of an entity.</p>
@@ -605,7 +605,48 @@
 				<p>Checking the <strong>Replace current DB</strong> box will replace your current database with the loaded database, rather than merging the two.</p>
 				<p>Checking the <strong>Save/Load deletions</strong> box will save what entities you delete, and delete them again when the database is loaded.</p>
 				<h3>Import/Export menu</h3>
-				<p>The <strong>Import/Export</strong> menu allows you to import a database into your current database, or export your current database in either JSON or Map Editor XML format.</p>
+				<p>The <strong>Import/Export</strong> menu allows you to import and export databases in a number of different formats:</p>
+				<table>
+					<tr>
+						<th>Format</th>
+						<th>Description</th>
+						<th>Export?</th>
+						<th>Import?</th>
+					</tr>
+					<tr>
+						<td>Spooner DB JSON</td>
+						<td>The native format used by the spooner</td>
+						<td>Yes</td>
+						<td>Yes</td>
+					</tr>
+					<tr>
+						<td>Map Editor XML</td>
+						<td>XML format used by the Lambdarevolution map editor and the objectloader resource</td>
+						<td>Yes</td>
+						<td>No</td>
+					</tr>
+					<tr>
+						<td>Ymap</th>
+						<td>Native map format used by GTA V/RDR2</td>
+						<td>Yes</td>
+						<td>No</td>
+					</tr>
+					<tr>
+						<td>propplacer JSON</td>
+						<td>RedEM:RP propplacer JSON database</td>
+						<td>Yes</td>
+						<td>No</td>
+					</tr>
+					<tr>
+						<td>Spooner Backup</td>
+						<td>Backup of all spooner databases</td>
+						<td>Yes</td>
+						<td>Yes</td>
+					</tr>
+				</table>
+				<p>To export, select the desired format and click <strong>Export</strong>. The output will be displayed in the text box, and you can copy it to save it to an external file.</p>
+				<p>To import, paste the input into the text box, select the appropriate format, and click <strong>Import</strong>. Objects imported will be added to your current database.</p>
+				<p>Entering a URL of a JSON/XML file in the <strong>Import from URL</strong> field and clicking <strong>Import</strong> allows you to import from external web sources, such as pastebin.com, without needing to copy and paste. Be sure that the URL points to the raw version of the file when using such services.</p>
 			</div>
 			<div id="help-menu-controls">
 				<button id="help-menu-close-btn">Close</button>
