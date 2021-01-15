@@ -834,6 +834,14 @@ function RemoveAllFromDatabase()
 	end
 end
 
+function SaveDatabaseInKvs(name, db)
+	SetResourceKvp('DB_' .. name, json.encode(db))
+end
+
+function LoadDatabaseFromKvs(name)
+	return json.decode(GetResourceKvpString('DB_' .. name))
+end
+
 AddEventHandler('onResourceStop', function(resourceName)
 	if GetCurrentResourceName() == resourceName then
 		DisableSpoonerMode()
@@ -1173,7 +1181,7 @@ end
 
 function SaveDatabase(name)
 	UpdateDatabase()
-	SetResourceKvp(name, json.encode(PrepareDatabaseForSave()))
+	SaveDatabaseInKvs(name, PrepareDatabaseForSave())
 end
 
 function RemoveDeletedEntity(x, y, z, hash)
@@ -1312,7 +1320,7 @@ function LoadDatabase(db, relative, replace)
 end
 
 function LoadSavedDatabase(name, relative, replace)
-	local db = json.decode(GetResourceKvpString(name))
+	local db = LoadDatabaseFromKvs(name)
 
 	if db then
 		LoadDatabase(db, relative, replace)
@@ -1322,13 +1330,13 @@ end
 function GetSavedDatabases()
 	local dbs = {}
 
-	local handle = StartFindKvp("")
+	local handle = StartFindKvp('DB_')
 
 	while true do
 		local kvp = FindKvp(handle)
 
 		if kvp then
-			table.insert(dbs, kvp)
+			table.insert(dbs, string.sub(kvp, 4))
 		else
 			break
 		end
@@ -1342,7 +1350,7 @@ function GetSavedDatabases()
 end
 
 function DeleteDatabase(name)
-	DeleteResourceKvp(name)
+	DeleteResourceKvp('DB_' .. name)
 end
 
 RegisterNUICallback('saveDb', function(data, cb)
@@ -1360,6 +1368,14 @@ RegisterNUICallback('deleteDb', function(data, cb)
 	cb({})
 end)
 
+function GetFavourites()
+	local content = GetResourceKvpString('favourites')
+
+	if content then
+		return json.decode(content)
+	end
+end
+
 RegisterNUICallback('init', function(data, cb)
 	cb({
 		peds = json.encode(Peds),
@@ -1374,7 +1390,8 @@ RegisterNUICallback('init', function(data, cb)
 		walkStyleBases = json.encode(WalkStyleBases),
 		walkStyles = json.encode(WalkStyles),
 		adjustSpeed = AdjustSpeed,
-		rotateSpeed = RotateSpeed
+		rotateSpeed = RotateSpeed,
+		favourites = GetFavourites()
 	})
 end)
 
@@ -1575,7 +1592,7 @@ function BackupDbs()
 	local dbs = {}
 
 	for _, name in ipairs(GetSavedDatabases()) do
-		dbs[name] = json.decode(GetResourceKvpString(name))
+		dbs[name] = LoadDatabaseFromKvs(name)
 	end
 
 	return json.encode(dbs)
@@ -1585,7 +1602,7 @@ function RestoreDbs(content)
 	local dbs = json.decode(content)
 
 	for name, db in pairs(dbs) do
-		SetResourceKvp(name, json.encode(db))
+		SaveDatabaseInKvs(name, db)
 	end
 end
 
@@ -2139,6 +2156,35 @@ RegisterNUICallback('registerAsNetworked', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('saveFavourites', function(data, cb)
+	SetResourceKvp('favourites', json.encode(data.favourites))
+	cb({})
+end)
+
+-- Temporary function to migrate old kvs keys of DBs to the new kvs key format
+function MigrateOldSavedDbs()
+	local handle = StartFindKvp("")
+
+	while true do
+		local kvp = FindKvp(handle)
+
+		if kvp then
+			if kvp ~= 'favourites' and string.sub(kvp, 1, 3) ~= 'DB_' and not GetResourceKvpString('DB_' .. kvp) then
+				SetResourceKvp('DB_' .. kvp, GetResourceKvpString(kvp))
+				print('Migrated old DB: ' .. kvp)
+				DeleteResourceKvp(kvp)
+			end
+		else
+			break
+		end
+	end
+
+	EndFindKvp(handle)
+end
+RegisterCommand('spooner_migrate_old_dbs', function(source, args, raw)
+	MigrateOldSavedDbs()
+end)
+
 CreateThread(function()
 	TriggerEvent('chat:addSuggestion', '/spooner', 'Toggle spooner mode', {})
 
@@ -2480,14 +2526,17 @@ CreateThread(function()
 	end
 end)
 
+function AutoNetworkDbEntities()
+	for entity, _ in pairs(Database) do
+		if not NetworkGetEntityIsNetworked(entity) then
+			NetworkRegisterEntityAsNetworked(entity)
+		end
+	end
+end
+
 CreateThread(function()
 	while true do
 		Wait(1000)
-
-		for entity, _ in pairs(Database) do
-			if not NetworkGetEntityIsNetworked(entity) then
-				NetworkRegisterEntityAsNetworked(entity)
-			end
-		end
+		AutoNetworkDbEntities()
 	end
 end)

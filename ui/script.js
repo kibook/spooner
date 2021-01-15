@@ -13,6 +13,20 @@ var lastSpawnMenu = -1;
 
 var propertiesMenuUpdate;
 
+const favouriteTypes = [
+	'peds',
+	'vehicles',
+	'objects',
+	'propsets',
+	'pickups',
+	'scenarios',
+	'animations',
+	'weapons',
+	'walkStyles'
+];
+
+var favourites = {};
+
 function sendMessage(name, params) {
 	return fetch('https://' + GetParentResourceName() + '/' + name, {
 		method: 'POST',
@@ -206,7 +220,7 @@ function closePedMenu(selected) {
 	document.querySelector('#ped-menu').style.display = 'none';
 
 	if (selected) {
-		var name = selected.innerHTML;
+		var name = selected.getAttribute('data-model');
 
 		sendMessage('closePedMenu', {
 			modelName: name
@@ -229,7 +243,7 @@ function closeVehicleMenu(selected) {
 	document.querySelector('#vehicle-menu').style.display = 'none';
 
 	if (selected) {
-		var name = selected.innerHTML;
+		var name = selected.getAttribute('data-model');
 
 		sendMessage('closeVehicleMenu', {
 			modelName: name
@@ -252,7 +266,7 @@ function closeObjectMenu(selected) {
 	document.querySelector('#object-menu').style.display = 'none';
 
 	if (selected) {
-		var name = selected.innerHTML;
+		var name = selected.getAttribute('data-model');
 
 		sendMessage('closeObjectMenu', {
 			modelName: name
@@ -275,7 +289,7 @@ function closePropsetMenu(selected) {
 	document.querySelector('#propset-menu').style.display = 'none';
 
 	if (selected) {
-		var name = selected.innerHTML;
+		var name = selected.getAttribute('data-model');
 
 		sendMessage('closePropsetMenu', {
 			modelName: name
@@ -298,7 +312,7 @@ function closePickupMenu(selected) {
 	document.querySelector('#pickup-menu').style.display = 'none';
 
 	if (selected) {
-		var name = selected.innerHTML;
+		var name = selected.getAttribute('data-model');
 
 		sendMessage('closePickupMenu', {
 			modelName: name
@@ -323,14 +337,14 @@ function performScenario(scenario) {
 
 	sendMessage('performScenario', {
 		handle: currentEntity(),
-		scenario: scenario.innerHTML
+		scenario: scenario.getAttribute('data-scenario')
 	});
 }
 
 function giveWeapon(weapon) {
 	sendMessage('giveWeapon', {
 		handle: currentEntity(),
-		weapon: weapon.innerHTML
+		weapon: weapon.getAttribute('data-model')
 	});
 }
 
@@ -361,24 +375,85 @@ function setWalkStyle(selected) {
 	selected.className = 'object selected';
 }
 
+function favouriteOnClick(event) {
+	removeFavourite(this);
+}
+
+function nonFavouriteOnClick(event) {
+	addFavourite(this);
+}
+
+function addFavourite(selected) {
+	var type = selected.getAttribute('data-favourite-type');
+	var name = selected.getAttribute('data-favourite-name');
+
+	favourites[type][name] = true;
+
+	sendMessage('saveFavourites', {
+		favourites: favourites
+	});
+
+	selected.className = 'object favourite';
+	selected.removeEventListener('contextmenu', nonFavouriteOnClick);
+	selected.addEventListener('contextmenu', favouriteOnClick);
+}
+
+function removeFavourite(selected) {
+	var type = selected.getAttribute('data-favourite-type');
+	var name = selected.getAttribute('data-favourite-name');
+
+	delete favourites[type][name];
+
+	sendMessage('saveFavourites', {
+		favourites: favourites
+	});
+
+	selected.className = 'object';
+	selected.removeEventListener('contextmenu', favouriteOnClick);
+	selected.addEventListener('contextmenu', nonFavouriteOnClick);
+}
+
 function populatePedList(filter) {
-	var pedList = document.querySelector('#ped-list');
+	var pedList = document.getElementById('ped-list');
+	var favsOnly = document.getElementById('favourite-peds').hasAttribute('data-active');
 
 	pedList.innerHTML = '';
 
-	for (i = 0; i < peds.length; ++i) {
-		var name = peds[i];
+	peds.forEach(name => {
+		var isFav = favourites.peds[name];
+
+		if (favsOnly && !isFav) {
+			return;
+		}
 
 		if (!filter || filter == '' || name.toLowerCase().includes(filter.toLowerCase())) {
 			var div = document.createElement('div');
-			div.className = 'object';
+
+			if (isFav) {
+				div.className = 'object favourite';
+			} else {
+				div.className = 'object';
+			}
+
+			div.setAttribute('data-model', name);
+			div.setAttribute('data-favourite-type', 'peds');
+			div.setAttribute('data-favourite-name', name);
+
 			div.innerHTML = name;
+
 			div.addEventListener('click', function(event) {
 				closePedMenu(this);
 			});
+
+			if (isFav) {
+				div.addEventListener('contextmenu', favouriteOnClick);
+			} else {
+				div.addEventListener('contextmenu', nonFavouriteOnClick);
+			}
+
 			pedList.appendChild(div);
 		}
-	}
+	});
 }
 
 function setPlayerModel(modelName) {
@@ -394,130 +469,254 @@ function setPlayerModel(modelName) {
 }
 
 function populatePlayerModelList(filter) {
-	var pedList = document.querySelector('#player-model-list');
+	var pedList = document.getElementById('player-model-list');
+	var favsOnly = document.getElementById('favourite-player-models').hasAttribute('data-active');
 
 	pedList.innerHTML = '';
 
-	for (i = 0; i < peds.length; ++i) {
-		var name = peds[i];
+	peds.forEach(name => {
+		var isFav = favourites.playerModels[name];
+
+		if (favsOnly && !isFav) {
+			return;
+		}
 
 		if (!filter || filter == '' || name.toLowerCase().includes(filter.toLowerCase())) {
 			var div = document.createElement('div');
-			div.className = 'object';
+
+			if (isFav) {
+				div.className = 'object favourite';
+			} else {
+				div.className = 'object';
+			}
+
+			div.setAttribute('data-model', name);
+			div.setAttribute('data-favourite-type', 'playerModels');
+			div.setAttribute('data-favourite-name', name);
+
 			div.innerHTML = name;
+
 			div.addEventListener('click', function(event) {
 				pedList.querySelectorAll('.object').forEach(e => e.className = 'object');
 				this.className = 'object selected';
-				setPlayerModel(this.innerHTML);
+				setPlayerModel(this.getAttribute('data-model'));
 			});
+
+			if (isFav) {
+				div.addEventListener('contextmenu', favouriteOnClick);
+			} else {
+				div.addEventListener('contextmenu', nonFavouriteOnClick);
+			}
+
 			pedList.appendChild(div);
 		}
-	}
+	});
 }
 
 function populateVehicleList(filter) {
-	var vehicleList = document.querySelector('#vehicle-list');
+	var vehicleList = document.getElementById('vehicle-list');
+	var favsOnly = document.getElementById('favourite-vehicles').hasAttribute('data-active');
 
 	vehicleList.innerHTML = '';
 
-	for (i = 0; i < vehicles.length; ++i) {
-		var name = vehicles[i];
+	vehicles.forEach(name => {
+		var isFav = favourites.vehicles[name];
+
+		if (favsOnly && !isFav) {
+			return;
+		}
 
 		if (!filter || filter == '' || name.toLowerCase().includes(filter.toLowerCase())) {
 			var div = document.createElement('div');
-			div.className = 'object';
+
+			if (isFav) {
+				div.className = 'object favourite';
+			} else {
+				div.className = 'object';
+			}
+
+			div.setAttribute('data-model', name);
+			div.setAttribute('data-favourite-type', 'vehicles');
+			div.setAttribute('data-favourite-name', name);
+
 			div.innerHTML = name;
+
 			div.addEventListener('click', function(event) {
 				closeVehicleMenu(this);
 			});
+
+			if (isFav) {
+				div.addEventListener('contextmenu', favouriteOnClick);
+			} else {
+				div.addEventListener('contextmenu', nonFavouriteOnClick);
+			}
+
 			vehicleList.appendChild(div);
 		}
-	}
+	});
 }
 
 function populateObjectList(filter) {
-	var objectList = document.querySelector('#object-list');
+	var objectList = document.getElementById('object-list');
+	var favsOnly = document.getElementById('favourite-objects').hasAttribute('data-active');
 
 	objectList.innerHTML = '';
 
-	for (i = 0; i < objects.length; ++i) {
-		var name = objects[i];
+	objects.forEach(name => {
+		var isFav = favourites.objects[name];
+
+		if (favsOnly && !isFav) {
+			return;
+		}
 
 		if (!filter || filter == '' || name.toLowerCase().includes(filter.toLowerCase())) {
 			var div = document.createElement('div');
-			div.className = 'object';
+
+			if (isFav) {
+				div.className = 'object favourite';
+			} else {
+				div.className = 'object';
+			}
+
+			div.setAttribute('data-model', name);
+			div.setAttribute('data-favourite-type', 'objects');
+			div.setAttribute('data-favourite-name', name);
+
 			div.innerHTML = name;
+
 			div.addEventListener('click', function(event) {
 				closeObjectMenu(this);
 			});
+
+			if (isFav) {
+				div.addEventListener('contextmenu', favouriteOnClick);
+			} else {
+				div.addEventListener('contextmenu', nonFavouriteOnClick);
+			}
+
 			objectList.appendChild(div);
 		}
-	}
+	});
 }
 
 function populateScenarioList(filter) {
-	var scenarioList = document.querySelector('#scenario-list');
+	var scenarioList = document.getElementById('scenario-list');
+	var favsOnly = document.getElementById('favourite-scenarios').hasAttribute('data-active');
 
 	scenarioList.innerHTML = '';
 
-	scenarios.forEach(function(scenario) {
+	scenarios.forEach(scenario => {
+		var isFav = favourites.scenarios[scenario];
+
+		if (favsOnly && !isFav) {
+			return;
+		}
+
 		if (!filter || filter == '' || scenario.toLowerCase().includes(filter.toLowerCase())) {
 			var div = document.createElement('div');
-			div.className = 'object';
+
+			if (isFav) {
+				div.className = 'object favourite';
+			} else {
+				div.className = 'object';
+			}
+
+			div.setAttribute('data-scenario', scenario);
+			div.setAttribute('data-favourite-type', 'scenarios');
+			div.setAttribute('data-favourite-name', scenario);
+
 			div.innerHTML = scenario;
+
 			div.addEventListener('click', function(event) {
 				performScenario(this);
 			});
+
+			if (isFav) {
+				div.addEventListener('contextmenu', favouriteOnClick);
+			} else {
+				div.addEventListener('contextmenu', nonFavouriteOnClick);
+			}
+
 			scenarioList.appendChild(div);
 		}
 	});
 }
 
 function populateWeaponList(filter) {
-	var weaponList = document.querySelector('#weapon-list');
+	var weaponList = document.getElementById('weapon-list');
+	var favsOnly = document.getElementById('favourite-weapons').hasAttribute('data-active');
 
 	weaponList.innerHTML = '';
 
-	weapons.forEach(function(weapon) {
+	weapons.forEach(weapon => {
+		var isFav = favourites.weapons[weapon];
+
+		if (favsOnly && !isFav) {
+			return;
+		}
+
 		if (!filter || filter == '' || weapon.toLowerCase().includes(filter.toLowerCase())) {
 			var div = document.createElement('div');
-			div.className = 'object';
+
+			if (isFav) {
+				div.className = 'object favourite';
+			} else {
+				div.className = 'object';
+			}
+
+			div.setAttribute('data-model', weapon);
+			div.setAttribute('data-favourite-type', 'weapons');
+			div.setAttribute('data-favourite-name', weapon);
+
 			div.innerHTML = weapon;
+
 			div.addEventListener('click', function(event) {
 				giveWeapon(this);
 			});
+
+			if (isFav) {
+				div.addEventListener('contextmenu', favouriteOnClick);
+			} else {
+				div.addEventListener('contextmenu', nonFavouriteOnClick);
+			}
+
 			weaponList.appendChild(div);
 		}
 	});
 }
 
 function populateAnimationList(filter) {
-	var animationList = document.querySelector('#animation-list');
-	var animationMaxResults = parseInt(document.querySelector('#animation-search-max-results').value);
+	var animationList = document.getElementById('animation-list');
+	var animationMaxResults = parseInt(document.getElementById('animation-search-max-results').value);
+	var favsOnly = document.getElementById('favourite-animations').hasAttribute('data-active');
 
 	animationList.innerHTML = '';
 
 	var results = [];
 
-	Object.keys(animations).forEach(function(dict) {
-		animations[dict].forEach(function(anim) {
-			var name = dict + ': ' + anim;
+	Object.keys(animations).forEach(dict => {
+		animations[dict].forEach(name => {
+			var label = dict + ': ' + name;
 
-			if (!filter || filter == '' || name.toLowerCase().includes(filter.toLowerCase())) {
+			if (favsOnly && !favourites.animations[label]) {
+				return;
+			}
+
+			if (!filter || filter == '' || label.toLowerCase().includes(filter.toLowerCase())) {
 				results.push({
-					name: name,
+					label: label,
 					dict: dict,
-					anim: anim
+					name: name
 				})
 			}
 		});
 	});
 
 	results.sort(function(a, b) {
-		if (a.name < b.name) {
+		if (a.label < b.label) {
 			return -1;
 		}
-		if (a.name > b.name) {
+		if (a.label > b.label) {
 			return 1;
 		}
 		return 0;
@@ -526,49 +725,118 @@ function populateAnimationList(filter) {
 	document.getElementById('animation-search-total-results').innerHTML = results.length;
 
 	for (var i = 0; i < results.length && i < animationMaxResults; ++i) {
+		var isFav = favourites.animations[results[i].label];
+
 		var div = document.createElement('div');
-		div.className = 'object';
-		div.innerHTML = results[i].name;
+
+		if (isFav) {
+			div.className = 'object favourite';
+		} else {
+			div.className = 'object';
+		}
+
 		div.setAttribute('data-dict', results[i].dict);
-		div.setAttribute('data-name', results[i].anim);
+		div.setAttribute('data-name', results[i].name);
+		div.setAttribute('data-favourite-type', 'animations');
+		div.setAttribute('data-favourite-name', results[i].label);
+
+		div.innerHTML = results[i].label;
+
 		div.addEventListener('click', function() {
 			playAnimation(this);
 		});
+
+		if (isFav) {
+			div.addEventListener('contextmenu', favouriteOnClick);
+		} else {
+			div.addEventListener('contextmenu', nonFavouriteOnClick);
+		}
+
 		animationList.appendChild(div);
 	}
 }
 
 function populatePropsetList(filter) {
-	var propsetList = document.querySelector('#propset-list');
+	var propsetList = document.getElementById('propset-list');
+	var favsOnly = document.getElementById('favourite-propsets').hasAttribute('data-active');
 
 	propsetList.innerHTML = '';
 
 	propsets.forEach(propset => {
+		var isFav = favourites.propsets[propset];
+
+		if (favsOnly && !isFav) {
+			return;
+		}
+
 		if (!filter || filter == '' || propset.toLowerCase().includes(filter.toLowerCase())) {
 			var div = document.createElement('div');
-			div.className = 'object';
+
+			if (isFav) {
+				div.className = 'object favourite';
+			} else {
+				div.className = 'object';
+			}
+
+			div.setAttribute('data-model', propset);
+			div.setAttribute('data-favourite-type', 'propsets');
+			div.setAttribute('data-favourite-name', propset);
+
 			div.innerHTML = propset;
+
 			div.addEventListener('click', function(event) {
 				closePropsetMenu(this);
 			});
+
+			if (isFav) {
+				div.addEventListener('contextmenu', favouriteOnClick);
+			} else {
+				div.addEventListener('contextmenu', nonFavouriteOnClick);
+			}
+
 			propsetList.appendChild(div);
 		}
 	});
 }
 
 function populatePickupList(filter) {
-	var pickupList = document.querySelector('#pickup-list');
+	var pickupList = document.getElementById('pickup-list');
+	var favsOnly = document.getElementById('favourite-pickups').hasAttribute('data-active');
 
 	pickupList.innerHTML = '';
 
 	pickups.forEach(pickup => {
+		var isFav = favourites.pickups[pickup];
+
+		if (favsOnly && !isFav) {
+			return;
+		}
+
 		if (!filter || filter == '' || pickup.toLowerCase().includes(filter.toLowerCase())) {
 			var div = document.createElement('div');
-			div.className = 'object';
+
+			if (isFav) {
+				div.className = 'object favourite';
+			} else {
+				div.className = 'object';
+			}
+
+			div.setAttribute('data-model', pickup);
+			div.setAttribute('data-favourite-type', 'pickups');
+			div.setAttribute('data-favourite-name', pickup);
+
 			div.innerHTML = pickup;
+
 			div.addEventListener('click', function(event) {
 				closePickupMenu(this);
 			});
+
+			if (isFav) {
+				div.addEventListener('contextmenu', favouriteOnClick);
+			} else {
+				div.addEventListener('contextmenu', nonFavouriteOnClick);
+			}
+
 			pickupList.appendChild(div);
 		}
 	});
@@ -589,22 +857,45 @@ function populateBoneNameList() {
 
 function populateWalkStyleList(filter) {
 	var walkStyleList = document.getElementById('walk-style-list');
+	var favsOnly = document.getElementById('favourite-walk-styles').hasAttribute('data-active');
 
 	walkStyleList.innerHTML = '';
 
 	walkStyleBases.forEach(base => {
 		walkStyles.forEach(style => {
 			var name = base + ': ' + style;
+			var isFav = favourites.walkStyles[name];
+
+			if (favsOnly && !isFav) {
+				return;
+			}
 
 			if (!filter || filter == '' || name.toLowerCase().includes(filter.toLowerCase())) {
 				var div = document.createElement('div');
-				div.className = 'object';
-				div.innerHTML = name;
+
+				if (isFav) {
+					div.className = 'object favourite';
+				} else {
+					div.className = 'object';
+				}
+
 				div.setAttribute('data-base', base);
 				div.setAttribute('data-style', style);
+				div.setAttribute('data-favourite-type', 'walkStyles');
+				div.setAttribute('data-favourite-name', name);
+
+				div.innerHTML = name;
+
 				div.addEventListener('click', function(event) {
 					setWalkStyle(this);
 				});
+
+				if (isFav) {
+					div.addEventListener('contextmenu', favouriteOnClick);
+				} else {
+					div.addEventListener('contextmenu', nonFavouriteOnClick);
+				}
+
 				walkStyleList.appendChild(div);
 			}
 		});
@@ -619,10 +910,6 @@ function deleteEntity(object) {
 	sendMessage('deleteEntity', {
 		handle: parseInt(handle)
 	}).then(resp => resp.json()).then(resp => openDatabase(resp));
-
-	if (!document.querySelector('#object-database-list .object')) {
-		closeDatabase();
-	}
 }
 
 function openDatabase(data) {
@@ -1204,6 +1491,16 @@ window.addEventListener('message', function(event) {
 
 window.addEventListener('load', function() {
 	sendMessage('init', {}).then(resp => resp.json()).then(function(resp) {
+		if (resp.favourites) {
+			favourites = resp.favourites;
+
+			favouriteTypes.forEach(type => {
+				if (!favourites[type] || Array.isArray(favourites[type])) {
+					favourites[type] = {};
+				}
+			});
+		}
+
 		peds = JSON.parse(resp.peds);
 		populatePedList();
 		populatePlayerModelList();
@@ -1894,6 +2191,53 @@ window.addEventListener('load', function() {
 			handle: currentEntity()
 		});
 	});
+
+	document.querySelectorAll('.favourites').forEach(e => e.addEventListener('click', function(event) {
+		var active = this.hasAttribute('data-active');
+
+		if (active) {
+			this.removeAttribute('data-active');
+			this.innerHTML = '<i class="far fa-star"></i>';
+			this.style.color = null;
+		} else {
+			this.setAttribute('data-active', '');
+			this.innerHTML = '<i class="fas fa-star"></i>';
+			this.style.color = 'gold';
+		}
+
+		switch (this.id) {
+			case 'favourite-peds':
+				populatePedList(document.getElementById('ped-search-filter').value);
+				break;
+			case 'favourite-vehicles':
+				populateVehicleList(document.getElementById('vehicle-search-filter').value);
+				break;
+			case 'favourite-objects':
+				populateObjectList(document.getElementById('object-search-filter').value);
+				break;
+			case 'favourite-player-models':
+				populatePlayerModelList(document.getElementById('player-model-search-filter').value);
+				break;
+			case 'favourite-weapons':
+				populateWeaponList(document.getElementById('weapon-search-filter').value);
+				break;
+			case 'favourite-scenarios':
+				populateScenarioList(document.getElementById('scenario-search-filter').value);
+				break;
+			case 'favourite-animations':
+				populateAnimationList(document.getElementById('animation-search-filter').value);
+				break;
+			case 'favourite-propsets':
+				populatePropsetList(document.getElementById('propset-search-filter').value);
+				break;
+			case 'favourite-pickups':
+				populatePickupList(document.getElementById('pickup-search-filter').value);
+				break;
+			case 'favourite-walk-styles':
+				populateWalkStyleList(document.getElementById('walk-style-search-filter').value);
+				break;
+		}
+	}));
 
 	document.getElementById('import-export-format').addEventListener('input', function(event) {
 		var importButton = document.getElementById('import-db');

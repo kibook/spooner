@@ -1,6 +1,7 @@
 <html>
 	<head>
 		<title>Spooner</title>
+		<script src="https://kit.fontawesome.com/5537a772c3.js" crossorigin="anonymous"></script>
 		<link rel="stylesheet" href="style.css">
 		<script src="objects.js"></script>
 		<script src="script.js"></script>
@@ -54,24 +55,33 @@
 			<button id="spawn-menu-close">Close</button>
 		</div>
 		<div id="ped-menu" class="menu">
-			<div id="ped-search">
+			<div id="ped-search" class="search">
 				<input type="text" id="ped-search-filter" class="search-filter" value="">
+				<button id="favourite-peds" class="favourites">
+					<i class="far fa-star"></i>
+				</button>
 			</div>
 			<div id="ped-list" class="list"></div>
 			<button id="ped-spawn-by-name" class="spawn-by-name">Spawn By Name</button>
 			<button id="ped-menu-close-btn">Back</button>
 		</div>
 		<div id="vehicle-menu" class="menu">
-			<div id="vehicle-search">
+			<div id="vehicle-search" class="search">
 				<input type="text" id="vehicle-search-filter" class="search-filter" value="">
+				<button id="favourite-vehicles" class="favourites">
+					<i class="far fa-star"></i>
+				</button>
 			</div>
 			<div id="vehicle-list" class="list"></div>
 			<button id="vehicle-spawn-by-name" class="spawn-by-name">Spawn By Name</button>
 			<button id="vehicle-menu-close-btn">Back</button>
 		</div>
 		<div id="object-menu" class="menu">
-			<div id="object-search">
+			<div id="object-search" class="search">
 				<input type="text" id="object-search-filter" class="search-filter" value="">
+				<button id="favourite-objects" class="favourites">
+					<i class="far fa-star"></i>
+				</button>
 			</div>
 			<div id="object-list" class="list"></div>
 			<button id="object-spawn-by-name" class="spawn-by-name">Spawn By Name</button>
@@ -320,15 +330,21 @@
 		</div>
 		<div id="entity-select-menu" class="menu"></div>
 		<div id="walk-style-menu" class="menu">
-			<div id="walk-style-search">
+			<div id="walk-style-search" class="search">
 				<input type="text" id="walk-style-search-filter" class="search-filter" value="">
+				<button id="favourite-walk-styles" class="favourites">
+					<i class="far fa-star"></i>
+				</button>
 			</div>
 			<div id="walk-style-list" class="list"></div>
 			<button id="walk-style-menu-close">Back</button>
 		</div>
 		<div id="weapon-menu" class="menu">
-			<div id="weapon-search">
+			<div id="weapon-search" class="search">
 				<input type="text" id="weapon-search-filter" class="search-filter" value="">
+				<button id="favourite-weapons" class="favourites">
+					<i class="far fa-star"></i>
+				</button>
 			</div>
 			<div id="weapon-list" class="list"></div>
 			<button id="weapon-menu-close">Back</button>
@@ -353,8 +369,11 @@
 			<button id="vehicle-options-menu-close">Back</button>
 		</div>
 		<div id="scenario-menu" class="menu">
-			<div id="scenario-search">
+			<div id="scenario-search" class="search">
 				<input type="text" id="scenario-search-filter" class="search-filter" value="">
+				<button id="favourite-scenarios" class="favourites">
+					<i class="far fa-star"></i>
+				</button>
 			</div>
 			<div id="scenario-list" class="list"></div>
 			<button id="scenario-menu-close">Back</button>
@@ -418,8 +437,11 @@
 			<button id="lights-options-menu-close">Back</button>
 		</div>
 		<div id="animation-menu" class="menu">
-			<div id="animation-search">
+			<div id="animation-search" class="search">
 				<input type="text" id="animation-search-filter" class="search-filter" value="">
+				<button id="favourite-animations" class="favourites">
+					<i class="far fa-star"></i>
+				</button>
 			</div>
 			<div id="animation-list" class="list"></div>
 			<div id="animation-settings">
@@ -451,24 +473,33 @@
 			<button id="animation-menu-close">Back</button>
 		</div>
 		<div id="propset-menu" class="menu">
-			<div id="propset-search">
+			<div id="propset-search" class="search">
 				<input type="text" id="propset-search-filter" class="search-filter" value="">
+				<button id="favourite-propsets" class="favourites">
+					<i class="far fa-star"></i>
+				</button>
 			</div>
 			<div id="propset-list" class="list"></div>
 			<button id="propset-spawn-by-name" class="spawn-by-name">Spawn By Name</button>
 			<button id="propset-menu-close-btn">Back</button>
 		</div>
 		<div id="pickup-menu" class="menu">
-			<div id="pickup-search">
+			<div id="pickup-search" class="search">
 				<input type="text" id="pickup-search-filter" class="search-filter" value="">
+				<button id="favourite-pickups" class="favourites">
+					<i class="far fa-star"></i>
+				</button>
 			</div>
 			<div id="pickup-list" class="list"></div>
 			<button id="pickup-spawn-by-name" class="spawn-by-name">Spawn By Name</button>
 			<button id="pickup-menu-close-btn">Back</button>
 		</div>
 		<div id="player-model-menu" class="menu">
-			<div id="player-model-search">
+			<div id="player-model-search" class="search">
 				<input type="text" id="player-model-search-filter" class="search-filter" value="">
+				<button id="favourite-player-models" class="favourites">
+					<i class="far fa-star"></i>
+				</button>
 			</div>
 			<div id="player-model-list" class="list"></div>
 			<button id="player-model-spawn-by-name" class="spawn-by-name">Spawn By Name</button>
@@ -584,6 +615,7 @@
 				<h3>Spawn menu - <span class="control">F</span></h3>
 				<p>The <strong>Spawn</strong> menu provides searchable lists to select an entity to spawn. Left-clicking on an entity sets it as your current spawn.</p>
 				<p>If an entity is not included in the list, you can still spawn it by entering the full model name in the search field and clicking <strong>Spawn By Name</strong>.</p>
+				<p>Right-clicking an entity in any of the spawn menus will add that entity as a favourite. Clicking the favourites button <i class="fas fa-star"></i> will toggle displaying only your favourited entities.</p>
 				<h3>Database menu - <span class="control">X</span></h3>
 				<p>The <strong>Database</strong> menu stores a list of entities. When an entity is spawned, it is automatically added to the current database. Existing entities can be added/removed from the database via the <strong>Properties</strong> menu.</p>
 				<ul>

@@ -161,8 +161,12 @@ input:disabled {
 	width: 100%;
 }
 
+.search {
+	display: flex;
+}
+
 .search-filter {
-	width: 100%;
+	flex-grow: 1;
 	border: solid 1px white;
 	background-color: rgba(0, 0, 0, 0.5);
 	color: white;
@@ -170,7 +174,7 @@ input:disabled {
 
 .list {
 	flex-grow: 1;
-	overflow-y: auto;
+	overflow: auto;
 	padding: 0.5vh 0;
 }
 
@@ -194,6 +198,13 @@ input:disabled {
 .object.selected {
 	background-color: red;
 	color: white;
+}
+
+.object.favourite {
+	background-color: rgba(255, 215, 0, 0.5);
+}
+
+.object-name, .object-favourite {
 }
 
 .self {
