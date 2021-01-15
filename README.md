@@ -92,6 +92,8 @@ The **Spawn** menu provides searchable lists to select an entity to spawn. Left-
 
 If an entity is not included in the list, you can still spawn it by entering the full model name in the search field and clicking **Spawn By Name**.
 
+Right-clicking an entity in any of the spawn menus will add that entity as a favourite. Clickin the favourites button will toggle displaying only your favourited entities.
+
 ### Database menu - X
 
 The **Database** menu stores a list of entities. When an entity is spawned, it is automatically added to the current database. Existing entities can be added/removed from the database via the **Properties** menu.
