@@ -912,6 +912,22 @@ function deleteEntity(object) {
 	}).then(resp => resp.json()).then(resp => openDatabase(resp));
 }
 
+function entityDisplayName(entity, props) {
+	if (props.exists) {
+		if (props.netId) {
+			if (props.playerName) {
+				return `${entity.toString(16)} [${props.netId.toString(16)}] ${props.name} (${props.playerName})`;
+			} else {
+				return `${entity.toString(16)} [${props.netId.toString(16)}] ${props.name}`;
+			}
+		} else {
+			return `${entity.toString(16)} ${props.name}`
+		}
+	} else {
+		return `(Invalid) ${entity.toString(16)} ${props.name}`
+	}
+}
+
 function openDatabase(data) {
 	var objectList = document.querySelector('#object-database-list');
 	var database = JSON.parse(data.database);
@@ -946,21 +962,16 @@ function openDatabase(data) {
 		}
 
 		var div = document.createElement('div');
+
 		if (database[handle].isSelf) {
 			div.className = 'object self';
+		} else if (!database[handle].exists) {
+			div.className = 'object invalid';
 		} else {
 			div.className = 'object'
 		}
 
-		if (database[handle].netId) {
-			if (database[handle].playerName) {
-				div.innerHTML = entityId.toString(16) + ' [' + database[handle].netId.toString(16) + '] ' + database[handle].name + ' (' + database[handle].playerName + ')';
-			} else {
-				div.innerHTML = entityId.toString(16) + ' [' + database[handle].netId.toString(16) + '] ' + database[handle].name;
-			}
-		} else {
-			div.innerHTML = entityId.toString(16) + ' ' + database[handle].name;
-		}
+		div.innerHTML = entityDisplayName(entityId, database[handle]);
 
 		div.setAttribute('data-handle', handle);
 		div.addEventListener('click', function(event) {
@@ -1287,15 +1298,7 @@ function openAttachToMenu(fromEntity, data) {
 			div.className = 'object';
 		}
 
-		if (database[handle].netId) {
-			if (database[handle].playerName) {
-				div.innerHTML = toEntity.toString(16) + ' [' + database[handle].netId.toString(16) + '] ' + database[handle].name + ' (' + database[handle].playerName + ')';
-			} else {
-				div.innerHTML = toEntity.toString(16) + ' [' + database[handle].netId.toString(16) + '] ' + database[handle].name;
-			}
-		} else {
-			div.innerHTML = toEntity.toString(16) + ' ' + database[handle].name;
-		}
+		div.innerHTML = entityDisplayName(toEntity, database[handle]);
 
 		div.setAttribute('data-handle', handle);
 		div.addEventListener('click', function(event) {
@@ -1429,15 +1432,7 @@ function openEntitySelect(menuId, onEntitySelect, ignoreEntity) {
 				var div = document.createElement('div');
 				div.className = 'object';
 
-				if (database[key].netId) {
-					if (database[key].playerName) {
-						div.innerHTML = handle.toString(16) + ' [' + database[key].netId.toString(16) + '] ' + database[key].name + ' (' + database[handle].playerName + ')';
-					} else {
-						div.innerHTML = handle.toString(16) + ' [' + database[key].netId.toString(16) + '] ' + database[key].name;
-					}
-				} else {
-					div.innerHTML = handle.toString(16) + ' ' + database[key].name;
-				}
+				div.innerHTML = entityDisplayName(handle, database[key]);
 
 				div.addEventListener('click', event => {
 					onEntitySelect(handle);

@@ -372,7 +372,8 @@ function GetLiveEntityProperties(entity)
 			roll = 0.0,
 			yaw = 0.0
 		},
-		netId = NetworkGetEntityIsNetworked(entity) and NetworkGetNetworkIdFromEntity(entity)
+		netId = NetworkGetEntityIsNetworked(entity) and NetworkGetNetworkIdFromEntity(entity),
+		exists = true
 	}
 end
 
@@ -1028,8 +1029,10 @@ function UpdateDatabase()
 	for _, entity in ipairs(entities) do
 		if DoesEntityExist(entity) then
 			AddEntityToDatabase(entity)
-		else
+		elseif Database[entity].isSelf then
 			RemoveEntityFromDatabase(entity)
+		else
+			Database[entity].exists = false
 		end
 	end
 
@@ -1037,7 +1040,7 @@ function UpdateDatabase()
 		if DoesPropsetExist(propset) then
 			AddEntityToDatabase(propset)
 		else
-			RemoveEntityFromDatabase(propset)
+			Database[propset].exists = false
 		end
 	end
 
@@ -1045,7 +1048,7 @@ function UpdateDatabase()
 		if DoesPickupExist(pickup) then
 			AddEntityToDatabase(pickup)
 		else
-			RemoveEntityFromDatabase(pickup)
+			Database[pickup].exists = false
 		end
 	end
 end
@@ -1164,14 +1167,15 @@ end)
 
 function PrepareDatabaseForSave()
 	local db = json.decode(json.encode(Database))
+	local ped = PlayerPedId()
 
 	for entity, props in pairs(db) do
-		if props.attachment.to == PlayerPedId() then
+		if props.attachment.to == ped then
 			props.attachment.to = -1
 		end
 	end
 
-	db[tostring(PlayerPedId())] = nil
+	db[tostring(ped)] = nil
 
 	return {
 		spawn = db,
@@ -2185,6 +2189,341 @@ RegisterCommand('spooner_migrate_old_dbs', function(source, args, raw)
 	MigrateOldSavedDbs()
 end)
 
+function MainSpoonerUpdates()
+	local playerPed = PlayerPedId()
+
+	if not EntityIsInDatabase(playerPed) then
+		AddEntityToDatabase(playerPed)
+	end
+
+	if IsUsingKeyboard(0) and IsDisabledControlJustPressed(0, Config.ToggleControl) then
+		TriggerServerEvent('spooner:toggle')
+	end
+
+	if Cam then
+		DisableAllControlActions(0)
+		EnableControlAction(0, 0x4A903C11)
+		EnableControlAction(0, 0x9720fcee)
+
+		local x1, y1, z1 = table.unpack(GetCamCoord(Cam))
+		local pitch1, roll1, yaw1 = table.unpack(GetCamRot(Cam, 2))
+
+		local x2 = x1
+		local y2 = y1
+		local z2 = z1
+		local pitch2 = pitch1
+		local roll2 = roll1
+		local yaw2 = yaw1
+
+		local spawnPos, entity, distance = GetInView(x2, y2, z2, pitch2, roll2, yaw2)
+
+		if AttachedEntity then
+			entity = AttachedEntity
+		end
+
+		SendNUIMessage({
+			type = 'updateSpoonerHud',
+			entity = entity,
+			netId = NetworkGetEntityIsNetworked(entity) and ObjToNet(entity),
+			entityType = GetSpoonerEntityType(entity),
+			modelName = GetModelName(GetSpoonerEntityModel(entity)),
+			attachedEntity = AttachedEntity,
+			speed = string.format('%.2f', Speed),
+			currentSpawn = CurrentSpawn and CurrentSpawn.modelName,
+			rotateMode = RotateMode,
+			adjustMode = AdjustMode,
+			placeOnGround = PlaceOnGround,
+			adjustSpeed = AdjustSpeed,
+			rotateSpeed = RotateSpeed,
+			cursorX = string.format('%.2f', spawnPos.x),
+			cursorY = string.format('%.2f', spawnPos.y),
+			cursorZ = string.format('%.2f', spawnPos.z),
+			camX = string.format('%.2f', x2),
+			camY = string.format('%.2f', y2),
+			camZ = string.format('%.2f', z2),
+			camHeading = string.format('%.2f', yaw2)
+		})
+
+		if Speed < Config.MinSpeed then
+			Speed = Config.MinSpeed
+		end
+		if Speed > Config.MaxSpeed then
+			Speed = Config.MaxSpeed
+		end
+
+		if IsDisabledControlPressed(0, Config.IncreaseSpeedControl) then
+			Speed = Speed + Config.SpeedIncrement
+		end
+
+		if IsDisabledControlPressed(0, Config.DecreaseSpeedControl) then
+			Speed = Speed - Config.SpeedIncrement
+		end
+
+		if IsDisabledControlPressed(0, Config.UpControl) then
+			z2 = z2 + Speed
+		end
+
+		if IsDisabledControlPressed(0, Config.DownControl) then
+			z2 = z2 - Speed
+		end
+
+		local axisX = GetDisabledControlNormal(0, 0xA987235F)
+		local axisY = GetDisabledControlNormal(0, 0xD2047988)
+
+		if axisX ~= 0.0 or axisY ~= 0.0 then
+			yaw2 = yaw2 + axisX * -1.0 * Config.SpeedUd
+			pitch2 = math.max(math.min(89.9, pitch2 + axisY * -1.0 * Config.SpeedLr), -89.9)
+		end
+
+		local r1 = -yaw2 * math.pi / 180
+		local dx1 = Speed * math.sin(r1)
+		local dy1 = Speed * math.cos(r1)
+
+		local r2 = math.floor(yaw2 + 90.0) % 360 * -1.0 * math.pi / 180
+		local dx2 = Speed * math.sin(r2)
+		local dy2 = Speed * math.cos(r2)
+
+		if IsDisabledControlPressed(0, Config.ForwardControl) then
+			x2 = x2 + dx1
+			y2 = y2 + dy1
+		end
+
+		if IsDisabledControlPressed(0, Config.BackwardControl) then
+			x2 = x2 - dx1
+			y2 = y2 - dy1
+		end
+
+		if IsDisabledControlPressed(0, Config.LeftControl) then
+			x2 = x2 + dx2
+			y2 = y2 + dy2
+		end
+
+		if IsDisabledControlPressed(0, Config.RightControl) then
+			x2 = x2 - dx2
+			y2 = y2 - dy2
+		end
+
+		if IsDisabledControlJustPressed(0, Config.SpawnControl) and CurrentSpawn then
+			local entity
+
+			if CurrentSpawn.type == 1 then
+				entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, -1, false, nil, nil, false, nil, nil)
+			elseif CurrentSpawn.type == 2 then
+				entity = SpawnVehicle(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false)
+			elseif CurrentSpawn.type == 3 then
+				entity = SpawnObject(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, nil, nil, nil)
+			elseif CurrentSpawn.type == 4 then
+				entity = SpawnPropset(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, yaw2)
+			elseif CurrentSpawn.type == 5 then
+				entity = SpawnPickup(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z)
+			end
+
+			if entity then
+				PlaceOnGroundProperly(entity)
+			end
+		end
+
+		if IsDisabledControlJustPressed(0, Config.SelectControl) then
+			if AttachedEntity then
+				AttachedEntity = nil
+			elseif entity and CanModifyEntity(entity) then
+				if IsEntityAttached(entity) then
+					AttachedEntity = GetEntityAttachedTo(entity)
+				else
+					AttachedEntity = entity
+				end
+			end
+		end
+
+		if IsDisabledControlJustPressed(0, Config.DeleteControl) and entity then
+			if AttachedEntity then
+				RemoveEntity(AttachedEntity)
+				AttachedEntity = nil
+			else
+				RemoveEntity(entity)
+			end
+		end
+
+		if IsDisabledControlJustReleased(0, Config.ObjectMenuControl) then
+			SendNUIMessage({
+				type = 'openSpawnMenu'
+			})
+			SetNuiFocus(true, true)
+		end
+
+		if IsDisabledControlJustReleased(0, Config.DbMenuControl) then
+			OpenDatabaseMenu()
+		end
+
+		if IsDisabledControlJustReleased(0, Config.SaveLoadDbMenuControl) then
+			OpenSaveDbMenu()
+		end
+
+		if IsDisabledControlJustReleased(0, Config.HelpMenuControl) then
+			SendNUIMessage({
+				type = 'openHelpMenu'
+			})
+			SetNuiFocus(true, true)
+		end
+
+		if IsDisabledControlJustPressed(0, Config.RotateModeControl) then
+			RotateMode = (RotateMode + 1) % 3
+		end
+
+		if IsDisabledControlJustPressed(0, Config.AdjustModeControl) then
+			if AdjustMode < 4 then
+				AdjustMode = (AdjustMode + 1) % 4
+			else
+				AdjustMode = 0
+			end
+		end
+
+		if IsDisabledControlJustPressed(0, Config.FreeAdjustModeControl) then
+			AdjustMode = 4
+		end
+
+		if IsDisabledControlJustPressed(0, Config.AdjustOffControl) then
+			AdjustMode = 5
+		end
+
+		if IsDisabledControlJustPressed(0, Config.PlaceOnGroundControl) then
+			PlaceOnGround = not PlaceOnGround
+		end
+
+		if entity and CanModifyEntity(entity) then
+			local posChanged = false
+			local rotChanged = false
+
+			if IsDisabledControlJustReleased(0, Config.PropMenuControl) then
+				OpenPropertiesMenuForEntity(entity)
+			end
+
+			if IsDisabledControlJustPressed(0, Config.CloneControl) then
+				AttachedEntity = CloneEntity(entity)
+			end
+
+			local ex1, ey1, ez1 = table.unpack(GetEntityCoords(entity))
+			local epitch1, eroll1, eyaw1 = table.unpack(GetEntityRotation(entity, 2))
+			local ex2 = ex1
+			local ey2 = ey1
+			local ez2 = ez1
+			local epitch2 = epitch1
+			local eroll2 = eroll1
+			local eyaw2 = eyaw1
+
+			local edx1 = AdjustSpeed * math.sin(r1)
+			local edy1 = AdjustSpeed * math.cos(r1)
+			local edx2 = AdjustSpeed * math.sin(r2)
+			local edy2 = AdjustSpeed * math.cos(r2)
+
+			if IsDisabledControlPressed(0, Config.RotateLeftControl) then
+				if RotateMode == 0 then
+					epitch2 = epitch2 + RotateSpeed
+				elseif RotateMode == 1 then
+					eroll2 = eroll2 + RotateSpeed
+				else
+					eyaw2 = eyaw2 + RotateSpeed
+				end
+
+				rotChanged = true
+			end
+
+			if IsDisabledControlPressed(0, Config.RotateRightControl) then
+				if RotateMode == 0 then
+					epitch2 = epitch2 - RotateSpeed
+				elseif RotateMode == 1 then
+					eroll2 = eroll2 - RotateSpeed
+				else
+					eyaw2 = eyaw2 - RotateSpeed
+				end
+
+				rotChanged = true
+			end
+
+			if IsDisabledControlPressed(0, Config.AdjustUpControl) then
+				ez2 = ez2 + AdjustSpeed
+				posChanged = true
+			end
+
+			if IsDisabledControlPressed(0, Config.AdjustDownControl) then
+				ez2 = ez2 - AdjustSpeed
+				posChanged = true
+			end
+
+			if IsDisabledControlPressed(0, Config.AdjustForwardControl) then
+				ex2 = ex2 + edx1
+				ey2 = ey2 + edy1
+				posChanged = true
+			end
+
+			if IsDisabledControlPressed(0, Config.AdjustBackwardControl) then
+				ex2 = ex2 - edx1
+				ey2 = ey2 - edy1
+				posChanged = true
+			end
+
+			if IsDisabledControlPressed(0, Config.AdjustLeftControl) then
+				ex2 = ex2 + edx2
+				ey2 = ey2 + edy2
+				posChanged = true
+			end
+
+			if IsDisabledControlPressed(0, Config.AdjustRightControl) then
+				ex2 = ex2 - edx2
+				ey2 = ey2 - edy2
+				posChanged = true
+			end
+
+			if AttachedEntity or posChanged or rotChanged then
+				RequestControl(entity)
+
+				if posChanged then
+					SetEntityCoordsNoOffset(entity, ex2, ey2, ez2)
+				end
+
+				if rotChanged then
+					SetEntityRotation(entity, epitch2, eroll2, eyaw2, 2)
+				end
+
+				if AttachedEntity then
+					if AdjustMode < 4 then
+						x2 = x1
+						y2 = y1
+						z2 = z1
+						pitch2 = pitch1
+						yaw2 = yaw1
+
+						if AdjustMode == 0 then
+							SetEntityCoordsNoOffset(AttachedEntity, ex2 - axisX, ey2, ez2)
+						elseif AdjustMode == 1 then
+							SetEntityCoordsNoOffset(AttachedEntity, ex2, ey2 - axisX, ez2)
+						elseif AdjustMode == 2 then
+							SetEntityCoordsNoOffset(AttachedEntity, ex2, ey2, ez2 - axisY)
+						elseif AdjustMode == 3 then
+							if RotateMode == 0 then
+								SetEntityRotation(AttachedEntity, epitch2 - axisX * Config.SpeedLr, eroll2, eyaw2)
+							elseif RotateMode == 1 then
+								SetEntityRotation(AttachedEntity, epitch2, eroll2 - axisX * Config.SpeedLr, eyaw2)
+							else
+								SetEntityRotation(AttachedEntity, epitch2, eroll2, eyaw2 - axisX * Config.SpeedLr)
+							end
+						end
+					elseif AdjustMode == 4 then
+						SetEntityCoordsNoOffset(AttachedEntity, spawnPos.x, spawnPos.y, spawnPos.z)
+					end
+
+					if PlaceOnGround or AdjustMode == 4 then
+						PlaceOnGroundProperly(AttachedEntity)
+					end
+				end
+			end
+		end
+
+		SetCamCoord(Cam, x2, y2, z2)
+		SetCamRot(Cam, pitch2, 0.0, yaw2)
+	end
+end
+
 CreateThread(function()
 	TriggerEvent('chat:addSuggestion', '/spooner', 'Toggle spooner mode', {})
 
@@ -2192,337 +2531,7 @@ CreateThread(function()
 
 	while true do
 		Wait(0)
-
-		if not EntityIsInDatabase(PlayerPedId()) then
-			AddEntityToDatabase(PlayerPedId())
-		end
-
-		if IsUsingKeyboard(0) and IsDisabledControlJustPressed(0, Config.ToggleControl) then
-			TriggerServerEvent('spooner:toggle')
-		end
-
-		if Cam then
-			DisableAllControlActions(0)
-			EnableControlAction(0, 0x4A903C11)
-			EnableControlAction(0, 0x9720fcee)
-
-			local x1, y1, z1 = table.unpack(GetCamCoord(Cam))
-			local pitch1, roll1, yaw1 = table.unpack(GetCamRot(Cam, 2))
-
-			local x2 = x1
-			local y2 = y1
-			local z2 = z1
-			local pitch2 = pitch1
-			local roll2 = roll1
-			local yaw2 = yaw1
-
-			local spawnPos, entity, distance = GetInView(x2, y2, z2, pitch2, roll2, yaw2)
-
-			if AttachedEntity then
-				entity = AttachedEntity
-			end
-
-			SendNUIMessage({
-				type = 'updateSpoonerHud',
-				entity = entity,
-				netId = NetworkGetEntityIsNetworked(entity) and ObjToNet(entity),
-				entityType = GetSpoonerEntityType(entity),
-				modelName = GetModelName(GetSpoonerEntityModel(entity)),
-				attachedEntity = AttachedEntity,
-				speed = string.format('%.2f', Speed),
-				currentSpawn = CurrentSpawn and CurrentSpawn.modelName,
-				rotateMode = RotateMode,
-				adjustMode = AdjustMode,
-				placeOnGround = PlaceOnGround,
-				adjustSpeed = AdjustSpeed,
-				rotateSpeed = RotateSpeed,
-				cursorX = string.format('%.2f', spawnPos.x),
-				cursorY = string.format('%.2f', spawnPos.y),
-				cursorZ = string.format('%.2f', spawnPos.z),
-				camX = string.format('%.2f', x2),
-				camY = string.format('%.2f', y2),
-				camZ = string.format('%.2f', z2),
-				camHeading = string.format('%.2f', yaw2)
-			})
-
-			if Speed < Config.MinSpeed then
-				Speed = Config.MinSpeed
-			end
-			if Speed > Config.MaxSpeed then
-				Speed = Config.MaxSpeed
-			end
-
-			if IsDisabledControlPressed(0, Config.IncreaseSpeedControl) then
-				Speed = Speed + Config.SpeedIncrement
-			end
-
-			if IsDisabledControlPressed(0, Config.DecreaseSpeedControl) then
-				Speed = Speed - Config.SpeedIncrement
-			end
-
-			if IsDisabledControlPressed(0, Config.UpControl) then
-				z2 = z2 + Speed
-			end
-
-			if IsDisabledControlPressed(0, Config.DownControl) then
-				z2 = z2 - Speed
-			end
-
-			local axisX = GetDisabledControlNormal(0, 0xA987235F)
-			local axisY = GetDisabledControlNormal(0, 0xD2047988)
-
-			if axisX ~= 0.0 or axisY ~= 0.0 then
-				yaw2 = yaw2 + axisX * -1.0 * Config.SpeedUd
-				pitch2 = math.max(math.min(89.9, pitch2 + axisY * -1.0 * Config.SpeedLr), -89.9)
-			end
-
-			local r1 = -yaw2 * math.pi / 180
-			local dx1 = Speed * math.sin(r1)
-			local dy1 = Speed * math.cos(r1)
-
-			local r2 = math.floor(yaw2 + 90.0) % 360 * -1.0 * math.pi / 180
-			local dx2 = Speed * math.sin(r2)
-			local dy2 = Speed * math.cos(r2)
-
-			if IsDisabledControlPressed(0, Config.ForwardControl) then
-				x2 = x2 + dx1
-				y2 = y2 + dy1
-			end
-
-			if IsDisabledControlPressed(0, Config.BackwardControl) then
-				x2 = x2 - dx1
-				y2 = y2 - dy1
-			end
-
-			if IsDisabledControlPressed(0, Config.LeftControl) then
-				x2 = x2 + dx2
-				y2 = y2 + dy2
-			end
-
-			if IsDisabledControlPressed(0, Config.RightControl) then
-				x2 = x2 - dx2
-				y2 = y2 - dy2
-			end
-
-			if IsDisabledControlJustPressed(0, Config.SpawnControl) and CurrentSpawn then
-				local entity
-
-				if CurrentSpawn.type == 1 then
-					entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, -1, false, nil, nil, false, nil, nil)
-				elseif CurrentSpawn.type == 2 then
-					entity = SpawnVehicle(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false)
-				elseif CurrentSpawn.type == 3 then
-					entity = SpawnObject(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, nil, nil, nil)
-				elseif CurrentSpawn.type == 4 then
-					entity = SpawnPropset(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, yaw2)
-				elseif CurrentSpawn.type == 5 then
-					entity = SpawnPickup(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z)
-				end
-
-				if entity then
-					PlaceOnGroundProperly(entity)
-				end
-			end
-
-			if IsDisabledControlJustPressed(0, Config.SelectControl) then
-				if AttachedEntity then
-					AttachedEntity = nil
-				elseif entity and CanModifyEntity(entity) then
-					if IsEntityAttached(entity) then
-						AttachedEntity = GetEntityAttachedTo(entity)
-					else
-						AttachedEntity = entity
-					end
-				end
-			end
-
-			if IsDisabledControlJustPressed(0, Config.DeleteControl) and entity then
-				if AttachedEntity then
-					RemoveEntity(AttachedEntity)
-					AttachedEntity = nil
-				else
-					RemoveEntity(entity)
-				end
-			end
-
-			if IsDisabledControlJustReleased(0, Config.ObjectMenuControl) then
-				SendNUIMessage({
-					type = 'openSpawnMenu'
-				})
-				SetNuiFocus(true, true)
-			end
-
-			if IsDisabledControlJustReleased(0, Config.DbMenuControl) then
-				OpenDatabaseMenu()
-			end
-
-			if IsDisabledControlJustReleased(0, Config.SaveLoadDbMenuControl) then
-				OpenSaveDbMenu()
-			end
-
-			if IsDisabledControlJustReleased(0, Config.HelpMenuControl) then
-				SendNUIMessage({
-					type = 'openHelpMenu'
-				})
-				SetNuiFocus(true, true)
-			end
-
-			if IsDisabledControlJustPressed(0, Config.RotateModeControl) then
-				RotateMode = (RotateMode + 1) % 3
-			end
-
-			if IsDisabledControlJustPressed(0, Config.AdjustModeControl) then
-				if AdjustMode < 4 then
-					AdjustMode = (AdjustMode + 1) % 4
-				else
-					AdjustMode = 0
-				end
-			end
-
-			if IsDisabledControlJustPressed(0, Config.FreeAdjustModeControl) then
-				AdjustMode = 4
-			end
-
-			if IsDisabledControlJustPressed(0, Config.AdjustOffControl) then
-				AdjustMode = 5
-			end
-
-			if IsDisabledControlJustPressed(0, Config.PlaceOnGroundControl) then
-				PlaceOnGround = not PlaceOnGround
-			end
-
-			if entity and CanModifyEntity(entity) then
-				local posChanged = false
-				local rotChanged = false
-
-				if IsDisabledControlJustReleased(0, Config.PropMenuControl) then
-					OpenPropertiesMenuForEntity(entity)
-				end
-
-				if IsDisabledControlJustPressed(0, Config.CloneControl) then
-					AttachedEntity = CloneEntity(entity)
-				end
-
-				local ex1, ey1, ez1 = table.unpack(GetEntityCoords(entity))
-				local epitch1, eroll1, eyaw1 = table.unpack(GetEntityRotation(entity, 2))
-				local ex2 = ex1
-				local ey2 = ey1
-				local ez2 = ez1
-				local epitch2 = epitch1
-				local eroll2 = eroll1
-				local eyaw2 = eyaw1
-
-				local edx1 = AdjustSpeed * math.sin(r1)
-				local edy1 = AdjustSpeed * math.cos(r1)
-				local edx2 = AdjustSpeed * math.sin(r2)
-				local edy2 = AdjustSpeed * math.cos(r2)
-
-				if IsDisabledControlPressed(0, Config.RotateLeftControl) then
-					if RotateMode == 0 then
-						epitch2 = epitch2 + RotateSpeed
-					elseif RotateMode == 1 then
-						eroll2 = eroll2 + RotateSpeed
-					else
-						eyaw2 = eyaw2 + RotateSpeed
-					end
-
-					rotChanged = true
-				end
-
-				if IsDisabledControlPressed(0, Config.RotateRightControl) then
-					if RotateMode == 0 then
-						epitch2 = epitch2 - RotateSpeed
-					elseif RotateMode == 1 then
-						eroll2 = eroll2 - RotateSpeed
-					else
-						eyaw2 = eyaw2 - RotateSpeed
-					end
-
-					rotChanged = true
-				end
-
-				if IsDisabledControlPressed(0, Config.AdjustUpControl) then
-					ez2 = ez2 + AdjustSpeed
-					posChanged = true
-				end
-
-				if IsDisabledControlPressed(0, Config.AdjustDownControl) then
-					ez2 = ez2 - AdjustSpeed
-					posChanged = true
-				end
-
-				if IsDisabledControlPressed(0, Config.AdjustForwardControl) then
-					ex2 = ex2 + edx1
-					ey2 = ey2 + edy1
-					posChanged = true
-				end
-
-				if IsDisabledControlPressed(0, Config.AdjustBackwardControl) then
-					ex2 = ex2 - edx1
-					ey2 = ey2 - edy1
-					posChanged = true
-				end
-
-				if IsDisabledControlPressed(0, Config.AdjustLeftControl) then
-					ex2 = ex2 + edx2
-					ey2 = ey2 + edy2
-					posChanged = true
-				end
-
-				if IsDisabledControlPressed(0, Config.AdjustRightControl) then
-					ex2 = ex2 - edx2
-					ey2 = ey2 - edy2
-					posChanged = true
-				end
-
-				if AttachedEntity or posChanged or rotChanged then
-					RequestControl(entity)
-
-					if posChanged then
-						SetEntityCoordsNoOffset(entity, ex2, ey2, ez2)
-					end
-
-					if rotChanged then
-						SetEntityRotation(entity, epitch2, eroll2, eyaw2, 2)
-					end
-
-					if AttachedEntity then
-						if AdjustMode < 4 then
-							x2 = x1
-							y2 = y1
-							z2 = z1
-							pitch2 = pitch1
-							yaw2 = yaw1
-
-							if AdjustMode == 0 then
-								SetEntityCoordsNoOffset(AttachedEntity, ex2 - axisX, ey2, ez2)
-							elseif AdjustMode == 1 then
-								SetEntityCoordsNoOffset(AttachedEntity, ex2, ey2 - axisX, ez2)
-							elseif AdjustMode == 2 then
-								SetEntityCoordsNoOffset(AttachedEntity, ex2, ey2, ez2 - axisY)
-							elseif AdjustMode == 3 then
-								if RotateMode == 0 then
-									SetEntityRotation(AttachedEntity, epitch2 - axisX * Config.SpeedLr, eroll2, eyaw2)
-								elseif RotateMode == 1 then
-									SetEntityRotation(AttachedEntity, epitch2, eroll2 - axisX * Config.SpeedLr, eyaw2)
-								else
-									SetEntityRotation(AttachedEntity, epitch2, eroll2, eyaw2 - axisX * Config.SpeedLr)
-								end
-							end
-						elseif AdjustMode == 4 then
-							SetEntityCoordsNoOffset(AttachedEntity, spawnPos.x, spawnPos.y, spawnPos.z)
-						end
-
-						if PlaceOnGround or AdjustMode == 4 then
-							PlaceOnGroundProperly(AttachedEntity)
-						end
-					end
-				end
-			end
-
-			SetCamCoord(Cam, x2, y2, z2)
-			SetCamRot(Cam, pitch2, 0.0, yaw2)
-		end
+		MainSpoonerUpdates()
 	end
 end)
 
