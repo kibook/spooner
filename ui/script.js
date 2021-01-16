@@ -22,7 +22,8 @@ const favouriteTypes = [
 	'scenarios',
 	'animations',
 	'weapons',
-	'walkStyles'
+	'walkStyles',
+	'playerModels'
 ];
 
 var favourites = {};
