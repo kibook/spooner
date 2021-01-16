@@ -1488,13 +1488,13 @@ window.addEventListener('load', function() {
 	sendMessage('init', {}).then(resp => resp.json()).then(function(resp) {
 		if (resp.favourites) {
 			favourites = resp.favourites;
-
-			favouriteTypes.forEach(type => {
-				if (!favourites[type] || Array.isArray(favourites[type])) {
-					favourites[type] = {};
-				}
-			});
 		}
+
+		favouriteTypes.forEach(type => {
+			if (!favourites[type] || Array.isArray(favourites[type])) {
+				favourites[type] = {};
+			}
+		});
 
 		peds = JSON.parse(resp.peds);
 		populatePedList();
