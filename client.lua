@@ -1197,7 +1197,7 @@ function RemoveDeletedEntity(x, y, z, hash)
 end
 
 function AttachEntity(from, to, bone, x, y, z, pitch, roll, yaw)
-	local boneIndex = GetBoneIndex(bone)
+	local boneIndex = GetBoneIndex(to, bone)
 
 	AttachEntityToEntity(from, to, boneIndex, x, y, z, pitch, roll, yaw, false, false, true, false, 0, true, false, false)
 
@@ -1718,10 +1718,8 @@ RegisterNUICallback('attachTo', function(data, cb)
 			bone = FindBoneName(to, bone)
 		end
 
-		local boneIndex = GetBoneIndex(to, bone)
-
 		RequestControl(from)
-		AttachEntity(from, to, boneIndex, x, y, z, pitch, roll, yaw)
+		AttachEntity(from, to, bone, x, y, z, pitch, roll, yaw)
 	end
 
 	cb({})
@@ -2499,9 +2497,7 @@ function MainSpoonerUpdates()
 				RequestControl(entity)
 
 				if Database[entity] and Database[entity].attachment.to > 0 then
-					local attach = Database[entity].attachment
-					local boneIndex = GetBoneIndex(attach.bone)
-					AttachEntity(entity, attach.to, boneIndex, ex2, ey2, ez2, epitch2, eroll2, eyaw2)
+					AttachEntity(entity, Database[entity].attachment.to, bone, ex2, ey2, ez2, epitch2, eroll2, eyaw2)
 				else
 					if posChanged then
 						SetEntityCoordsNoOffset(entity, ex2, ey2, ez2)
