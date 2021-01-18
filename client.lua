@@ -1196,6 +1196,25 @@ function RemoveDeletedEntity(x, y, z, hash)
 	end
 end
 
+function AttachEntity(from, to, bone, x, y, z, pitch, roll, yaw)
+	local boneIndex = GetBoneIndex(bone)
+
+	AttachEntityToEntity(from, to, boneIndex, x, y, z, pitch, roll, yaw, false, false, true, false, 0, true, false, false)
+
+	if EntityIsInDatabase(from) then
+		AddEntityToDatabase(from, nil, {
+			to = to,
+			bone = bone,
+			x = x,
+			y = y,
+			z = z,
+			pitch = pitch,
+			roll = roll,
+			yaw = yaw
+		})
+	end
+end
+
 function LoadDatabase(db, relative, replace)
 	if replace then
 		RemoveAllFromDatabase()
@@ -1305,9 +1324,7 @@ function LoadDatabase(db, relative, replace)
 				bone = FindBoneName(to, bone)
 			end
 
-			local boneIndex = GetBoneIndex(to, bone)
-
-			AttachEntityToEntity(from, to, boneIndex, x, y, z, pitch, roll, yaw, false, false, true, false, 0, true, false, false)
+			AttachEntity(from, to, bone, x, y, z, pitch, roll, yaw)
 
 			AddEntityToDatabase(from, nil, {
 				to = to,
@@ -1450,11 +1467,7 @@ function CloneEntity(entity)
 	end
 
 	if clone and props.attachment and props.attachment.to ~= 0 then
-		local boneIndex = GetBoneIndex(props.attachment.to, props.attachment.bone)
-
-		AttachEntityToEntity(clone, props.attachment.to, boneIndex, props.attachment.x, props.attachment.y, props.attachment.z, props.attachment.pitch, props.attachment.roll, props.attachment.yaw, false, false, true, false, 0, true, false, false)
-
-		AddEntityToDatabase(clone, nil, props.attachment)
+		AttachEntity(clone, props.attachment.to, props.attachment.bone, props.attachment.x, props.attachment.y, props.attachment.z, props.attachment.pitch, props.attachment.roll, props.attachment.yaw)
 	end
 
 	return clone
@@ -1708,20 +1721,7 @@ RegisterNUICallback('attachTo', function(data, cb)
 		local boneIndex = GetBoneIndex(to, bone)
 
 		RequestControl(from)
-		AttachEntityToEntity(from, to, boneIndex, x, y, z, pitch, roll, yaw, false, false, true, false, 0, true, false, false)
-
-		if EntityIsInDatabase(from) then
-			AddEntityToDatabase(from, nil, {
-				to = to,
-				bone = bone,
-				x = x,
-				y = y,
-				z = z,
-				pitch = pitch,
-				roll = roll,
-				yaw = yaw
-			})
-		end
+		AttachEntity(from, to, boneIndex, x, y, z, pitch, roll, yaw)
 	end
 
 	cb({})
@@ -2402,8 +2402,20 @@ function MainSpoonerUpdates()
 				AttachedEntity = CloneEntity(entity)
 			end
 
-			local ex1, ey1, ez1 = table.unpack(GetEntityCoords(entity))
-			local epitch1, eroll1, eyaw1 = table.unpack(GetEntityRotation(entity, 2))
+			local ex1, ey1, ez1, epitch1, eroll1, eyaw1
+
+			if Database[entity] and Database[entity].attachment.to > 0 then
+				ex1 = Database[entity].attachment.x
+				ey1 = Database[entity].attachment.y
+				ez1 = Database[entity].attachment.z
+				epitch1 = Database[entity].attachment.pitch
+				eroll1 = Database[entity].attachment.roll
+				eyaw1 = Database[entity].attachment.yaw
+			else
+				ex1, ey1, ez1 = table.unpack(GetEntityCoords(entity))
+				epitch1, eroll1, eyaw1 = table.unpack(GetEntityRotation(entity, 2))
+			end
+
 			local ex2 = ex1
 			local ey2 = ey1
 			local ez2 = ez1
@@ -2411,10 +2423,19 @@ function MainSpoonerUpdates()
 			local eroll2 = eroll1
 			local eyaw2 = eyaw1
 
-			local edx1 = AdjustSpeed * math.sin(r1)
-			local edy1 = AdjustSpeed * math.cos(r1)
-			local edx2 = AdjustSpeed * math.sin(r2)
-			local edy2 = AdjustSpeed * math.cos(r2)
+			local edx1, edy1, edx2, edy2
+
+			if Database[entity] and Database[entity].attachment.to > 0 then
+				edx1 = 0
+				edy1 = AdjustSpeed
+				edx2 = AdjustSpeed
+				edy2 = 0
+			else
+				edx1 = AdjustSpeed * math.sin(r1)
+				edy1 = AdjustSpeed * math.cos(r1)
+				edx2 = AdjustSpeed * math.sin(r2)
+				edy2 = AdjustSpeed * math.cos(r2)
+			end
 
 			if IsDisabledControlPressed(0, Config.RotateLeftControl) then
 				if RotateMode == 0 then
@@ -2477,12 +2498,18 @@ function MainSpoonerUpdates()
 			if AttachedEntity or posChanged or rotChanged then
 				RequestControl(entity)
 
-				if posChanged then
-					SetEntityCoordsNoOffset(entity, ex2, ey2, ez2)
-				end
+				if Database[entity] and Database[entity].attachment.to > 0 then
+					local attach = Database[entity].attachment
+					local boneIndex = GetBoneIndex(attach.bone)
+					AttachEntity(entity, attach.to, boneIndex, ex2, ey2, ez2, epitch2, eroll2, eyaw2)
+				else
+					if posChanged then
+						SetEntityCoordsNoOffset(entity, ex2, ey2, ez2)
+					end
 
-				if rotChanged then
-					SetEntityRotation(entity, epitch2, eroll2, eyaw2, 2)
+					if rotChanged then
+						SetEntityRotation(entity, epitch2, eroll2, eyaw2, 2)
+					end
 				end
 
 				if AttachedEntity then
