@@ -12,7 +12,7 @@ Config.RightControl = 0xB4E465B4 -- D
 Config.ToggleControl = 0x4AF4D473 -- Del
 Config.SpawnControl = 0x2EAB0795 -- E
 Config.SelectControl = 0x9D2AEA88 -- Left mouse button
-Config.DeleteControl = 0x1E7D7275 -- Right mouse button
+Config.DeleteControl = 0XC13A6564 -- Right mouse button
 Config.AdjustUpControl = 0xE885EF16 -- Q
 Config.AdjustDownControl = 0x43CDA5B0 -- Z
 Config.AdjustForwardControl = 0x6319DB71 -- Up arrow key
@@ -31,7 +31,7 @@ Config.PlaceOnGroundControl = 0xD8F73058 -- U
 Config.FreeAdjustModeControl = 0x42385422 -- 8
 Config.AdjustOffControl = 0xB03A913B -- 7
 Config.HelpMenuControl = 0x24978A28 -- H
-Config.CloneControl = 0x760A9C6F -- G
+Config.CloneControl = 0xA1ABB953 -- G
 
 -- Maximum movement speed
 Config.MaxSpeed = 1.00
