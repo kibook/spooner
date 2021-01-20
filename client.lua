@@ -2187,6 +2187,48 @@ RegisterCommand('spooner_migrate_old_dbs', function(source, args, raw)
 	MigrateOldSavedDbs()
 end)
 
+function IsAnyDisabledControlPressed(pad, controls)
+	if type(controls) == 'number' then
+		return IsDisabledControlPressed(pad, controls)
+	end
+
+	for _, control in ipairs(controls) do
+		if IsDisabledControlPressed(pad, control) then
+			return true
+		end
+	end
+
+	return false
+end
+
+function IsAnyDisabledControlJustPressed(pad, controls)
+	if type(controls) == 'number' then
+		return IsDisabledControlJustPressed(pad, controls)
+	end
+
+	for _, control in ipairs(controls) do
+		if IsDisabledControlJustPressed(pad, control) then
+			return true
+		end
+	end
+
+	return false
+end
+
+function IsAnyDisabledControlJustReleased(pad, controls)
+	if type(controls) == 'number' then
+		return IsDisabledControlJustReleased(pad, controls)
+	end
+
+	for _, control in ipairs(controls) do
+		if IsDisabledControlJustReleased(pad, control) then
+			return true
+		end
+	end
+
+	return false
+end
+
 function MainSpoonerUpdates()
 	local playerPed = PlayerPedId()
 
@@ -2194,7 +2236,7 @@ function MainSpoonerUpdates()
 		AddEntityToDatabase(playerPed)
 	end
 
-	if IsUsingKeyboard(0) and IsDisabledControlJustPressed(0, Config.ToggleControl) then
+	if IsUsingKeyboard(0) and IsAnyDisabledControlJustPressed(0, Config.ToggleControl) then
 		TriggerServerEvent('spooner:toggle')
 	end
 
@@ -2249,19 +2291,19 @@ function MainSpoonerUpdates()
 			Speed = Config.MaxSpeed
 		end
 
-		if IsDisabledControlPressed(0, Config.IncreaseSpeedControl) then
+		if IsAnyDisabledControlPressed(0, Config.IncreaseSpeedControl) then
 			Speed = Speed + Config.SpeedIncrement
 		end
 
-		if IsDisabledControlPressed(0, Config.DecreaseSpeedControl) then
+		if IsAnyDisabledControlPressed(0, Config.DecreaseSpeedControl) then
 			Speed = Speed - Config.SpeedIncrement
 		end
 
-		if IsDisabledControlPressed(0, Config.UpControl) then
+		if IsAnyDisabledControlPressed(0, Config.UpControl) then
 			z2 = z2 + Speed
 		end
 
-		if IsDisabledControlPressed(0, Config.DownControl) then
+		if IsAnyDisabledControlPressed(0, Config.DownControl) then
 			z2 = z2 - Speed
 		end
 
@@ -2281,27 +2323,27 @@ function MainSpoonerUpdates()
 		local dx2 = Speed * math.sin(r2)
 		local dy2 = Speed * math.cos(r2)
 
-		if IsDisabledControlPressed(0, Config.ForwardControl) then
+		if IsAnyDisabledControlPressed(0, Config.ForwardControl) then
 			x2 = x2 + dx1
 			y2 = y2 + dy1
 		end
 
-		if IsDisabledControlPressed(0, Config.BackwardControl) then
+		if IsAnyDisabledControlPressed(0, Config.BackwardControl) then
 			x2 = x2 - dx1
 			y2 = y2 - dy1
 		end
 
-		if IsDisabledControlPressed(0, Config.LeftControl) then
+		if IsAnyDisabledControlPressed(0, Config.LeftControl) then
 			x2 = x2 + dx2
 			y2 = y2 + dy2
 		end
 
-		if IsDisabledControlPressed(0, Config.RightControl) then
+		if IsAnyDisabledControlPressed(0, Config.RightControl) then
 			x2 = x2 - dx2
 			y2 = y2 - dy2
 		end
 
-		if IsDisabledControlJustPressed(0, Config.SpawnControl) and CurrentSpawn then
+		if IsAnyDisabledControlJustPressed(0, Config.SpawnControl) and CurrentSpawn then
 			local entity
 
 			if CurrentSpawn.type == 1 then
@@ -2321,7 +2363,7 @@ function MainSpoonerUpdates()
 			end
 		end
 
-		if IsDisabledControlJustPressed(0, Config.SelectControl) then
+		if IsAnyDisabledControlJustPressed(0, Config.SelectControl) then
 			if AttachedEntity then
 				AttachedEntity = nil
 			elseif entity and CanModifyEntity(entity) then
@@ -2333,7 +2375,7 @@ function MainSpoonerUpdates()
 			end
 		end
 
-		if IsDisabledControlJustPressed(0, Config.DeleteControl) and entity then
+		if IsAnyDisabledControlJustPressed(0, Config.DeleteControl) and entity then
 			if AttachedEntity then
 				RemoveEntity(AttachedEntity)
 				AttachedEntity = nil
@@ -2342,33 +2384,33 @@ function MainSpoonerUpdates()
 			end
 		end
 
-		if IsDisabledControlJustReleased(0, Config.ObjectMenuControl) then
+		if IsAnyDisabledControlJustReleased(0, Config.ObjectMenuControl) then
 			SendNUIMessage({
 				type = 'openSpawnMenu'
 			})
 			SetNuiFocus(true, true)
 		end
 
-		if IsDisabledControlJustReleased(0, Config.DbMenuControl) then
+		if IsAnyDisabledControlJustReleased(0, Config.DbMenuControl) then
 			OpenDatabaseMenu()
 		end
 
-		if IsDisabledControlJustReleased(0, Config.SaveLoadDbMenuControl) then
+		if IsAnyDisabledControlJustReleased(0, Config.SaveLoadDbMenuControl) then
 			OpenSaveDbMenu()
 		end
 
-		if IsDisabledControlJustReleased(0, Config.HelpMenuControl) then
+		if IsAnyDisabledControlJustReleased(0, Config.HelpMenuControl) then
 			SendNUIMessage({
 				type = 'openHelpMenu'
 			})
 			SetNuiFocus(true, true)
 		end
 
-		if IsDisabledControlJustPressed(0, Config.RotateModeControl) then
+		if IsAnyDisabledControlJustPressed(0, Config.RotateModeControl) then
 			RotateMode = (RotateMode + 1) % 3
 		end
 
-		if IsDisabledControlJustPressed(0, Config.AdjustModeControl) then
+		if IsAnyDisabledControlJustPressed(0, Config.AdjustModeControl) then
 			if AdjustMode < 4 then
 				AdjustMode = (AdjustMode + 1) % 4
 			else
@@ -2376,15 +2418,15 @@ function MainSpoonerUpdates()
 			end
 		end
 
-		if IsDisabledControlJustPressed(0, Config.FreeAdjustModeControl) then
+		if IsAnyDisabledControlJustPressed(0, Config.FreeAdjustModeControl) then
 			AdjustMode = 4
 		end
 
-		if IsDisabledControlJustPressed(0, Config.AdjustOffControl) then
+		if IsAnyDisabledControlJustPressed(0, Config.AdjustOffControl) then
 			AdjustMode = 5
 		end
 
-		if IsDisabledControlJustPressed(0, Config.PlaceOnGroundControl) then
+		if IsAnyDisabledControlJustPressed(0, Config.PlaceOnGroundControl) then
 			PlaceOnGround = not PlaceOnGround
 		end
 
@@ -2392,11 +2434,11 @@ function MainSpoonerUpdates()
 			local posChanged = false
 			local rotChanged = false
 
-			if IsDisabledControlJustReleased(0, Config.PropMenuControl) then
+			if IsAnyDisabledControlJustReleased(0, Config.PropMenuControl) then
 				OpenPropertiesMenuForEntity(entity)
 			end
 
-			if IsDisabledControlJustPressed(0, Config.CloneControl) then
+			if IsAnyDisabledControlJustPressed(0, Config.CloneControl) then
 				AttachedEntity = CloneEntity(entity)
 			end
 
@@ -2435,7 +2477,7 @@ function MainSpoonerUpdates()
 				edy2 = AdjustSpeed * math.cos(r2)
 			end
 
-			if IsDisabledControlPressed(0, Config.RotateLeftControl) then
+			if IsAnyDisabledControlPressed(0, Config.RotateLeftControl) then
 				if RotateMode == 0 then
 					epitch2 = epitch2 + RotateSpeed
 				elseif RotateMode == 1 then
@@ -2447,7 +2489,7 @@ function MainSpoonerUpdates()
 				rotChanged = true
 			end
 
-			if IsDisabledControlPressed(0, Config.RotateRightControl) then
+			if IsAnyDisabledControlPressed(0, Config.RotateRightControl) then
 				if RotateMode == 0 then
 					epitch2 = epitch2 - RotateSpeed
 				elseif RotateMode == 1 then
@@ -2459,35 +2501,35 @@ function MainSpoonerUpdates()
 				rotChanged = true
 			end
 
-			if IsDisabledControlPressed(0, Config.AdjustUpControl) then
+			if IsAnyDisabledControlPressed(0, Config.AdjustUpControl) then
 				ez2 = ez2 + AdjustSpeed
 				posChanged = true
 			end
 
-			if IsDisabledControlPressed(0, Config.AdjustDownControl) then
+			if IsAnyDisabledControlPressed(0, Config.AdjustDownControl) then
 				ez2 = ez2 - AdjustSpeed
 				posChanged = true
 			end
 
-			if IsDisabledControlPressed(0, Config.AdjustForwardControl) then
+			if IsAnyDisabledControlPressed(0, Config.AdjustForwardControl) then
 				ex2 = ex2 + edx1
 				ey2 = ey2 + edy1
 				posChanged = true
 			end
 
-			if IsDisabledControlPressed(0, Config.AdjustBackwardControl) then
+			if IsAnyDisabledControlPressed(0, Config.AdjustBackwardControl) then
 				ex2 = ex2 - edx1
 				ey2 = ey2 - edy1
 				posChanged = true
 			end
 
-			if IsDisabledControlPressed(0, Config.AdjustLeftControl) then
+			if IsAnyDisabledControlPressed(0, Config.AdjustLeftControl) then
 				ex2 = ex2 + edx2
 				ey2 = ey2 + edy2
 				posChanged = true
 			end
 
-			if IsDisabledControlPressed(0, Config.AdjustRightControl) then
+			if IsAnyDisabledControlPressed(0, Config.AdjustRightControl) then
 				ex2 = ex2 - edx2
 				ey2 = ey2 - edy2
 				posChanged = true
