@@ -150,6 +150,10 @@ function IsEntityFrozen(entity)
 	return Citizen.InvokeNative(0x083D497D57B7400F, entity)
 end
 
+function IsPedUsingScenarioHash(ped, scenarioHash)
+	return Citizen.InvokeNative(0x34D6AC1157C8226C, ped, scenarioHash)
+end
+
 function EnableSpoonerMode()
 	local x, y, z = table.unpack(GetGameplayCamCoord())
 	local pitch, roll, yaw = table.unpack(GetGameplayCamRot(2))
@@ -608,6 +612,24 @@ function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collisionDisabled)
 	return veh
 end
 
+function PlayAnimation(ped, anim)
+	if not DoesAnimDictExist(anim.dict) then
+		return false
+	end
+
+	RequestAnimDict(anim.dict)
+
+	while not HasAnimDictLoaded(anim.dict) do
+		Wait(0)
+	end
+
+	TaskPlayAnim(ped, anim.dict, anim.name, anim.blendInSpeed, anim.blendOutSpeed, anim.duration, anim.flag, anim.playbackRate, false, false, false, '', false)
+
+	RemoveAnimDict(anim.dict)
+
+	return true
+end
+
 function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, outfit, addToGroup, animation, scenario, blockNonTemporaryEvents, weapons, walkStyle)
 	if not Permissions.spawn.ped then
 		return nil
@@ -647,17 +669,7 @@ function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, out
 	end
 
 	if animation then
-		if DoesAnimDictExist(animation.dict) then
-			RequestAnimDict(animation.dict)
-
-			while not HasAnimDictLoaded(animation.dict) do
-				Wait(0)
-			end
-
-			TaskPlayAnim(ped, animation.dict, animation.name, animation.blendInSpeed, animation.blendOutSpeed, animation.duration, animation.flag, animation.playbackRate, false, false, false, '', false)
-
-			RemoveAnimDict(animation.dict)
-		end
+		PlayAnimation(ped, animation)
 	end
 
 	if scenario then
@@ -2061,29 +2073,19 @@ RegisterNUICallback('playAnimation', function(data, cb)
 
 		RequestControl(data.handle)
 
-		if DoesAnimDictExist(data.dict) then
-			RequestAnimDict(data.dict)
+		local animation = {
+			dict = data.dict,
+			name = data.name,
+			blendInSpeed = blendInSpeed,
+			blendOutSpeed = blendOutSpeed,
+			duration = duration,
+			flag = flag,
+			playbackRate = playbackRate
+		}
 
-			while not HasAnimDictLoaded(data.dict) do
-				Wait(0)
-			end
-
-			TaskPlayAnim(data.handle, data.dict, data.name, blendInSpeed, blendOutSpeed, duration, flag, playbackRate, false, false, false, '', false)
-
-			RemoveAnimDict(data.dict)
-
-			if Database[data.handle] then
-				Database[data.handle].animation = {
-					dict = data.dict,
-					name = data.name,
-					blendInSpeed = blendInSpeed,
-					blendOutSpeed = blendOutSpeed,
-					duration = duration,
-					flag = flag,
-					playbackRate = playbackRate
-				}
-				Database[data.handle].scenario = nil
-			end
+		if PlayAnimation(data.handle, animation) and Database[data.handle] then
+			Database[data.handle].animation = animation
+			Database[data.handle].scenario = nil
 		end
 	end
 
@@ -2600,10 +2602,24 @@ CreateThread(function()
 	end
 end)
 
-function AutoNetworkDbEntities()
-	for entity, _ in pairs(Database) do
+function UpdateDbEntities()
+	for entity, properties in pairs(Database) do
 		if not NetworkGetEntityIsNetworked(entity) then
 			NetworkRegisterEntityAsNetworked(entity)
+		end
+
+		if properties.scenario then
+			local hash = GetHashKey(properties.scenario)
+
+			if not IsPedUsingScenarioHash(entity, hash) then
+				TaskStartScenarioInPlace(entity, hash, -1)
+			end
+		end
+
+		if properties.animation then
+			if not IsEntityPlayingAnim(entity, properties.animation.dict, properties.animation.name, properties.animation.flag) then
+				PlayAnimation(entity, properties.animation)
+			end
 		end
 	end
 end
@@ -2611,6 +2627,6 @@ end
 CreateThread(function()
 	while true do
 		Wait(1000)
-		AutoNetworkDbEntities()
+		UpdateDbEntities()
 	end
 end)
