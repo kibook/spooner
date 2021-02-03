@@ -7,6 +7,7 @@ local RotateSpeed = Config.RotateSpeed
 local AttachedEntity = nil
 local RotateMode = 2
 local AdjustMode = 4
+local SpeedMode = 0
 local PlaceOnGround = false
 local CurrentSpawn = nil
 
@@ -2189,41 +2190,13 @@ RegisterCommand('spooner_migrate_old_dbs', function(source, args, raw)
 	MigrateOldSavedDbs()
 end)
 
-function IsAnyDisabledControlPressed(pad, controls)
+function CheckControls(func, pad, controls)
 	if type(controls) == 'number' then
-		return IsDisabledControlPressed(pad, controls)
+		return func(pad, controls)
 	end
 
 	for _, control in ipairs(controls) do
-		if IsDisabledControlPressed(pad, control) then
-			return true
-		end
-	end
-
-	return false
-end
-
-function IsAnyDisabledControlJustPressed(pad, controls)
-	if type(controls) == 'number' then
-		return IsDisabledControlJustPressed(pad, controls)
-	end
-
-	for _, control in ipairs(controls) do
-		if IsDisabledControlJustPressed(pad, control) then
-			return true
-		end
-	end
-
-	return false
-end
-
-function IsAnyDisabledControlJustReleased(pad, controls)
-	if type(controls) == 'number' then
-		return IsDisabledControlJustReleased(pad, controls)
-	end
-
-	for _, control in ipairs(controls) do
-		if IsDisabledControlJustReleased(pad, control) then
+		if func(pad, control) then
 			return true
 		end
 	end
@@ -2238,7 +2211,7 @@ function MainSpoonerUpdates()
 		AddEntityToDatabase(playerPed)
 	end
 
-	if IsUsingKeyboard(0) and IsAnyDisabledControlJustPressed(0, Config.ToggleControl) then
+	if IsUsingKeyboard(0) and CheckControls(IsDisabledControlJustPressed, 0, Config.ToggleControl) then
 		TriggerServerEvent('spooner:toggle')
 	end
 
@@ -2274,6 +2247,7 @@ function MainSpoonerUpdates()
 			currentSpawn = CurrentSpawn and CurrentSpawn.modelName,
 			rotateMode = RotateMode,
 			adjustMode = AdjustMode,
+			speedMode = SpeedMode,
 			placeOnGround = PlaceOnGround,
 			adjustSpeed = AdjustSpeed,
 			rotateSpeed = RotateSpeed,
@@ -2286,26 +2260,49 @@ function MainSpoonerUpdates()
 			camHeading = string.format('%.2f', yaw2)
 		})
 
+		if CheckControls(IsDisabledControlPressed, 0, Config.IncreaseSpeedControl) then
+			if SpeedMode == 0 then
+				Speed = Speed + Config.SpeedIncrement
+			elseif SpeedMode == 1 then
+				AdjustSpeed = AdjustSpeed + Config.AdjustSpeedIncrement
+			elseif SpeedMode == 2 then
+				RotateSpeed = RotateSpeed + Config.RotateSpeedIncrement
+			end
+		end
+
+		if CheckControls(IsDisabledControlPressed, 0, Config.DecreaseSpeedControl) then
+			if SpeedMode == 0 then
+				Speed = Speed - Config.SpeedIncrement
+			elseif SpeedMode == 1 then
+				AdjustSpeed = AdjustSpeed - Config.AdjustSpeedIncrement
+			elseif SpeedMode == 2 then
+				RotateSpeed = RotateSpeed - Config.RotateSpeedIncrement
+			end
+		end
+
 		if Speed < Config.MinSpeed then
 			Speed = Config.MinSpeed
-		end
-		if Speed > Config.MaxSpeed then
+		elseif Speed > Config.MaxSpeed then
 			Speed = Config.MaxSpeed
 		end
 
-		if IsAnyDisabledControlPressed(0, Config.IncreaseSpeedControl) then
-			Speed = Speed + Config.SpeedIncrement
+		if AdjustSpeed < Config.MinAdjustSpeed then
+			AdjustSpeed = Config.MinAdjustSpeed
+		elseif AdjustSpeed > Config.MaxAdjustSpeed then
+			AdjustSpeed = Config.MaxAdjustSpeed
 		end
 
-		if IsAnyDisabledControlPressed(0, Config.DecreaseSpeedControl) then
-			Speed = Speed - Config.SpeedIncrement
+		if RotateSpeed < Config.MinRotateSpeed then
+			RotateSpeed = Config.MinRotateSpeed
+		elseif RotateSpeed > Config.MaxRotateSpeed then
+			RotateSpeed = Config.MaxRotateSpeed
 		end
 
-		if IsAnyDisabledControlPressed(0, Config.UpControl) then
+		if CheckControls(IsDisabledControlPressed, 0, Config.UpControl) then
 			z2 = z2 + Speed
 		end
 
-		if IsAnyDisabledControlPressed(0, Config.DownControl) then
+		if CheckControls(IsDisabledControlPressed, 0, Config.DownControl) then
 			z2 = z2 - Speed
 		end
 
@@ -2325,27 +2322,27 @@ function MainSpoonerUpdates()
 		local dx2 = Speed * math.sin(r2)
 		local dy2 = Speed * math.cos(r2)
 
-		if IsAnyDisabledControlPressed(0, Config.ForwardControl) then
+		if CheckControls(IsDisabledControlPressed, 0, Config.ForwardControl) then
 			x2 = x2 + dx1
 			y2 = y2 + dy1
 		end
 
-		if IsAnyDisabledControlPressed(0, Config.BackwardControl) then
+		if CheckControls(IsDisabledControlPressed, 0, Config.BackwardControl) then
 			x2 = x2 - dx1
 			y2 = y2 - dy1
 		end
 
-		if IsAnyDisabledControlPressed(0, Config.LeftControl) then
+		if CheckControls(IsDisabledControlPressed, 0, Config.LeftControl) then
 			x2 = x2 + dx2
 			y2 = y2 + dy2
 		end
 
-		if IsAnyDisabledControlPressed(0, Config.RightControl) then
+		if CheckControls(IsDisabledControlPressed, 0, Config.RightControl) then
 			x2 = x2 - dx2
 			y2 = y2 - dy2
 		end
 
-		if IsAnyDisabledControlJustPressed(0, Config.SpawnControl) and CurrentSpawn then
+		if CheckControls(IsDisabledControlJustPressed, 0, Config.SpawnControl) and CurrentSpawn then
 			local entity
 
 			if CurrentSpawn.type == 1 then
@@ -2365,7 +2362,7 @@ function MainSpoonerUpdates()
 			end
 		end
 
-		if IsAnyDisabledControlJustPressed(0, Config.SelectControl) then
+		if CheckControls(IsDisabledControlJustPressed, 0, Config.SelectControl) then
 			if AttachedEntity then
 				AttachedEntity = nil
 			elseif entity and CanModifyEntity(entity) then
@@ -2377,7 +2374,7 @@ function MainSpoonerUpdates()
 			end
 		end
 
-		if IsAnyDisabledControlJustPressed(0, Config.DeleteControl) and entity then
+		if CheckControls(IsDisabledControlJustPressed, 0, Config.DeleteControl) and entity then
 			if AttachedEntity then
 				RemoveEntity(AttachedEntity)
 				AttachedEntity = nil
@@ -2386,33 +2383,33 @@ function MainSpoonerUpdates()
 			end
 		end
 
-		if IsAnyDisabledControlJustReleased(0, Config.ObjectMenuControl) then
+		if CheckControls(IsDisabledControlJustReleased, 0, Config.ObjectMenuControl) then
 			SendNUIMessage({
 				type = 'openSpawnMenu'
 			})
 			SetNuiFocus(true, true)
 		end
 
-		if IsAnyDisabledControlJustReleased(0, Config.DbMenuControl) then
+		if CheckControls(IsDisabledControlJustReleased, 0, Config.DbMenuControl) then
 			OpenDatabaseMenu()
 		end
 
-		if IsAnyDisabledControlJustReleased(0, Config.SaveLoadDbMenuControl) then
+		if CheckControls(IsDisabledControlJustReleased, 0, Config.SaveLoadDbMenuControl) then
 			OpenSaveDbMenu()
 		end
 
-		if IsAnyDisabledControlJustReleased(0, Config.HelpMenuControl) then
+		if CheckControls(IsDisabledControlJustReleased, 0, Config.HelpMenuControl) then
 			SendNUIMessage({
 				type = 'openHelpMenu'
 			})
 			SetNuiFocus(true, true)
 		end
 
-		if IsAnyDisabledControlJustPressed(0, Config.RotateModeControl) then
+		if CheckControls(IsDisabledControlJustPressed, 0, Config.RotateModeControl) then
 			RotateMode = (RotateMode + 1) % 3
 		end
 
-		if IsAnyDisabledControlJustPressed(0, Config.AdjustModeControl) then
+		if CheckControls(IsDisabledControlJustPressed, 0, Config.AdjustModeControl) then
 			if AdjustMode < 4 then
 				AdjustMode = (AdjustMode + 1) % 4
 			else
@@ -2420,15 +2417,19 @@ function MainSpoonerUpdates()
 			end
 		end
 
-		if IsAnyDisabledControlJustPressed(0, Config.FreeAdjustModeControl) then
+		if CheckControls(IsDisabledControlJustPressed, 0, Config.FreeAdjustModeControl) then
 			AdjustMode = 4
 		end
 
-		if IsAnyDisabledControlJustPressed(0, Config.AdjustOffControl) then
+		if CheckControls(IsDisabledControlJustPressed, 0, Config.AdjustOffControl) then
 			AdjustMode = 5
 		end
 
-		if IsAnyDisabledControlJustPressed(0, Config.PlaceOnGroundControl) then
+		if CheckControls(IsDisabledControlJustPressed, 0, Config.SpeedModeControl) then
+			SpeedMode = (SpeedMode + 1) % 3
+		end
+
+		if CheckControls(IsDisabledControlJustPressed, 0, Config.PlaceOnGroundControl) then
 			PlaceOnGround = not PlaceOnGround
 		end
 
@@ -2436,11 +2437,11 @@ function MainSpoonerUpdates()
 			local posChanged = false
 			local rotChanged = false
 
-			if IsAnyDisabledControlJustReleased(0, Config.PropMenuControl) then
+			if CheckControls(IsDisabledControlJustReleased, 0, Config.PropMenuControl) then
 				OpenPropertiesMenuForEntity(entity)
 			end
 
-			if IsAnyDisabledControlJustPressed(0, Config.CloneControl) then
+			if CheckControls(IsDisabledControlJustPressed, 0, Config.CloneControl) then
 				AttachedEntity = CloneEntity(entity)
 			end
 
@@ -2479,7 +2480,7 @@ function MainSpoonerUpdates()
 				edy2 = AdjustSpeed * math.cos(r2)
 			end
 
-			if IsAnyDisabledControlPressed(0, Config.RotateLeftControl) then
+			if CheckControls(IsDisabledControlPressed, 0, Config.RotateLeftControl) then
 				if RotateMode == 0 then
 					epitch2 = epitch2 + RotateSpeed
 				elseif RotateMode == 1 then
@@ -2491,7 +2492,7 @@ function MainSpoonerUpdates()
 				rotChanged = true
 			end
 
-			if IsAnyDisabledControlPressed(0, Config.RotateRightControl) then
+			if CheckControls(IsDisabledControlPressed, 0, Config.RotateRightControl) then
 				if RotateMode == 0 then
 					epitch2 = epitch2 - RotateSpeed
 				elseif RotateMode == 1 then
@@ -2503,35 +2504,35 @@ function MainSpoonerUpdates()
 				rotChanged = true
 			end
 
-			if IsAnyDisabledControlPressed(0, Config.AdjustUpControl) then
+			if CheckControls(IsDisabledControlPressed, 0, Config.AdjustUpControl) then
 				ez2 = ez2 + AdjustSpeed
 				posChanged = true
 			end
 
-			if IsAnyDisabledControlPressed(0, Config.AdjustDownControl) then
+			if CheckControls(IsDisabledControlPressed, 0, Config.AdjustDownControl) then
 				ez2 = ez2 - AdjustSpeed
 				posChanged = true
 			end
 
-			if IsAnyDisabledControlPressed(0, Config.AdjustForwardControl) then
+			if CheckControls(IsDisabledControlPressed, 0, Config.AdjustForwardControl) then
 				ex2 = ex2 + edx1
 				ey2 = ey2 + edy1
 				posChanged = true
 			end
 
-			if IsAnyDisabledControlPressed(0, Config.AdjustBackwardControl) then
+			if CheckControls(IsDisabledControlPressed, 0, Config.AdjustBackwardControl) then
 				ex2 = ex2 - edx1
 				ey2 = ey2 - edy1
 				posChanged = true
 			end
 
-			if IsAnyDisabledControlPressed(0, Config.AdjustLeftControl) then
+			if CheckControls(IsDisabledControlPressed, 0, Config.AdjustLeftControl) then
 				ex2 = ex2 + edx2
 				ey2 = ey2 + edy2
 				posChanged = true
 			end
 
-			if IsAnyDisabledControlPressed(0, Config.AdjustRightControl) then
+			if CheckControls(IsDisabledControlPressed, 0, Config.AdjustRightControl) then
 				ex2 = ex2 - edx2
 				ey2 = ey2 - edy2
 				posChanged = true

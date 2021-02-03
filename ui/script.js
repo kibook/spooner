@@ -82,7 +82,11 @@ function updateSpoonerHud(data) {
 		spawnInfo.style.display = 'none';
 	}
 
-	document.querySelector('#speed').innerHTML = data.speed;
+	if (data.speedMode == 0) {
+		document.querySelector('#speed').innerHTML = `[${data.speed}]`
+	} else {
+		document.querySelector('#speed').innerHTML = data.speed;
+	}
 
 	switch(data.adjustMode) {
 		case 0:
@@ -138,8 +142,17 @@ function updateSpoonerHud(data) {
 	document.getElementById('cursor-y').innerHTML = data.cursorY;
 	document.getElementById('cursor-z').innerHTML = data.cursorZ;
 
-	document.querySelector('#adjust-speed').innerHTML = data.adjustSpeed;
-	document.querySelector('#rotate-speed').innerHTML = data.rotateSpeed;
+	if (data.speedMode == 1) {
+		document.querySelector('#adjust-speed').innerHTML = `[${data.adjustSpeed.toFixed(3)}]`;
+	} else {
+		document.querySelector('#adjust-speed').innerHTML = data.adjustSpeed.toFixed(3);
+	}
+
+	if (data.speedMode == 2) {
+		document.querySelector('#rotate-speed').innerHTML = `[${data.rotateSpeed.toFixed(1)}]`;
+	} else {
+		document.querySelector('#rotate-speed').innerHTML = data.rotateSpeed.toFixed(1);
+	}
 
 	document.querySelector('#model-name').innerHTML = data.modelName;
 
