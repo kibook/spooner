@@ -1933,11 +1933,9 @@ RegisterNUICallback('resurrectPed', function(data, cb)
 	cb({})
 end)
 
-RegisterNUICallback('getOnMount', function(data, cb)
+RegisterNUICallback('setOnMount', function(data, cb)
 	if Permissions.properties.ped.mount and CanModifyEntity(data.handle) then
-		DisableSpoonerMode()
-		RequestControl(data.handle)
-		SetPedOnMount(PlayerPedId(), data.handle, -1, false)
+		SetPedOnMount(data.handle, data.entity, -1, false)
 	end
 	cb({})
 end)

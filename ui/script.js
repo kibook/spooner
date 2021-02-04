@@ -1402,7 +1402,7 @@ function updatePermissions(data) {
 	document.querySelector('#properties-clear-ped-tasks-immediately').disabled = !permissions.properties.ped.clearTasks;
 	document.querySelector('#properties-give-weapon').disabled = !permissions.properties.ped.weapon;
 	document.querySelector('#properties-remove-all-weapons').disabled = !permissions.properties.ped.weapon;
-	document.querySelector('#properties-get-on-mount').disabled = !permissions.properties.ped.mount;
+	document.querySelector('#properties-set-on-mount').disabled = !permissions.properties.ped.mount;
 	document.querySelector('#properties-resurrect-ped').disabled = !permissions.properties.ped.resurrect;
 	document.querySelector('#properties-ai-on').disabled = !permissions.properties.ped.ai;
 	document.querySelector('#properties-ai-off').disabled = !permissions.properties.ped.ai;
@@ -2040,13 +2040,6 @@ window.addEventListener('load', function() {
 		});
 	});
 
-	document.querySelector('#properties-get-on-mount').addEventListener('click', function(event) {
-		closePropertiesMenu(true);
-		sendMessage('getOnMount', {
-			handle: currentEntity()
-		});
-	});
-
 	document.querySelector('#properties-engine-on').addEventListener('click', function(event) {
 		sendMessage('engineOn', {
 			handle: currentEntity()
@@ -2193,6 +2186,16 @@ window.addEventListener('load', function() {
 		sendMessage('clearLookAt', {
 			handle: currentEntity()
 		});
+	});
+
+	document.getElementById('properties-set-on-mount').addEventListener('click', function(event) {
+		var handle = currentEntity();
+		openEntitySelect('ped-options-menu', function(entity) {
+			sendMessage('setOnMount', {
+				handle: handle,
+				entity: entity
+			});
+		}, handle);
 	});
 
 	document.getElementById('properties-register-as-networked').addEventListener('click', function(event) {
