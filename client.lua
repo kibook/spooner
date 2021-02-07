@@ -2164,6 +2164,16 @@ RegisterNUICallback('saveFavourites', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('cleanPed', function(data, cb)
+	if Permissions.properties.ped.clean and CanModifyEntity(data.handle) then
+		RequestControl(data.handle)
+		ClearPedEnvDirt(data.handle)
+		ClearPedDamageDecalByZone(data.handle, 10, "ALL")
+		ClearPedBloodDamage(data.handle)
+	end
+	cb({})
+end)
+
 -- Temporary function to migrate old kvs keys of DBs to the new kvs key format
 function MigrateOldSavedDbs()
 	local handle = StartFindKvp("")

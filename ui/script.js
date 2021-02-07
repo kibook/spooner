@@ -2272,4 +2272,10 @@ window.addEventListener('load', function() {
 				break;
 		}
 	});
+
+	document.getElementById('properties-clean').addEventListener('click', function(event) {
+		sendMessage('cleanPed', {
+			handle: currentEntity()
+		});
+	});
 });
