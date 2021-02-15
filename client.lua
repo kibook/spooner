@@ -1484,7 +1484,7 @@ function CloneEntity(entity)
 	elseif props.type == 2 then
 		clone = SpawnVehicle(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.isVisible)
 	elseif props.type == 3 then
-		clone = SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.isVisibleprops.lightsIntensity, props.lightsColour, props.lightsType)
+		clone = SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.isVisible, props.lightsIntensity, props.lightsColour, props.lightsType)
 	elseif props.type == 5 then
 		clone = SpawnPickup(props.name, props.model, props.x, props.y, props.z)
 	else
