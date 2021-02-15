@@ -529,7 +529,7 @@ function SetWalkStyle(ped, base, style)
 	end
 end
 
-function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, lightsIntensity, lightsColour, lightsType)
+function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, isVisible, lightsIntensity, lightsColour, lightsType)
 	if not Permissions.spawn.object then
 		return nil
 	end
@@ -558,6 +558,10 @@ function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, 
 		SetEntityCollision(object, false, false)
 	end
 
+	if not isVisible then
+		SetEntityVisible(object, false)
+	end
+
 	if lightsIntensity then
 		SetLightsIntensityForEntity(object, lightsIntensity)
 	end
@@ -575,7 +579,7 @@ function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, 
 	return object
 end
 
-function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collisionDisabled)
+function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, isVisible)
 	if not Permissions.spawn.vehicle then
 		return nil
 	end
@@ -601,6 +605,10 @@ function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collisionDisabled)
 	if collisionDisabled then
 		FreezeEntityPosition(veh, true)
 		SetEntityCollision(veh, false, false)
+	end
+
+	if not isVisible then
+		SetEntityVisible(veh, false)
 	end
 
 	-- Weird fix for the hot air balloon, otherwise it doesn't move with the wind and only travels straight up.
@@ -631,7 +639,7 @@ function PlayAnimation(ped, anim)
 	return true
 end
 
-function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, outfit, addToGroup, animation, scenario, blockNonTemporaryEvents, weapons, walkStyle)
+function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, isVisible, outfit, addToGroup, animation, scenario, blockNonTemporaryEvents, weapons, walkStyle)
 	if not Permissions.spawn.ped then
 		return nil
 	end
@@ -657,6 +665,10 @@ function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, out
 	if collisionDisabled then
 		FreezeEntityPosition(ped, true)
 		SetEntityCollision(ped, false, false)
+	end
+
+	if not isVisible then
+		SetEntityVisible(ped, false)
 	end
 
 	if outfit == -1 then
@@ -1305,13 +1317,13 @@ function LoadDatabase(db, relative, replace)
 		end
 
 		if spawn.props.type == 1 then
-			entity = SpawnPed(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled, spawn.props.outfit, spawn.props.isInGroup, spawn.props.animation, spawn.props.scenario, spawn.props.blockNonTemporaryEvents, spawn.props.weapons, spawn.props.walkStyle)
+			entity = SpawnPed(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled, spawn.props.isVisible, spawn.props.outfit, spawn.props.isInGroup, spawn.props.animation, spawn.props.scenario, spawn.props.blockNonTemporaryEvents, spawn.props.weapons, spawn.props.walkStyle)
 		elseif spawn.props.type == 2 then
-			entity = SpawnVehicle(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled)
+			entity = SpawnVehicle(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled, spawn.props.isVisible)
 		elseif spawn.props.type == 5 then
 			entity = SpawnPickup(spawn.props.name, spawn.props.model, x, y, z)
 		else
-			entity = SpawnObject(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled, spawn.props.lightsIntensity, spawn.props.lightsColour, spawn.props.lightsType)
+			entity = SpawnObject(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled, spawn.props.isVisible, spawn.props.lightsIntensity, spawn.props.lightsColour, spawn.props.lightsType)
 		end
 
 		if entity and relative then
@@ -1468,11 +1480,11 @@ function CloneEntity(entity)
 	local clone = nil
 
 	if props.type == 1 then
-		clone = SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.outfit, props.isInGroup, props.animation, props.scenario, props.blockNonTemporaryEvents, props.weapons, props.walkStyle)
+		clone = SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.isVisible, props.outfit, props.isInGroup, props.animation, props.scenario, props.blockNonTemporaryEvents, props.weapons, props.walkStyle)
 	elseif props.type == 2 then
-		clone = SpawnVehicle(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled)
+		clone = SpawnVehicle(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.isVisible)
 	elseif props.type == 3 then
-		clone = SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.lightsIntensity, props.lightsColour, props.lightsType)
+		clone = SpawnObject(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.isVisibleprops.lightsIntensity, props.lightsColour, props.lightsType)
 	elseif props.type == 5 then
 		clone = SpawnPickup(props.name, props.model, props.x, props.y, props.z)
 	else
@@ -2354,11 +2366,11 @@ function MainSpoonerUpdates()
 			local entity
 
 			if CurrentSpawn.type == 1 then
-				entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, -1, false, nil, nil, false, nil, nil)
+				entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, true, -1, false, nil, nil, false, nil, nil)
 			elseif CurrentSpawn.type == 2 then
-				entity = SpawnVehicle(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false)
+				entity = SpawnVehicle(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, true)
 			elseif CurrentSpawn.type == 3 then
-				entity = SpawnObject(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, nil, nil, nil)
+				entity = SpawnObject(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, true, nil, nil, nil)
 			elseif CurrentSpawn.type == 4 then
 				entity = SpawnPropset(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, yaw2)
 			elseif CurrentSpawn.type == 5 then
