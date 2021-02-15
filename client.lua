@@ -558,7 +558,7 @@ function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, 
 		SetEntityCollision(object, false, false)
 	end
 
-	if not isVisible then
+	if isVisible == false then
 		SetEntityVisible(object, false)
 	end
 
@@ -607,7 +607,7 @@ function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collisionDisabled,
 		SetEntityCollision(veh, false, false)
 	end
 
-	if not isVisible then
+	if isVisible == false then
 		SetEntityVisible(veh, false)
 	end
 
@@ -667,7 +667,7 @@ function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, isV
 		SetEntityCollision(ped, false, false)
 	end
 
-	if not isVisible then
+	if isVisible == false then
 		SetEntityVisible(ped, false)
 	end
 
