@@ -1161,6 +1161,12 @@ function updatePropertiesMenu(data) {
 		document.getElementById('properties-invisible').style.display = 'none';
 		document.getElementById('properties-visible').style.display = 'block';
 	}
+
+	if (properties.scale) {
+		setFieldIfInactive('properties-scale', properties.scale);
+	} else {
+		setFieldIfInactive('properties-scale', 1.0)
+	}
 }
 
 function sendUpdatePropertiesMenuMessage(handle, open) {
@@ -2276,6 +2282,13 @@ window.addEventListener('load', function() {
 	document.getElementById('properties-clean').addEventListener('click', function(event) {
 		sendMessage('cleanPed', {
 			handle: currentEntity()
+		});
+	});
+
+	document.getElementById('properties-scale').addEventListener('input', function(event) {
+		sendMessage('setScale', {
+			handle: currentEntity(),
+			scale: parseFloat(this.value)
 		});
 	});
 });

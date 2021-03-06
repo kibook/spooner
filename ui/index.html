@@ -328,6 +328,10 @@
 					<button id="properties-look-at-entity">Look At</button>
 					<button id="properties-clear-look-at">Clear Look</button>
 				</div>
+				<div class="property local">
+					<div class="label">Scale (local)</div>
+					<input type="number" id="properties-scale" min="0.1" max="10.0" step="0.1" value="1.0">
+				</div>
 			</div>
 			<button id="ped-options-menu-close">Back</button>
 		</div>
@@ -423,17 +427,17 @@
 		<div id="lights-options-menu" class="menu">
 			<div id="lights-options" class="list">
 				<div class="property">
-					<div class="label">Intensity</div>
+					<div class="label">Intensity (local)</div>
 					<input type="number" id="properties-lights-intensity" min="0" step="1">
 				</div>
 				<div class="property">
-					<div class="label">Colour</div>
+					<div class="label">Colour (local)</div>
 					<input type="number" class="lights-colour" id="properties-lights-red" min="0" max="255" step="1">
 					<input type="number" class="lights-colour" id="properties-lights-green" min="0" max="255" step="1">
 					<input type="number" class="lights-colour" id="properties-lights-blue" min="0" max="255" step="1">
 				</div>
 				<div class="property">
-					<div class="label">Type</div>
+					<div class="label">Type (local)</div>
 					<input type="number" id="properties-lights-type" min="0" max="20" step="1">
 				</div>
 			</div>
@@ -636,6 +640,7 @@
 				</ul>
 				<h3>Properties menu - <span class="control">e</span></h3>
 				<p>The <strong>Properties</strong> menu lists and allows you to edit properties of an entity.</p>
+				<p>Properties labelled as (local) are not synchronized across the network, so changes to these properties will only be visible to you.</p>
 				<h3>Save/Load Database menu - <span class="control">J</span></h3>
 				<p>The <strong>Save/Load Database</strong> menu allows you to store your current database with a name, and then load all the entities from it again later.</p>
 				<ul>

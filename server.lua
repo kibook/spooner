@@ -66,6 +66,7 @@ AddEventHandler('spooner:init', function()
 	permissions.properties.ped.cloneToTarget = IsPlayerAceAllowed(source, 'spooner.properties.ped.cloneToTarget')
 	permissions.properties.ped.lookAtEntity = IsPlayerAceAllowed(source, 'spooner.properties.ped.lookAtEntity')
 	permissions.properties.ped.clean = IsPlayerAceAllowed(source, 'spooner.properties.ped.clean')
+	permissions.properties.ped.scale = IsPlayerAceAllowed(source, 'spooner.properties.ped.scale')
 
 	permissions.properties.vehicle = {}
 	permissions.properties.vehicle.repair = IsPlayerAceAllowed(source, 'spooner.properties.vehicle.repair')

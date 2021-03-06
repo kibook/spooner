@@ -70,6 +70,8 @@ Permissions.properties.ped.knockOffProps = false
 Permissions.properties.ped.walkStyle = false
 Permissions.properties.ped.cloneToTarget = false
 Permissions.properties.ped.lookAtEntity = false
+Permissions.properties.ped.clean = false
+Permissions.properties.ped.scale = false
 
 Permissions.properties.vehicle = {}
 Permissions.properties.vehicle.repair = false
@@ -367,6 +369,7 @@ function GetLiveEntityProperties(entity)
 		weapons = {},
 		isFrozen = IsEntityFrozen(entity),
 		isVisible = IsEntityVisible(entity),
+		scale = nil,
 		attachment = {
 			to = GetEntityAttachedTo(entity),
 			bone = nil,
@@ -410,6 +413,8 @@ function AddEntityToDatabase(entity, name, attachment)
 	local weapons = Database[entity] and Database[entity].weapons or {}
 
 	local walkStyle = Database[entity] and Database[entity].walkStyle
+
+	local scale = Database[entity] and Database[entity].scale
 
 	if attachment then
 		attachBone  = attachment.bone
@@ -465,6 +470,8 @@ function AddEntityToDatabase(entity, name, attachment)
 	Database[entity].weapons = weapons
 
 	Database[entity].walkStyle = walkStyle
+
+	Database[entity].scale = scale
 
 	return Database[entity]
 end
@@ -639,7 +646,7 @@ function PlayAnimation(ped, anim)
 	return true
 end
 
-function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, isVisible, outfit, addToGroup, animation, scenario, blockNonTemporaryEvents, weapons, walkStyle)
+function SpawnPed(props)
 	if not Permissions.spawn.ped then
 		return nil
 	end
@@ -648,69 +655,74 @@ function SpawnPed(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, isV
 		return nil
 	end
 
-	if not LoadModel(model) then
+	if not LoadModel(props.model) then
 		return nil
 	end
 
-	local ped = CreatePed_2(model, x, y, z, 0.0, true, false)
+	local ped = CreatePed_2(props.model, props.x, props.y, props.z, 0.0, true, false)
 
-	SetModelAsNoLongerNeeded(model)
+	SetModelAsNoLongerNeeded(props.model)
 
 	if not ped or ped < 1 then
 		return nil
 	end
 
-	SetEntityRotation(ped, pitch, roll, yaw, 2)
+	SetEntityRotation(ped, props.pitch, props.roll, props.yaw, 2)
 
-	if collisionDisabled then
+	if props.collisionDisabled then
 		FreezeEntityPosition(ped, true)
 		SetEntityCollision(ped, false, false)
 	end
 
-	if isVisible == false then
+	if props.isVisible == false then
 		SetEntityVisible(ped, false)
 	end
 
-	if outfit == -1 then
+	if props.outfit == -1 then
 		SetRandomOutfitVariation(ped, true)
 	else
-		SetPedOutfitPreset(ped, outfit)
+		SetPedOutfitPreset(ped, props.outfit)
 	end
 
-	if addToGroup then
+	if props.addToGroup then
 		AddToGroup(ped)
 	end
 
-	if animation then
-		PlayAnimation(ped, animation)
+	if props.animation then
+		PlayAnimation(ped, props.animation)
 	end
 
-	if scenario then
+	if props.scenario then
 		Wait(500)
-		TaskStartScenarioInPlace(ped, GetHashKey(scenario), -1)
+		TaskStartScenarioInPlace(ped, GetHashKey(props.scenario), -1)
 	end
 
-	if blockNonTemporaryEvents then
+	if props.blockNonTemporaryEvents then
 		SetBlockingOfNonTemporaryEvents(ped, true)
 	end
 
-	if weapons then
-		for _, weapon in ipairs(weapons) do
+	if props.weapons then
+		for _, weapon in ipairs(props.weapons) do
 			GiveWeaponToPed_2(ped, GetHashKey(weapon), 500, true, false, 0, false, 0.5, 1.0, 0, false, 0.0, false)
 		end
 	end
 
-	if walkStyle then
-		SetWalkStyle(ped, walkStyle.base, walkStyle.style)
+	if props.walkStyle then
+		SetWalkStyle(ped, props.walkStyle.base, props.walkStyle.style)
 	end
 
-	AddEntityToDatabase(ped, name)
-	Database[ped].outfit = outfit
-	Database[ped].animation = animation
-	Database[ped].scenario = scenario
-	Database[ped].blockNonTemporaryEvents = blockNonTemporaryEvents
-	Database[ped].weapons = weapons
-	Database[ped].walkStyle = walkStyle
+	if props.scale then
+		SetPedScale(ped, props.scale)
+	end
+
+	AddEntityToDatabase(ped, props.name)
+	Database[ped].outfit = props.outfit
+	Database[ped].animation = props.animation
+	Database[ped].scenario = props.scenario
+	Database[ped].blockNonTemporaryEvents = props.blockNonTemporaryEvents
+	Database[ped].weapons = props.weapons
+	Database[ped].walkStyle = props.walkStyle
+	Database[ped].scale = props.scale
 
 	return ped
 end
@@ -1317,7 +1329,7 @@ function LoadDatabase(db, relative, replace)
 		end
 
 		if spawn.props.type == 1 then
-			entity = SpawnPed(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled, spawn.props.isVisible, spawn.props.outfit, spawn.props.isInGroup, spawn.props.animation, spawn.props.scenario, spawn.props.blockNonTemporaryEvents, spawn.props.weapons, spawn.props.walkStyle)
+			entity = SpawnPed(spawn.props)
 		elseif spawn.props.type == 2 then
 			entity = SpawnVehicle(spawn.props.name, spawn.props.model, x, y, z, pitch, roll, yaw, spawn.props.collisionDisabled, spawn.props.isVisible)
 		elseif spawn.props.type == 5 then
@@ -1480,7 +1492,7 @@ function CloneEntity(entity)
 	local clone = nil
 
 	if props.type == 1 then
-		clone = SpawnPed(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.isVisible, props.outfit, props.isInGroup, props.animation, props.scenario, props.blockNonTemporaryEvents, props.weapons, props.walkStyle)
+		clone = SpawnPed(props)
 	elseif props.type == 2 then
 		clone = SpawnVehicle(props.name, props.model, props.x, props.y, props.z, props.pitch, props.roll, props.yaw, props.collisionDisabled, props.isVisible)
 	elseif props.type == 3 then
@@ -2186,6 +2198,26 @@ RegisterNUICallback('cleanPed', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('setScale', function(data, cb)
+	if Permissions.properties.ped.scale and CanModifyEntity(data.handle) then
+		local scale = data.scale or 1.0
+
+		if scale < 0.1 then
+			scale = 0.1
+		elseif scale > 10.0 then
+			scale = 10.0
+		end
+
+		SetPedScale(data.handle, scale + 0.0)
+
+		if Database[data.handle] then
+			Database[data.handle].scale = scale
+		end
+	end
+
+	cb({})
+end)
+
 -- Temporary function to migrate old kvs keys of DBs to the new kvs key format
 function MigrateOldSavedDbs()
 	local handle = StartFindKvp("")
@@ -2366,7 +2398,27 @@ function MainSpoonerUpdates()
 			local entity
 
 			if CurrentSpawn.type == 1 then
-				entity = SpawnPed(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, true, -1, false, nil, nil, false, nil, nil)
+				entity = SpawnPed{
+					name = CurrentSpawn.modelName,
+					model = GetHashKey(CurrentSpawn.modelName),
+					x = spawnPos.x,
+					y = spawnPos.y,
+					z = spawnPos.z,
+					pitch = 0.0,
+					roll = 0.0,
+					yaw = yaw2,
+					collisionDisabled = false,
+					isVisible = true,
+					outfit = -1,
+					addToGroup = false,
+					animation = nil,
+					scenario = nil,
+					blockNonTemporaryEvents = false,
+					weapons = nil,
+					walkStyle = nil,
+					scale = nil
+				}
+
 			elseif CurrentSpawn.type == 2 then
 				entity = SpawnVehicle(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, true)
 			elseif CurrentSpawn.type == 3 then
