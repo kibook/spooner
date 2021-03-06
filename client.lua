@@ -2208,6 +2208,7 @@ RegisterNUICallback('setScale', function(data, cb)
 			scale = 10.0
 		end
 
+		RequestControl(data.handle)
 		SetPedScale(data.handle, scale + 0.0)
 
 		if Database[data.handle] then
