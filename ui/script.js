@@ -68,8 +68,14 @@ function updateSpoonerHud(data) {
 			entityId.innerHTML = data.entity.toString(16);
 		}
 		entityInfo.style.display = 'block';
+
+		document.getElementById('basic-controls').style.display = 'none';
+		document.getElementById('entity-controls').style.display = 'flex';
 	} else {
 		entityInfo.style.display = 'none';
+
+		document.getElementById('entity-controls').style.display = 'none';
+		document.getElementById('basic-controls').style.display = 'flex';
 	}
 
 	var spawnInfo = document.querySelector('#spawn-info');
@@ -1472,6 +1478,14 @@ function openEntitySelect(menuId, onEntitySelect, ignoreEntity) {
 	});
 }
 
+function showControls() {
+	document.getElementById('controls').style.display = 'flex';
+}
+
+function hideControls() {
+	document.getElementById('controls').style.display = 'none';
+}
+
 window.addEventListener('message', function(event) {
 	switch (event.data.type) {
 		case 'showSpoonerHud':
@@ -1500,6 +1514,12 @@ window.addEventListener('message', function(event) {
 			break;
 		case 'updatePermissions':
 			updatePermissions(event.data);
+			break;
+		case 'showControls':
+			showControls();
+			break;
+		case 'hideControls':
+			hideControls();
 			break;
 	}
 });

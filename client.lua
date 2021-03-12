@@ -10,6 +10,7 @@ local AdjustMode = 4
 local SpeedMode = 0
 local PlaceOnGround = false
 local CurrentSpawn = nil
+local ShowControls = true
 
 local StoreDeleted = false
 local DeletedEntities = {}
@@ -2277,8 +2278,8 @@ function MainSpoonerUpdates()
 
 	if Cam then
 		DisableAllControlActions(0)
-		EnableControlAction(0, 0x4A903C11)
-		EnableControlAction(0, 0x9720fcee)
+		EnableControlAction(0, `INPUT_FRONTEND_PAUSE_ALTERNATE`, true)
+		EnableControlAction(0, `INPUT_MP_TEXT_CHAT_ALL`, true)
 
 		local x1, y1, z1 = table.unpack(GetCamCoord(Cam))
 		local pitch1, roll1, yaw1 = table.unpack(GetCamRot(Cam, 2))
@@ -2463,7 +2464,7 @@ function MainSpoonerUpdates()
 			end
 		end
 
-		if CheckControls(IsDisabledControlJustReleased, 0, Config.ObjectMenuControl) then
+		if CheckControls(IsDisabledControlJustReleased, 0, Config.SpawnMenuControl) then
 			SendNUIMessage({
 				type = 'openSpawnMenu'
 			})
@@ -2483,6 +2484,19 @@ function MainSpoonerUpdates()
 				type = 'openHelpMenu'
 			})
 			SetNuiFocus(true, true)
+		end
+
+		if CheckControls(IsDisabledControlJustReleased, 0, Config.ToggleControlsControl) then
+			ShowControls = not ShowControls
+			if ShowControls then
+				SendNUIMessage({
+					type = 'showControls'
+				})
+			else
+				SendNUIMessage({
+					type = 'hideControls'
+				})
+			end
 		end
 
 		if CheckControls(IsDisabledControlJustPressed, 0, Config.RotateModeControl) then

@@ -22,7 +22,7 @@ Config.AdjustRightControl = `INPUT_FRONTEND_RIGHT` -- Right arrow key
 Config.RotateRightControl = `INPUT_CREATOR_RS` -- C
 Config.RotateLeftControl = `INPUT_NEXT_CAMERA` -- V
 Config.RotateModeControl = `INPUT_OPEN_SATCHEL_MENU` -- B
-Config.ObjectMenuControl = `INPUT_CONTEXT_B` -- F
+Config.SpawnMenuControl = `INPUT_CONTEXT_B` -- F
 Config.DbMenuControl = `INPUT_SWITCH_SHOULDER` -- X
 Config.PropMenuControl = `INPUT_CREATOR_MENU_TOGGLE` -- Tab
 Config.SaveLoadDbMenuControl = `INPUT_OPEN_JOURNAL` -- J
@@ -33,6 +33,7 @@ Config.AdjustOffControl = `INPUT_SELECT_QUICKSELECT_THROWN` -- 7
 Config.HelpMenuControl = {`INPUT_WHISTLE_HORSEBACK`, `INPUT_WHISTLE`} -- H
 Config.CloneControl = `INPUT_INTERACT_ANIMAL` -- G
 Config.SpeedModeControl = `INPUT_RELOAD` -- R
+Config.ToggleControlsControl = `INPUT_SELECT_QUICKSELECT_SIDEARMS_LEFT` -- 1
 
 -- Maximum movement speed
 Config.MaxSpeed = 1.00

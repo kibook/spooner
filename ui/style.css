@@ -115,8 +115,25 @@ input:disabled {
 }
 
 #controls {
-	font-size: 0.75vw;
-	padding: 1vh 1vw;
+	display: flex;
+	justify-content: center;
+	font-size: 0.8vw;
+	padding: 0.25vh 0.25vw;
+	margin-top: 1vh;
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+.control-set, .control-and-help {
+	display: flex;
+	align-items: center;
+}
+
+.control-and-help {
+	padding: 0 0.25vw;
+}
+
+.control-help {
+	padding-left: 0.25vw;
 }
 
 #cam-cursor-info {
@@ -407,4 +424,14 @@ textarea {
 
 .object-database-stat {
 	display: inline-block;
+}
+
+.arrow-keys {
+	display: inline-grid;
+	grid-template-columns: repeat(3, max-content);
+	font-family: "212 Keyboard";
+}
+
+.arrow-keys div:first-child {
+	grid-column: 1 / 4;
 }
