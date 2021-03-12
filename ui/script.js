@@ -2291,4 +2291,10 @@ window.addEventListener('load', function() {
 			scale: parseFloat(this.value)
 		});
 	});
+
+	document.getElementById('properties-select').addEventListener('click', function(event) {
+		sendMessage('selectEntity', {
+			handle: currentEntity()
+		});
+	});
 });
