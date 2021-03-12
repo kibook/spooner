@@ -805,13 +805,6 @@ function RequestControl(entity)
 	end
 
 	NetworkRequestControlOfEntity(entity)
-
-	local timeWaited = 0
-
-	while not NetworkHasControlOfEntity(entity) and timeWaited <= 500 do
-		Wait(1)
-		timeWaited = timeWaited + 1
-	end
 end
 
 function CanDeleteEntity(entity)
