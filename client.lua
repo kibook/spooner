@@ -684,7 +684,7 @@ function SpawnPed(props)
 		SetPedOutfitPreset(ped, props.outfit)
 	end
 
-	if props.addToGroup then
+	if props.isInGroup then
 		AddToGroup(ped)
 	end
 
@@ -2425,7 +2425,7 @@ function MainSpoonerUpdates()
 					collisionDisabled = false,
 					isVisible = true,
 					outfit = -1,
-					addToGroup = false,
+					isInGroup = false,
 					animation = nil,
 					scenario = nil,
 					blockNonTemporaryEvents = false,
