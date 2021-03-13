@@ -2415,7 +2415,7 @@ function MainSpoonerUpdates()
 					z = spawnPos.z,
 					pitch = 0.0,
 					roll = 0.0,
-					yaw = yaw2,
+					yaw = yaw2 + 180.0,
 					collisionDisabled = false,
 					isVisible = true,
 					outfit = -1,
