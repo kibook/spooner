@@ -155,7 +155,7 @@ input:disabled {
 	right: 1%;
 	height: 95%;
 	transform: translate(0, -50%);
-	background-color: rgba(0, 0, 0, 0.5);
+	background-color: rgba(0, 0, 0, 0.9);
 	color: white;
 	font-size: 1vw;
 	padding: 0.5vh 0.5vw;
