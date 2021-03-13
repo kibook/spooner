@@ -1329,6 +1329,13 @@ function LoadDatabase(db, relative, replace)
 			yaw = spawn.props.yaw * 1.0
 		end
 
+		spawn.props.x = x
+		spawn.props.y = y
+		spawn.props.z = z
+		spawn.props.pitch = pitch
+		spawn.props.roll = roll
+		spawn.props.yaw = yaw
+
 		if spawn.props.type == 1 then
 			entity = SpawnPed(spawn.props)
 		elseif spawn.props.type == 2 then
