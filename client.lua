@@ -158,6 +158,10 @@ function IsPedUsingScenarioHash(ped, scenarioHash)
 	return Citizen.InvokeNative(0x34D6AC1157C8226C, ped, scenarioHash)
 end
 
+function IsPropSetFullyLoaded(propSet)
+	return Citizen.InvokeNative(0xF42DB680A8B2A4D9, propSet)
+end
+
 function EnableSpoonerMode()
 	local x, y, z = table.unpack(GetGameplayCamCoord())
 	local pitch, roll, yaw = table.unpack(GetGameplayCamRot(2))
@@ -728,6 +732,17 @@ function SpawnPed(props)
 	return ped
 end
 
+function WaitForPropSetToLoad(propSet)
+	local timeWaited = 0
+
+	while not IsPropSetFullyLoaded(propSet) and timeWaited <= 500 do
+		Wait(100)
+		timeWaited = timeWaited + 100
+	end
+
+	return true
+end
+
 function SpawnPropset(name, model, x, y, z, heading)
 	if not Permissions.spawn.propset then
 		return nil
@@ -737,12 +752,14 @@ function SpawnPropset(name, model, x, y, z, heading)
 		return nil
 	end
 
+	-- Spawn the propset
 	RequestPropset(model)
+
 	while not HasPropsetLoaded(model) do
 		Wait(0)
 	end
 
-	local propset = CreatePropset(model, x, y, z, 0, heading, 0.0, true, false)
+	local propset = CreatePropset(model, x, y, z, 0, heading, 0.0, false, false)
 
 	ReleasePropset(hash)
 
@@ -750,26 +767,28 @@ function SpawnPropset(name, model, x, y, z, heading)
 		return nil
 	end
 
-	-- FIXME: Eventually, individual objects from the propset should be stored in the DB instead of the propset itself, but I'm not sure how to use GetEntitiesFromPropset properly so that it works consistently.
-	AddEntityToDatabase(propset, name)
-	Database[propset].type = 4
+	-- Give the propset time to fully load
+	WaitForPropSetToLoad(propset)
 
-	return propset
+	-- Objects spawned as part of a propset are not networked, so clone
+	-- those objects into your DB as new, networked objects, then delete
+	-- the propset.
+	local itemset = CreateItemset(true)
+	local size = GetEntitiesFromPropset(propset, itemset, 0, false, false)
 
-	--local itemset = CreateItemset(true)
-	--GetEntitiesFromPropset(propset, itemset, 0, false, false)
-	--local size = GetItemsetSize(itemset)
+	if size > 0 then
+		for i = 0, size - 1 do
+			CloneEntity(GetIndexedItemInItemset(i, itemset))
+		end
+	end
 
-	--if size == 0 then
-	--	DeletePropset(propset, true, true)
-	--else
-	--	for i = 0, size - 1 do
-	--		AddEntityToDatabase(GetIndexedItemInItemset(i, itemset))
-	--	end
-	--end
-	--DeletePropset(propset, false, false)
-	--
-	--return nil
+	if IsItemsetValid(itemset) then
+		DestroyItemset(itemset)
+	end
+
+	DeletePropset(propset, false, false)
+
+	return nil
 end
 
 function SpawnPickup(name, model, x, y, z)
