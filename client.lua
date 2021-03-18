@@ -66,6 +66,7 @@ Permissions.properties.invincible = false
 Permissions.properties.visible = false
 Permissions.properties.gravity = false
 Permissions.properties.collision = false
+Permissions.properties.clone = false
 Permissions.properties.attachments = false
 Permissions.properties.lights = false
 Permissions.properties.registerAsNetworked = false
@@ -83,6 +84,7 @@ Permissions.properties.ped.resurrect = false
 Permissions.properties.ped.ai = false
 Permissions.properties.ped.knockOffProps = false
 Permissions.properties.ped.walkStyle = false
+Permissions.properties.ped.clone = false
 Permissions.properties.ped.cloneToTarget = false
 Permissions.properties.ped.lookAtEntity = false
 Permissions.properties.ped.clean = false
@@ -1552,10 +1554,12 @@ function CloneEntity(entity)
 end
 
 RegisterNUICallback('cloneEntity', function(data, cb)
-	local clone = CloneEntity(data.handle)
+	if Permissions.properties.clone and CanModifyEntity(data.handle) then
+		local clone = CloneEntity(data.handle)
 
-	if clone then
-		OpenPropertiesMenuForEntity(clone)
+		if clone then
+			OpenPropertiesMenuForEntity(clone)
+		end
 	end
 
 	cb({})
@@ -2270,6 +2274,20 @@ RegisterNUICallback('selectEntity', function(data, cb)
 	if CanModifyEntity(data.handle) then
 		AttachedEntity = data.handle
 	end
+	cb({})
+end)
+
+function TryClonePed(handle)
+	if Permissions.properties.ped.clone and CanModifyEntity(handle) then
+		RequestControl(handle)
+		local clone = CloneEntity(handle)
+		Citizen.Wait(500)
+		ClonePedToTarget(handle, clone)
+	end
+end
+
+RegisterNUICallback('clonePed', function(data, cb)
+	TryClonePed(data.handle)
 	cb({})
 end)
 

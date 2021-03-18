@@ -1376,55 +1376,58 @@ function openAttachToMenu(fromEntity, data) {
 function updatePermissions(data) {
 	var permissions = JSON.parse(data.permissions);
 
-	document.querySelector('#spawn-menu-peds').disabled = !permissions.spawn.ped;
-	document.querySelector('#spawn-menu-vehicles').disabled = !permissions.spawn.vehicle;
-	document.querySelector('#spawn-menu-objects').disabled = !permissions.spawn.object;
-	document.querySelector('#spawn-menu-propsets').disabled = !permissions.spawn.propset;
-	document.querySelector('#spawn-menu-pickups').disabled = !permissions.spawn.pickup;
+	document.getElementById('spawn-menu-peds').disabled = !permissions.spawn.ped;
+	document.getElementById('spawn-menu-vehicles').disabled = !permissions.spawn.vehicle;
+	document.getElementById('spawn-menu-objects').disabled = !permissions.spawn.object;
+	document.getElementById('spawn-menu-propsets').disabled = !permissions.spawn.propset;
+	document.getElementById('spawn-menu-pickups').disabled = !permissions.spawn.pickup;
 	document.querySelectorAll('.spawn-by-name').forEach(e => e.disabled = !permissions.spawn.byName);
 
-	document.querySelector('#properties-freeze').disabled = !permissions.properties.freeze;
-	document.querySelector('#properties-unfreeze').disabled = !permissions.properties.freeze;
-	document.querySelector('#properties-x').disabled = !permissions.properties.position;
-	document.querySelector('#properties-y').disabled = !permissions.properties.position;
-	document.querySelector('#properties-z').disabled = !permissions.properties.position;
-	document.querySelector('#properties-place-here').disabled = !permissions.properties.position;
-	document.querySelector('#properties-goto').disabled = !permissions.properties.goTo;
-	document.querySelector('#properties-pitch').disabled = !permissions.properties.rotation;
-	document.querySelector('#properties-roll').disabled = !permissions.properties.rotation;
-	document.querySelector('#properties-yaw').disabled = !permissions.properties.rotation;
-	document.querySelector('#properties-reset-rotation').disabled = !permissions.properties.rotation;
-	document.querySelector('#properties-health').disabled = !permissions.properties.health;
-	document.querySelector('#properties-invincible-on').disabled = !permissions.properties.invincible;
-	document.querySelector('#properties-invincible-off').disabled = !permissions.properties.invincible;
-	document.querySelector('#properties-visible').disabled = !permissions.properties.visible;
-	document.querySelector('#properties-invisible').disabled = !permissions.properties.visible;
-	document.querySelector('#properties-gravity-on').disabled = !permissions.properties.gravity;
-	document.querySelector('#properties-gravity-off').disabled = !permissions.properties.gravity;
-	document.querySelector('#properties-collision-off').disabled = !permissions.properties.collision;
-	document.querySelector('#properties-collision-on').disabled = !permissions.properties.collision;
-	document.querySelector('#properties-attach').disabled = !permissions.properties.attachments;
-	document.querySelector('#properties-player-model').disabled = !permissions.properties.ped.changeModel;
-	document.querySelector('#properties-outfit').disabled = !permissions.properties.ped.outfit;
-	document.querySelector('#properties-add-to-group').disabled = !permissions.properties.ped.group;
-	document.querySelector('#properties-remove-from-group').disabled = !permissions.properties.ped.group;
-	document.querySelector('#properties-scenario').disabled = !permissions.properties.ped.scenario;
-	document.querySelector('#properties-animation').disabled = !permissions.properties.ped.animation;
-	document.querySelector('#properties-clear-ped-tasks').disabled = !permissions.properties.ped.clearTasks;
-	document.querySelector('#properties-clear-ped-tasks-immediately').disabled = !permissions.properties.ped.clearTasks;
-	document.querySelector('#properties-give-weapon').disabled = !permissions.properties.ped.weapon;
-	document.querySelector('#properties-remove-all-weapons').disabled = !permissions.properties.ped.weapon;
-	document.querySelector('#properties-set-on-mount').disabled = !permissions.properties.ped.mount;
-	document.querySelector('#properties-resurrect-ped').disabled = !permissions.properties.ped.resurrect;
-	document.querySelector('#properties-ai-on').disabled = !permissions.properties.ped.ai;
-	document.querySelector('#properties-ai-off').disabled = !permissions.properties.ped.ai;
-	document.querySelector('#properties-knock-off-props').disabled = !permissions.properties.ped.knockOffProps;
-	document.querySelector('#properties-repair-vehicle').disabled = !permissions.properties.vehicle.repair;
-	document.querySelector('#properties-get-in').disabled = !permissions.properties.vehicle.getin
-	document.querySelector('#properties-engine-on').disabled = !permissions.properties.vehicle.engine
-	document.querySelector('#properties-engine-off').disabled = !permissions.properties.vehicle.engine
-	document.querySelector('#properties-vehicle-lights-on').disabled = !permissions.properties.vehicle.lights;
-	document.querySelector('#properties-vehicle-lights-off').disabled = !permissions.properties.vehicle.lights;
+	document.getElementById('properties-freeze').disabled = !permissions.properties.freeze;
+	document.getElementById('properties-unfreeze').disabled = !permissions.properties.freeze;
+	document.getElementById('properties-x').disabled = !permissions.properties.position;
+	document.getElementById('properties-y').disabled = !permissions.properties.position;
+	document.getElementById('properties-z').disabled = !permissions.properties.position;
+	document.getElementById('properties-place-here').disabled = !permissions.properties.position;
+	document.getElementById('properties-goto').disabled = !permissions.properties.goTo;
+	document.getElementById('properties-pitch').disabled = !permissions.properties.rotation;
+	document.getElementById('properties-roll').disabled = !permissions.properties.rotation;
+	document.getElementById('properties-yaw').disabled = !permissions.properties.rotation;
+	document.getElementById('properties-reset-rotation').disabled = !permissions.properties.rotation;
+	document.getElementById('properties-health').disabled = !permissions.properties.health;
+	document.getElementById('properties-invincible-on').disabled = !permissions.properties.invincible;
+	document.getElementById('properties-invincible-off').disabled = !permissions.properties.invincible;
+	document.getElementById('properties-visible').disabled = !permissions.properties.visible;
+	document.getElementById('properties-invisible').disabled = !permissions.properties.visible;
+	document.getElementById('properties-gravity-on').disabled = !permissions.properties.gravity;
+	document.getElementById('properties-gravity-off').disabled = !permissions.properties.gravity;
+	document.getElementById('properties-collision-off').disabled = !permissions.properties.collision;
+	document.getElementById('properties-collision-on').disabled = !permissions.properties.collision;
+	document.getElementById('properties-clone').disabled = !permissions.properties.clone;
+	document.getElementById('properties-attach').disabled = !permissions.properties.attachments;
+	document.getElementById('properties-player-model').disabled = !permissions.properties.ped.changeModel;
+	document.getElementById('properties-outfit').disabled = !permissions.properties.ped.outfit;
+	document.getElementById('properties-add-to-group').disabled = !permissions.properties.ped.group;
+	document.getElementById('properties-remove-from-group').disabled = !permissions.properties.ped.group;
+	document.getElementById('properties-scenario').disabled = !permissions.properties.ped.scenario;
+	document.getElementById('properties-animation').disabled = !permissions.properties.ped.animation;
+	document.getElementById('properties-clear-ped-tasks').disabled = !permissions.properties.ped.clearTasks;
+	document.getElementById('properties-clear-ped-tasks-immediately').disabled = !permissions.properties.ped.clearTasks;
+	document.getElementById('properties-give-weapon').disabled = !permissions.properties.ped.weapon;
+	document.getElementById('properties-remove-all-weapons').disabled = !permissions.properties.ped.weapon;
+	document.getElementById('properties-set-on-mount').disabled = !permissions.properties.ped.mount;
+	document.getElementById('properties-resurrect-ped').disabled = !permissions.properties.ped.resurrect;
+	document.getElementById('properties-ai-on').disabled = !permissions.properties.ped.ai;
+	document.getElementById('properties-ai-off').disabled = !permissions.properties.ped.ai;
+	document.getElementById('properties-knock-off-props').disabled = !permissions.properties.ped.knockOffProps;
+	document.getElementById('properties-clone-ped').disabled = !permissions.properties.clone;
+	document.getElementById('properties-clone-to-target').disabled = !permissions.properties.ped.cloneToTarget;
+	document.getElementById('properties-repair-vehicle').disabled = !permissions.properties.vehicle.repair;
+	document.getElementById('properties-get-in').disabled = !permissions.properties.vehicle.getin
+	document.getElementById('properties-engine-on').disabled = !permissions.properties.vehicle.engine
+	document.getElementById('properties-engine-off').disabled = !permissions.properties.vehicle.engine
+	document.getElementById('properties-vehicle-lights-on').disabled = !permissions.properties.vehicle.lights;
+	document.getElementById('properties-vehicle-lights-off').disabled = !permissions.properties.vehicle.lights;
 	document.getElementById('properties-register-as-networked').disabled = !permissions.properties.registerAsNetworked;
 }
 
@@ -2314,6 +2317,12 @@ window.addEventListener('load', function() {
 
 	document.getElementById('properties-select').addEventListener('click', function(event) {
 		sendMessage('selectEntity', {
+			handle: currentEntity()
+		});
+	});
+
+	document.getElementById('properties-clone-ped').addEventListener('click', function(event) {
+		sendMessage('clonePed', {
 			handle: currentEntity()
 		});
 	});
