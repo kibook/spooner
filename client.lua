@@ -2773,30 +2773,26 @@ function UpdateDbEntities()
 			if properties.scenario or properties.animation then
 				if Permissions.properties.ped.clearTasks then
 					if not ClearTasksPrompt:isEnabled() then
-						ClearTasksPrompt:setEnabled(true)
-						ClearTasksPrompt:setVisible(true)
+						ClearTasksPrompt:setEnabledAndVisible(true)
 					end
 					enableSpoonerPrompts = true
 				end
 			else
 				if ClearTasksPrompt:isEnabled() then
-					ClearTasksPrompt:setEnabled(false)
-					ClearTasksPrompt:setVisible(false)
+					ClearTasksPrompt:setEnabledAndVisible(false)
 				end
 			end
 
 			if properties.attachment.to ~= 0 then
 				if Permissions.properties.attachments then
 					if not DetachPrompt:isEnabled() then
-						DetachPrompt:setEnabled(true)
-						DetachPrompt:setVisible(true)
+						DetachPrompt:setEnabledAndVisible(true)
 					end
 					enableSpoonerPrompts = true
 				end
 			else
 				if DetachPrompt:isEnabled() then
-					DetachPrompt:setEnabled(false)
-					DetachPrompt:setVisible(false)
+					DetachPrompt:setEnabledAndVisible(false)
 				end
 			end
 
