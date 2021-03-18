@@ -16,6 +16,10 @@ Tool for spawning, placing, and removing entities in RedM, inspired by Menyoo's 
 
 [![Object Spooner Example](https://i.imgur.com/HLzNYUIm.jpg)](https://imgur.com/HLzNYUI)
 
+# Requirements
+
+- [uiprompt](https://github.com/kibook/redm-uiprompt)
+
 # Install
 
 1. Place in the resources directory.

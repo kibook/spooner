@@ -17,6 +17,7 @@ shared_scripts {
 }
 
 client_scripts {
+	'@uiprompt/uiprompt.lua',
 	'peds.lua',
 	'vehicles.lua',
 	'objects.lua',
