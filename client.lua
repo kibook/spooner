@@ -2700,7 +2700,7 @@ function MainSpoonerUpdates()
 				RequestControl(entity)
 
 				if Database[entity] and Database[entity].attachment.to > 0 then
-					AttachEntity(entity, Database[entity].attachment.to, bone, ex2, ey2, ez2, epitch2, eroll2, eyaw2)
+					AttachEntity(entity, Database[entity].attachment.to, Database[entity].attachment.bone, ex2, ey2, ez2, epitch2, eroll2, eyaw2)
 				else
 					if posChanged then
 						SetEntityCoordsNoOffset(entity, ex2, ey2, ez2)
