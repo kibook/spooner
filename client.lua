@@ -751,7 +751,7 @@ function SpawnPed(props)
 
 	if props.pedConfigFlags then
 		for flag, value in pairs(props.pedConfigFlags) do
-			SetPedConfigFlag(ped, flag, value)
+			SetPedConfigFlag(ped, tonumber(flag), value)
 		end
 	end
 
