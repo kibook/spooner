@@ -1,15 +1,15 @@
 local Database = {}
 
-local Cam = nil
+local Cam
 local Speed = Config.Speed
 local AdjustSpeed = Config.AdjustSpeed
 local RotateSpeed = Config.RotateSpeed
-local AttachedEntity = nil
+local AttachedEntity
 local RotateMode = 2
 local AdjustMode = 4
 local SpeedMode = 0
 local PlaceOnGround = false
-local CurrentSpawn = nil
+local CurrentSpawn
 local ShowControls = true
 
 local SpoonerPrompts = UipromptGroup:new("Spooner", false)
@@ -391,22 +391,15 @@ function GetLiveEntityProperties(entity)
 		outfit = -1,
 		isInGroup = IsPedGroupMember(entity, GetPlayerGroup(PlayerId())),
 		collisionDisabled = GetEntityCollisionDisabled(entity),
-		lightsIntensity = nil,
-		lightsColour = nil,
-		lightsType = nil,
-		animation = nil,
-		scenario = nil,
 		blockNonTemporaryEvents = false,
 		isSelf = entity == PlayerPedId(),
 		playerName = player and GetPlayerName(player),
 		weapons = {},
 		isFrozen = IsEntityFrozen(entity),
 		isVisible = IsEntityVisible(entity),
-		scale = nil,
 		pedConfigFlags = type == 1 and GetPedConfigFlags(entity) or nil,
 		attachment = {
 			to = GetEntityAttachedTo(entity),
-			bone = nil,
 			x = 0.0,
 			y = 0.0,
 			z = 0.0,
@@ -1551,7 +1544,7 @@ end)
 
 function CloneEntity(entity)
 	local props = GetEntityProperties(entity)
-	local clone = nil
+	local clone
 
 	if props.type == 1 then
 		clone = SpawnPed(props)
@@ -1839,7 +1832,6 @@ function TryDetach(handle)
 		if EntityIsInDatabase(handle) then
 			AddEntityToDatabase(handle, nil, {
 				to = 0,
-				bone = nil,
 				x = 0.0,
 				y = 0.0,
 				z = 0.0,
@@ -2537,12 +2529,7 @@ function MainSpoonerUpdates()
 					isVisible = true,
 					outfit = -1,
 					isInGroup = false,
-					animation = nil,
-					scenario = nil,
-					blockNonTemporaryEvents = false,
-					weapons = nil,
-					walkStyle = nil,
-					scale = nil
+					blockNonTemporaryEvents = false
 				}
 
 			elseif CurrentSpawn.type == 2 then
