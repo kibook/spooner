@@ -359,16 +359,27 @@ function FindBoneName(entity, boneIndex)
 	return boneIndex
 end
 
+function GetPedConfigFlags(ped)
+	local flags = {}
+
+	for i = 0, 600 do
+		flags[i] = GetPedConfigFlag(ped, i)
+	end
+
+	return flags
+end
+
 function GetLiveEntityProperties(entity)
 	local model = GetEntityModel(entity)
 	local x, y, z = table.unpack(GetEntityCoords(entity))
 	local pitch, roll, yaw = table.unpack(GetEntityRotation(entity, 2))
 	local isPlayer = IsPedAPlayer(entity)
 	local player = isPlayer and GetPlayerFromPed(entity)
+	local type = GetEntityType(entity)
 
 	return {
 		name = GetModelName(model),
-		type = GetEntityType(entity),
+		type = type,
 		model = model,
 		x = x,
 		y = y,
@@ -392,6 +403,7 @@ function GetLiveEntityProperties(entity)
 		isFrozen = IsEntityFrozen(entity),
 		isVisible = IsEntityVisible(entity),
 		scale = nil,
+		pedConfigFlags = type == 1 and GetPedConfigFlags(entity) or nil,
 		attachment = {
 			to = GetEntityAttachedTo(entity),
 			bone = nil,
@@ -735,6 +747,12 @@ function SpawnPed(props)
 
 	if props.scale then
 		SetPedScale(ped, props.scale)
+	end
+
+	if props.pedConfigFlags then
+		for flag, value in pairs(props.pedConfigFlags) do
+			SetPedConfigFlag(ped, flag, value)
+		end
 	end
 
 	AddEntityToDatabase(ped, props.name)
@@ -2292,24 +2310,26 @@ RegisterNUICallback('clonePed', function(data, cb)
 	cb({})
 end)
 
-function GetPedConfigFlags(ped)
-	local flags = {}
+function GetPedConfigFlagsWithDescr(ped)
+	local flags = GetPedConfigFlags(ped)
 
-	for i = 0, 600 do
-		local descr = PedConfigFlags[i]
+	local flagsWithDescr = {}
+
+	for flag, value in pairs(flags) do
+		local descr = PedConfigFlags[flag]
 
 		if descr then
-			flags[tostring(i)] = {descr = descr, value = GetPedConfigFlag(ped, i)}
-		elseif GetPedConfigFlag(ped, i) then
-			flags[tostring(i)] = {descr = "", value = true}
+			flagsWithDescr[tostring(flag)] = {descr = descr, value = value}
+		elseif value then
+			flagsWithDescr[tostring(flag)] = {descr = "", value = true}
 		end
 	end
 
-	return flags
+	return flagsWithDescr
 end
 
 RegisterNUICallback('getPedConfigFlags', function(data, cb)
-	cb(GetPedConfigFlags(data.handle))
+	cb(GetPedConfigFlagsWithDescr(data.handle))
 end)
 
 function TrySetPedConfigFlag(handle, flag, value)
@@ -2321,7 +2341,7 @@ end
 
 RegisterNUICallback('setPedConfigFlag', function(data, cb)
 	TrySetPedConfigFlag(data.handle, data.flag, data.value)
-	cb(GetPedConfigFlags(data.handle))
+	cb(GetPedConfigFlagsWithDescr(data.handle))
 end)
 
 -- Temporary function to migrate old kvs keys of DBs to the new kvs key format
