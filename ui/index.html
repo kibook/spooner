@@ -429,6 +429,9 @@
 					<div class="label">Scale (local)</div>
 					<input type="number" id="properties-scale" min="0.1" max="10.0" step="0.1" value="1.0">
 				</div>
+				<div class="property local">
+					<button id="properties-config-flags">Config Flags</button>
+				</div>
 			</div>
 			<button id="ped-options-menu-close">Back</button>
 		</div>
@@ -608,6 +611,16 @@
 			<div id="player-model-list" class="list"></div>
 			<button id="player-model-spawn-by-name" class="spawn-by-name">Spawn By Name</button>
 			<button id="player-model-menu-close-btn">Back</button>
+		</div>
+		<div id="config-flags-menu" class="menu">
+			<div id="config-flags-list" class="list"></div>
+			<div class="add-config-flag-container">
+				<input id="config-flag" type="number" min="0" step="1" value="1">
+				<button id="add-config-flag">
+					<i class="fas fa-plus"></i>
+				</button>
+			</div>
+			<button id="close-config-flags-menu">Back</button>
 		</div>
 		<div id="help-menu">
 			<h1>Object Spooner Help</h1>

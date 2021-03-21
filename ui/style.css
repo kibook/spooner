@@ -435,3 +435,18 @@ textarea {
 .arrow-keys div:first-child {
 	grid-column: 1 / 4;
 }
+
+#config-flags-list {
+	display: grid;
+	grid-template-columns: auto max-content;
+	grid-gap: 0.5vh 0.5vw;
+	text-align: right;
+}
+
+.add-config-flag-container {
+	display: flex;
+}
+
+#config-flag {
+	flex-flow: 1;
+}

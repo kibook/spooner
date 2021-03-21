@@ -1489,6 +1489,39 @@ function hideControls() {
 	document.getElementById('controls').style.display = 'none';
 }
 
+function populatePedConfigFlagsList(flags) {
+	var configFlagsList = document.getElementById('config-flags-list');
+
+	configFlagsList.innerHTML = '';
+
+	flags.forEach(flag => {
+		var div = document.createElement('div');
+		div.className = 'config-flag';
+
+		var flagDiv = document.createElement('div');
+		flagDiv.className = 'config-flag-number';
+		flagDiv.innerHTML = flag;
+
+		var unsetDiv = document.createElement('div');
+		unsetDiv.className = 'config-flag-unset';
+
+		var unsetButton = document.createElement('button');
+		unsetButton.innerHTML = '<i class="fas fa-times"></i>';
+		unsetButton.addEventListener('click', event => {
+			sendMessage('setPedConfigFlag', {
+				handle: currentEntity(),
+				flag: flag,
+				value: false
+			}).then(resp => resp.json()).then(resp => populatePedConfigFlagsList(resp));
+		});
+
+		unsetDiv.appendChild(unsetButton);
+
+		configFlagsList.appendChild(flagDiv);
+		configFlagsList.appendChild(unsetDiv);
+	});
+}
+
 window.addEventListener('message', function(event) {
 	switch (event.data.type) {
 		case 'showSpoonerHud':
@@ -2325,5 +2358,30 @@ window.addEventListener('load', function() {
 		sendMessage('clonePed', {
 			handle: currentEntity()
 		});
+	});
+
+	document.getElementById('properties-config-flags').addEventListener('click', function(event) {
+		sendMessage('getPedConfigFlags', {
+			handle: currentEntity()
+		}).then(resp => resp.json()).then(resp => {
+			populatePedConfigFlagsList(resp);
+			document.getElementById('ped-options-menu').style.display = 'none';
+			document.getElementById('config-flags-menu').style.display = 'flex';
+		});
+	});
+
+	document.getElementById('close-config-flags-menu').addEventListener('click', function(event) {
+		document.getElementById('config-flags-menu').style.display = 'none';
+		document.getElementById('ped-options-menu').style.display = 'flex';
+	});
+
+	document.getElementById('add-config-flag').addEventListener('click', function(event) {
+		var flag = parseInt(document.getElementById('config-flag').value);
+
+		sendMessage('setPedConfigFlag', {
+			handle: currentEntity(),
+			flag: flag,
+			value: true
+		}).then(resp => resp.json()).then(resp => populatePedConfigFlagsList(resp));
 	});
 });

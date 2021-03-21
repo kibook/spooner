@@ -89,6 +89,7 @@ Permissions.properties.ped.cloneToTarget = false
 Permissions.properties.ped.lookAtEntity = false
 Permissions.properties.ped.clean = false
 Permissions.properties.ped.scale = false
+Permissions.properties.ped.configFlags = false
 
 Permissions.properties.vehicle = {}
 Permissions.properties.vehicle.repair = false
@@ -2289,6 +2290,34 @@ end
 RegisterNUICallback('clonePed', function(data, cb)
 	TryClonePed(data.handle)
 	cb({})
+end)
+
+function GetPedConfigFlags(ped)
+	local flags = {}
+
+	for i = 0, 1000 do
+		if GetPedConfigFlag(ped, i) then
+			table.insert(flags, i)
+		end
+	end
+
+	return flags
+end
+
+RegisterNUICallback('getPedConfigFlags', function(data, cb)
+	cb(GetPedConfigFlags(data.handle))
+end)
+
+function TrySetPedConfigFlag(handle, flag, value)
+	if Permissions.properties.ped.configFlags and CanModifyEntity(handle) then
+		RequestControl(handle)
+		SetPedConfigFlag(handle, flag, value)
+	end
+end
+
+RegisterNUICallback('setPedConfigFlag', function(data, cb)
+	TrySetPedConfigFlag(data.handle, data.flag, data.value)
+	cb(GetPedConfigFlags(data.handle))
 end)
 
 -- Temporary function to migrate old kvs keys of DBs to the new kvs key format
