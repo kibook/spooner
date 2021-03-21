@@ -192,7 +192,7 @@ input:disabled {
 .list {
 	flex-grow: 1;
 	overflow: auto;
-	padding: 0.5vh 0;
+	padding: 0.5vh 0.25vw 0.5vh 0;
 }
 
 ::-webkit-scrollbar {
@@ -438,7 +438,7 @@ textarea {
 
 #config-flags-list {
 	display: grid;
-	grid-template-columns: auto max-content;
+	grid-template-columns: max-content auto max-content;
 	grid-gap: 0.5vh 0.5vw;
 	text-align: right;
 }
@@ -447,6 +447,22 @@ textarea {
 	display: flex;
 }
 
+.config-flag {
+	display: contents;
+}
+
+.config-flag.off {
+	color: #555;
+}
+
+#config-flag-label {
+	padding-right: 0.25vw;
+}
+
+.config-flag-set button {
+	border: none;
+}
+
 #config-flag {
-	flex-flow: 1;
+	flex-grow: 1;
 }

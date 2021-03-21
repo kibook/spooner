@@ -1494,31 +1494,55 @@ function populatePedConfigFlagsList(flags) {
 
 	configFlagsList.innerHTML = '';
 
-	flags.forEach(flag => {
+	Object.keys(flags).forEach(key => {
+		var flag = flags[key];
+
 		var div = document.createElement('div');
-		div.className = 'config-flag';
+		if (flag.value) {
+			div.className = 'config-flag on';
+		} else {
+			div.className = 'config-flag off';
+		}
 
 		var flagDiv = document.createElement('div');
 		flagDiv.className = 'config-flag-number';
-		flagDiv.innerHTML = flag;
+		flagDiv.innerHTML = key;
 
-		var unsetDiv = document.createElement('div');
-		unsetDiv.className = 'config-flag-unset';
+		var descrDiv = document.createElement('div');
+		descrDiv.className = 'config-flag-descr';
+		descrDiv.innerHTML = flag.descr;
 
-		var unsetButton = document.createElement('button');
-		unsetButton.innerHTML = '<i class="fas fa-times"></i>';
-		unsetButton.addEventListener('click', event => {
-			sendMessage('setPedConfigFlag', {
-				handle: currentEntity(),
-				flag: flag,
-				value: false
-			}).then(resp => resp.json()).then(resp => populatePedConfigFlagsList(resp));
-		});
+		var setDiv = document.createElement('div');
+		setDiv.className = 'config-flag-set';
 
-		unsetDiv.appendChild(unsetButton);
+		var setButton = document.createElement('button');
+		if (flag.value) {
+			setButton.innerHTML = '<i class="fas fa-toggle-on"></i>';
+			setButton.addEventListener('click', event => {
+				sendMessage('setPedConfigFlag', {
+					handle: currentEntity(),
+					flag: parseInt(key),
+					value: false
+				}).then(resp => resp.json()).then(resp => populatePedConfigFlagsList(resp));
+			});
+		} else {
+			setButton.innerHTML = '<i class="fas fa-toggle-off"></i>';
+			setButton.addEventListener('click', event => {
+				sendMessage('setPedConfigFlag', {
+					handle: currentEntity(),
+					flag: parseInt(key),
+					value: true
+				}).then(resp => resp.json()).then(resp => populatePedConfigFlagsList(resp));
+			});
+		}
 
-		configFlagsList.appendChild(flagDiv);
-		configFlagsList.appendChild(unsetDiv);
+		setDiv.appendChild(setButton);
+
+		div.appendChild(flagDiv);
+		div.appendChild(descrDiv);
+		div.appendChild(setDiv);
+
+		configFlagsList.appendChild(div);
 	});
 }
 

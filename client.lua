@@ -2295,9 +2295,13 @@ end)
 function GetPedConfigFlags(ped)
 	local flags = {}
 
-	for i = 0, 1000 do
-		if GetPedConfigFlag(ped, i) then
-			table.insert(flags, i)
+	for i = 0, 600 do
+		local descr = PedConfigFlags[i]
+
+		if descr then
+			flags[tostring(i)] = {descr = descr, value = GetPedConfigFlag(ped, i)}
+		elseif GetPedConfigFlag(ped, i) then
+			flags[tostring(i)] = {descr = "", value = true}
 		end
 	end
 

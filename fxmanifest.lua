@@ -28,6 +28,7 @@ client_scripts {
 	'pickups.lua',
 	'bones.lua',
 	'walkstyles.lua',
+	'pedConfigFlags.lua',
 	'client.lua'
 }
 
