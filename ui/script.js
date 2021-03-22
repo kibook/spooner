@@ -2408,4 +2408,16 @@ window.addEventListener('load', function() {
 			value: true
 		}).then(resp => resp.json()).then(resp => populatePedConfigFlagsList(resp));
 	});
+
+	document.getElementById('animation-stop').addEventListener('click', function(event) {
+		sendMessage('clearPedTasks', {
+			handle: currentEntity()
+		});
+	});
+
+	document.getElementById('scenario-stop').addEventListener('click', function(event) {
+		sendMessage('clearPedTasks', {
+			handle: currentEntity()
+		});
+	});
 });
