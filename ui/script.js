@@ -246,12 +246,13 @@ function closePedMenu(selected) {
 			modelName: name
 		});
 
-		var entries = document.querySelectorAll('#ped-list .object');
-
-		for (i = 0; i < entries.length; ++i) {
-			entries[i].className = 'object';
-		}
-
+		document.querySelectorAll('#ped-list .object').forEach(e => {
+			if (favourites.peds[e.getAttribute('data-model')]) {
+				e.className = 'object favourite';
+			} else {
+				e.className = 'object';
+			}
+		});
 		selected.className = 'object selected';
 	} else {
 		document.querySelector('#spawn-menu').style.display = 'flex';
@@ -269,12 +270,13 @@ function closeVehicleMenu(selected) {
 			modelName: name
 		});
 
-		var entries = document.querySelectorAll('#vehicle-list .object');
-
-		for (i = 0; i < entries.length; ++i) {
-			entries[i].className = 'object';
-		}
-
+		document.querySelectorAll('#vehicle-list .object').forEach(e => {
+			if (favourites.vehicles[e.getAttribute('data-model')]) {
+				e.className = 'object favourite';
+			} else {
+				e.className = 'object';
+			}
+		});
 		selected.className = 'object selected';
 	} else {
 		document.querySelector('#spawn-menu').style.display = 'flex';
@@ -292,12 +294,13 @@ function closeObjectMenu(selected) {
 			modelName: name
 		});
 
-		var entries = document.querySelectorAll('#object-list .object');
-
-		for (i = 0; i < entries.length; ++i) {
-			entries[i].className = 'object';
-		}
-
+		document.querySelectorAll('#object-list .object').forEach(e => {
+			if (favourites.objects[e.getAttribute('data-model')]) {
+				e.className = 'object favourite';
+			} else {
+				e.className = 'object';
+			}
+		});
 		selected.className = 'object selected';
 	} else {
 		document.querySelector('#spawn-menu').style.display = 'flex';
@@ -315,12 +318,13 @@ function closePropsetMenu(selected) {
 			modelName: name
 		});
 
-		var entries = document.querySelectorAll('#propset-list .object');
-
-		for (i = 0; i < entries.length; ++i) {
-			entries[i].className = 'object';
-		}
-
+		document.querySelectorAll('#propset-list .object').forEach(e => {
+			if (favourites.propsets[e.getAttribute('data-model')]) {
+				e.className = 'object favourite';
+			} else {
+				e.className = 'object';
+			}
+		});
 		selected.className = 'object selected';
 	} else {
 		document.querySelector('#spawn-menu').style.display = 'flex';
@@ -338,12 +342,13 @@ function closePickupMenu(selected) {
 			modelName: name
 		});
 
-		var entries = document.querySelectorAll('#pickup-list .object');
-
-		for (i = 0; i < entries.length; ++i) {
-			entries[i].className = 'object';
-		}
-
+		document.querySelectorAll('#pickup-list .object').forEach(e => {
+			if (favourites.pickups[e.getAttribute('data-model')]) {
+				e.className = 'object favourite';
+			} else {
+				e.className = 'object';
+			}
+		});
 		selected.className = 'object selected';
 	} else {
 		document.querySelector('#spawn-menu').style.display = 'flex';
@@ -352,7 +357,13 @@ function closePickupMenu(selected) {
 }
 
 function performScenario(scenario) {
-	document.querySelectorAll('#scenario-list .object').forEach(e => e.className = 'object');
+	document.querySelectorAll('#scenario-list .object').forEach(e => {
+		if (favourites.scenarios[e.getAttribute('data-scenario')]) {
+			e.className = 'object favourite';
+		} else {
+			e.className = 'object';
+		}
+	});
 	scenario.className = 'object selected';
 
 	sendMessage('performScenario', {
@@ -369,7 +380,13 @@ function giveWeapon(weapon) {
 }
 
 function playAnimation(animation) {
-	document.querySelectorAll('#animation-list .object').forEach(e => e.className = 'object');
+	document.querySelectorAll('#animation-list .object').forEach(e => {
+		if (favourites.animations[e.getAttribute('data-dict') + ': ' + e.getAttribute('data-name')]) {
+			e.className = 'object favourite';
+		} else {
+			e.className = 'object';
+		}
+	});
 	animation.className = 'object selected';
 
 	sendMessage('playAnimation', {
@@ -391,7 +408,13 @@ function setWalkStyle(selected) {
 		style: selected.getAttribute('data-style')
 	});
 
-	document.querySelectorAll('#walk-style-list .object').forEach(e => e.className = 'object');
+	document.querySelectorAll('#walk-style-list .object').forEach(e => {
+		if (favourites.walkStyles[e.getAttribute('data-base') + ': ' + e.getAttribute('data-style')]) {
+			e.className = 'object favourite';
+		} else {
+			e.className = 'object';
+		}
+	});
 	selected.className = 'object selected';
 }
 
@@ -517,7 +540,13 @@ function populatePlayerModelList(filter) {
 			div.innerHTML = name;
 
 			div.addEventListener('click', function(event) {
-				pedList.querySelectorAll('.object').forEach(e => e.className = 'object');
+				pedList.querySelectorAll('.object').forEach(e => {
+					if (favourites.playerModels[e.getAttribute('data-model')]) {
+						e.className = 'object favourite';
+					} else {
+						e.className = 'object';
+					}
+				});
 				this.className = 'object selected';
 				setPlayerModel(this.getAttribute('data-model'));
 			});
