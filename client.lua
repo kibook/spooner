@@ -14,13 +14,13 @@ local ShowControls = true
 
 local SpoonerPrompts = UipromptGroup:new("Spooner", false)
 
-local ClearTasksPrompt = SpoonerPrompts:addPrompt(`INPUT_INTERACT_NEG`, "Exit Scenario/Animation")
+local ClearTasksPrompt = Uiprompt:new(`INPUT_INTERACT_NEG`, "Exit Scenario/Animation", SpoonerPrompts)
 ClearTasksPrompt:setHoldMode(true)
 ClearTasksPrompt:setOnHoldModeJustCompleted(function()
 	TryClearTasks(PlayerPedId())
 end)
 
-local DetachPrompt = SpoonerPrompts:addPrompt(`INPUT_INTERACT_LEAD_ANIMAL`, "Detach")
+local DetachPrompt = Uiprompt:new(`INPUT_INTERACT_LEAD_ANIMAL`, "Detach", SpoonerPrompts)
 DetachPrompt:setHoldMode(true)
 DetachPrompt:setOnHoldModeJustCompleted(function()
 	TryDetach(PlayerPedId())
