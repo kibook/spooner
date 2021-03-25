@@ -2449,4 +2449,10 @@ window.addEventListener('load', function() {
 			handle: currentEntity()
 		});
 	});
+
+	document.getElementById('properties-go-to-waypoint').addEventListener('click', function(event) {
+		sendMessage('goToWaypoint', {
+			handle: currentEntity()
+		});
+	});
 });

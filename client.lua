@@ -90,6 +90,7 @@ Permissions.properties.ped.lookAtEntity = false
 Permissions.properties.ped.clean = false
 Permissions.properties.ped.scale = false
 Permissions.properties.ped.configFlags = false
+Permissions.properties.ped.goToWaypoint = false
 
 Permissions.properties.vehicle = {}
 Permissions.properties.vehicle.repair = false
@@ -2334,6 +2335,22 @@ end
 RegisterNUICallback('setPedConfigFlag', function(data, cb)
 	TrySetPedConfigFlag(data.handle, data.flag, data.value)
 	cb(GetPedConfigFlagsWithDescr(data.handle))
+end)
+
+function TryGoToWaypoint(handle)
+	if Permissions.properties.ped.goToWaypoint and CanModifyEntity(handle) then
+		RequestControl(handle)
+
+		local coords = GetWaypointCoords()
+		local groundZ = GetHeightmapBottomZForPosition(coords.x, coords.y)
+
+		TaskGoToCoordAnyMeans(handle, coords.x, coords.y, groundZ, 1.0, 0, 0, 0, 0.5)
+	end
+end
+
+RegisterNUICallback('goToWaypoint', function(data, cb)
+	TryGoToWaypoint(data.handle)
+	cb({})
 end)
 
 -- Temporary function to migrate old kvs keys of DBs to the new kvs key format
