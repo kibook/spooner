@@ -91,6 +91,7 @@ Permissions.properties.ped.clean = false
 Permissions.properties.ped.scale = false
 Permissions.properties.ped.configFlags = false
 Permissions.properties.ped.goToWaypoint = false
+Permissions.properties.ped.goToEntity = false
 
 Permissions.properties.vehicle = {}
 Permissions.properties.vehicle.repair = false
@@ -2350,6 +2351,18 @@ end
 
 RegisterNUICallback('goToWaypoint', function(data, cb)
 	TryGoToWaypoint(data.handle)
+	cb({})
+end)
+
+function TryPedGoToEntity(handle, entity)
+	if Permissions.properties.ped.goToEntity and CanModifyEntity(handle) then
+		RequestControl(handle)
+		TaskGoToEntity(handle, entity, -1, 1.0, 1.0, 0.0, 0)
+	end
+end
+
+RegisterNUICallback('pedGoToEntity', function(data, cb)
+	TryPedGoToEntity(data.handle, data.entity)
 	cb({})
 end)
 

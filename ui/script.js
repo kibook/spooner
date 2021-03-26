@@ -2455,4 +2455,14 @@ window.addEventListener('load', function() {
 			handle: currentEntity()
 		});
 	});
+
+	document.getElementById('properties-go-to-entity').addEventListener('click', function(event) {
+		var handle = currentEntity();
+		openEntitySelect('ped-options-menu', function(entity) {
+			sendMessage('pedGoToEntity', {
+				handle: handle,
+				entity: entity
+			});
+		}, handle);
+	});
 });

@@ -71,6 +71,7 @@ AddEventHandler('spooner:init', function()
 	permissions.properties.ped.scale = IsPlayerAceAllowed(source, 'spooner.properties.ped.scale')
 	permissions.properties.ped.configFlags = IsPlayerAceAllowed(source, 'spooner.properties.ped.configFlags')
 	permissions.properties.ped.goToWaypoint = IsPlayerAceAllowed(source, 'spooner.properties.ped.goToWaypoint')
+	permissions.properties.ped.goToEntity = IsPlayerAceAllowed(source, 'spooner.properties.ped.goToEntity')
 
 	permissions.properties.vehicle = {}
 	permissions.properties.vehicle.repair = IsPlayerAceAllowed(source, 'spooner.properties.vehicle.repair')
