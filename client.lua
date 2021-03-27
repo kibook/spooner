@@ -11,6 +11,7 @@ local SpeedMode = 0
 local PlaceOnGround = false
 local CurrentSpawn
 local ShowControls = true
+local KeepSelfInDb = true
 
 local SpoonerPrompts = UipromptGroup:new("Spooner", false)
 
@@ -1038,12 +1039,21 @@ end)
 
 RegisterNUICallback('addEntityToDatabase', function(data, cb)
 	AddEntityToDatabase(data.handle)
+
+	if not KeepSelfInDb and data.handle == PlayerPedId() then
+		KeepSelfInDb = true
+	end
+
 	cb({})
 end)
 
 RegisterNUICallback('removeEntityFromDatabase', function(data, cb)
 	if not Permissions.maxEntities and Permissions.modify.other then
 		RemoveEntityFromDatabase(data.handle)
+
+		if KeepSelfInDb and data.handle == PlayerPedId() then
+			KeepSelfInDb = false
+		end
 	end
 	cb({})
 end)
@@ -2405,12 +2415,6 @@ function CheckControls(func, pad, controls)
 end
 
 function MainSpoonerUpdates()
-	local playerPed = PlayerPedId()
-
-	if not EntityIsInDatabase(playerPed) then
-		AddEntityToDatabase(playerPed)
-	end
-
 	if IsUsingKeyboard(0) and CheckControls(IsDisabledControlJustPressed, 0, Config.ToggleControl) then
 		TriggerServerEvent('spooner:toggle')
 	end
@@ -2837,6 +2841,12 @@ end)
 function UpdateDbEntities()
 	local playerPed = PlayerPedId()
 
+	if KeepSelfInDb and not EntityIsInDatabase(playerPed) then
+		AddEntityToDatabase(playerPed)
+	end
+
+	local enableSpoonerPrompts = false
+
 	for entity, properties in pairs(Database) do
 		if not NetworkGetEntityIsNetworked(entity) then
 			NetworkRegisterEntityAsNetworked(entity)
@@ -2856,8 +2866,6 @@ function UpdateDbEntities()
 
 		-- Show prompts for certain spooner shortcuts on your own ped
 		if entity == playerPed then
-			local enableSpoonerPrompts = false
-
 			if properties.scenario or properties.animation then
 				if Permissions.properties.ped.clearTasks then
 					if not ClearTasksPrompt:isEnabled() then
@@ -2883,16 +2891,16 @@ function UpdateDbEntities()
 					DetachPrompt:setEnabledAndVisible(false)
 				end
 			end
+		end
+	end
 
-			if enableSpoonerPrompts then
-				if not SpoonerPrompts:isActive() then
-					SpoonerPrompts:setActive(true)
-				end
-			else
-				if SpoonerPrompts:isActive() then
-					SpoonerPrompts:setActive(false)
-				end
-			end
+	if enableSpoonerPrompts then
+		if not SpoonerPrompts:isActive() then
+			SpoonerPrompts:setActive(true)
+		end
+	else
+		if SpoonerPrompts:isActive() then
+			SpoonerPrompts:setActive(false)
 		end
 	end
 end
