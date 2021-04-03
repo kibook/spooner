@@ -15,7 +15,7 @@ local KeepSelfInDb = true
 
 local SpoonerPrompts = UipromptGroup:new("Spooner", false)
 
-local ClearTasksPrompt = Uiprompt:new(`INPUT_INTERACT_NEG`, "Exit Scenario/Animation", SpoonerPrompts)
+local ClearTasksPrompt = Uiprompt:new(`INPUT_INTERACT_NEG`, "Clear Tasks", SpoonerPrompts)
 ClearTasksPrompt:setHoldMode(true)
 ClearTasksPrompt:setOnHoldModeJustCompleted(function()
 	TryClearTasks(PlayerPedId())
@@ -2871,6 +2871,7 @@ function UpdateDbEntities()
 					if not ClearTasksPrompt:isEnabled() then
 						ClearTasksPrompt:setEnabledAndVisible(true)
 					end
+
 					enableSpoonerPrompts = true
 				end
 			else
