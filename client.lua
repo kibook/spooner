@@ -182,6 +182,10 @@ function IsPropSetFullyLoaded(propSet)
 	return Citizen.InvokeNative(0xF42DB680A8B2A4D9, propSet)
 end
 
+function PlaceEntityOnGroundProperly(entity, p1)
+	return Citizen.InvokeNative(0x9587913B9E772D29, entity, p1)
+end
+
 function EnableSpoonerMode()
 	local x, y, z = table.unpack(GetGameplayCamCoord())
 	local pitch, roll, yaw = table.unpack(GetGameplayCamRot(2))
@@ -1218,20 +1222,9 @@ function PlacePedOnGroundProperly(ped)
 end
 
 function PlaceOnGroundProperly(entity)
-	local entityType = GetEntityType(entity)
-
 	local r1 = GetEntityRotation(entity, 2)
-
-	if entityType == 1 then
-		PlacePedOnGroundProperly(entity)
-	elseif entityType == 2 then
-		SetVehicleOnGroundProperly(entity)
-	elseif entityType == 3 then
-		PlaceObjectOnGroundProperly(entity)
-	end
-
+	PlaceEntityOnGroundProperly(entity, false)
 	local r2 = GetEntityRotation(entity, 2)
-
 	SetEntityRotation(entity, r2.x, r2.y, r1.z, 2)
 end
 
