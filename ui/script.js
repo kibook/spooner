@@ -1316,13 +1316,17 @@ function attachTo(fromEntity, toEntity) {
 		from: fromEntity,
 		to: toEntity,
 		bone: boneName == '' ? boneIndex : boneName,
-		x: parseFloat(document.querySelector('#attachment-x').value),
-		y: parseFloat(document.querySelector('#attachment-y').value),
-		z: parseFloat(document.querySelector('#attachment-z').value),
-		pitch: parseFloat(document.querySelector('#attachment-pitch').value),
-		roll: parseFloat(document.querySelector('#attachment-roll').value),
-		yaw: parseFloat(document.querySelector('#attachment-yaw').value),
-		keepPos: document.querySelector('#attachment-keep-pos').checked
+		x: parseFloat(document.getElementById('attachment-x').value),
+		y: parseFloat(document.getElementById('attachment-y').value),
+		z: parseFloat(document.getElementById('attachment-z').value),
+		pitch: parseFloat(document.getElementById('attachment-pitch').value),
+		roll: parseFloat(document.getElementById('attachment-roll').value),
+		yaw: parseFloat(document.getElementById('attachment-yaw').value),
+		keepPos: document.getElementById('attachment-keep-pos').checked,
+		useSoftPinning: document.getElementById('attachment-use-soft-pinning').checked,
+		collision: document.getElementById('attachment-collision').checked,
+		vertex: parseInt(document.getElementById('attachment-vertex').value),
+		fixedRot: document.getElementById('attachment-fixed-rot').checked
 	});
 	sendMessage('getDatabase', {handle: fromEntity}).then(resp => resp.json()).then(resp => openAttachToMenu(fromEntity, resp));
 }
@@ -1331,7 +1335,7 @@ function openAttachToMenu(fromEntity, data) {
 	var properties = JSON.parse(data.properties);
 	var database = JSON.parse(data.database);
 
-	var list = document.querySelector('#attach-to-list');
+	var list = document.getElementById('attach-to-list');
 
 	list.innerHTML = '';
 
@@ -1357,7 +1361,7 @@ function openAttachToMenu(fromEntity, data) {
 
 		div.setAttribute('data-handle', handle);
 		div.addEventListener('click', function(event) {
-			document.querySelector('#attachment-options-menu').style.display = 'none';
+			document.getElementById('attachment-options-menu').style.display = 'none';
 			attachTo(fromEntity, toEntity);
 		});
 		list.appendChild(div);
@@ -1372,7 +1376,7 @@ function openAttachToMenu(fromEntity, data) {
 			div.innerHTML = properties.attachment.to.toString(16);
 		}
 		div.addEventListener('click', function(event) {
-			document.querySelector('#attachment-options-menu').style.display = 'none';
+			document.getElementById('attachment-options-menu').style.display = 'none';
 			attachTo(fromEntity, properties.attachment.to);
 		});
 		list.appendChild(div);
@@ -1386,20 +1390,24 @@ function openAttachToMenu(fromEntity, data) {
 		document.getElementById('attachment-bone-name').value = properties.attachment.bone;
 	}
 
-	document.querySelector('#attachment-x').value = properties.attachment.x;
-	document.querySelector('#attachment-y').value = properties.attachment.y;
-	document.querySelector('#attachment-z').value = properties.attachment.z;
-	document.querySelector('#attachment-pitch').value = properties.attachment.pitch;
-	document.querySelector('#attachment-roll').value = properties.attachment.roll;
-	document.querySelector('#attachment-yaw').value = properties.attachment.yaw;
+	document.getElementById('attachment-x').value = properties.attachment.x;
+	document.getElementById('attachment-y').value = properties.attachment.y;
+	document.getElementById('attachment-z').value = properties.attachment.z;
+	document.getElementById('attachment-pitch').value = properties.attachment.pitch;
+	document.getElementById('attachment-roll').value = properties.attachment.roll;
+	document.getElementById('attachment-yaw').value = properties.attachment.yaw;
+	document.getElementById('attachment-use-soft-pinning').value = properties.attachment.useSoftPinning;
+	document.getElementById('attachment-collision').value = properties.attachment.collision;
+	document.getElementById('attachment-vertex').value = properties.attachment.vertex;
+	document.getElementById('attachment-fixed-rot').value = properties.attachment.fixedRot;
 
 	if (properties.attachment.to) {
-		document.querySelector('#attachment-options-detach').style.display = 'block';
+		document.getElementById('attachment-options-detach').style.display = 'block';
 	} else {
-		document.querySelector('#attachment-options-detach').style.display = 'none';
+		document.getElementById('attachment-options-detach').style.display = 'none';
 	}
 
-	document.querySelector('#attachment-options-menu').style.display = 'flex';
+	document.getElementById('attachment-options-menu').style.display = 'flex';
 }
 
 function updatePermissions(data) {
@@ -2011,12 +2019,16 @@ window.addEventListener('load', function() {
 			from: currentEntity(),
 			to: null,
 			bone: boneName == '' ? boneIndex : boneName,
-			x: parseFloat(document.querySelector('#attachment-x').value),
-			y: parseFloat(document.querySelector('#attachment-y').value),
-			z: parseFloat(document.querySelector('#attachment-z').value),
-			pitch: parseFloat(document.querySelector('#attachment-pitch').value),
-			roll: parseFloat(document.querySelector('#attachment-roll').value),
-			yaw: parseFloat(document.querySelector('#attachment-yaw').value),
+			x: parseFloat(document.getElementById('attachment-x').value),
+			y: parseFloat(document.getElementById('attachment-y').value),
+			z: parseFloat(document.getElementById('attachment-z').value),
+			pitch: parseFloat(document.getElementById('attachment-pitch').value),
+			roll: parseFloat(document.getElementById('attachment-roll').value),
+			yaw: parseFloat(document.getElementById('attachment-yaw').value),
+			useSoftPinning: document.getElementById('attachment-use-soft-pinning').checked,
+			collision: document.getElementById('attachment-collision').checked,
+			vertex: parseInt(document.getElementById('attachment-vertex').value),
+			fixedRot: document.getElementById('attachment-fixed-rot').checked,
 			keepPos: false
 		});
 	}));

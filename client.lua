@@ -433,7 +433,7 @@ function AddEntityToDatabase(entity, name, attachment)
 
 	local outfit = Database[entity] and Database[entity].outfit or -1
 
-	local attachBone, attachX, attachY, attachZ, attachPitch, attachRoll, attachYaw
+	local attachBone, attachX, attachY, attachZ, attachPitch, attachRoll, attachYaw, attachSoftPinning, attachCollision, attachVertex, attachFixedRot
 
 	local lightsIntensity = Database[entity] and Database[entity].lightsIntensity or nil
 	local lightsColour = Database[entity] and Database[entity].lightsColour or nil
@@ -451,21 +451,29 @@ function AddEntityToDatabase(entity, name, attachment)
 	local scale = Database[entity] and Database[entity].scale
 
 	if attachment then
-		attachBone  = attachment.bone
-		attachX     = attachment.x
-		attachY     = attachment.y
-		attachZ     = attachment.z
-		attachPitch = attachment.pitch
-		attachRoll  = attachment.roll
-		attachYaw   = attachment.yaw
+		attachBone        = attachment.bone
+		attachX           = attachment.x
+		attachY           = attachment.y
+		attachZ           = attachment.z
+		attachPitch       = attachment.pitch
+		attachRoll        = attachment.roll
+		attachYaw         = attachment.yaw
+		attachSoftPinning = attachment.useSoftPinning
+		attachCollision   = attachment.collision
+		attachVertex      = attachment.vertex
+		attachFixedRot    = attachment.fixedRot
 	else
-		attachBone  = (Database[entity] and Database[entity].attachment.bone)
-		attachX     = (Database[entity] and Database[entity].attachment.x     or 0.0)
-		attachY     = (Database[entity] and Database[entity].attachment.y     or 0.0)
-		attachZ     = (Database[entity] and Database[entity].attachment.z     or 0.0)
-		attachPitch = (Database[entity] and Database[entity].attachment.pitch or 0.0)
-		attachRoll  = (Database[entity] and Database[entity].attachment.roll  or 0.0)
-		attachYaw   = (Database[entity] and Database[entity].attachment.yaw   or 0.0)
+		attachBone        = (Database[entity] and Database[entity].attachment.bone)
+		attachX           = (Database[entity] and Database[entity].attachment.x              or 0.0)
+		attachY           = (Database[entity] and Database[entity].attachment.y              or 0.0)
+		attachZ           = (Database[entity] and Database[entity].attachment.z              or 0.0)
+		attachPitch       = (Database[entity] and Database[entity].attachment.pitch          or 0.0)
+		attachRoll        = (Database[entity] and Database[entity].attachment.roll           or 0.0)
+		attachYaw         = (Database[entity] and Database[entity].attachment.yaw            or 0.0)
+		attachSoftPinning = (Database[entity] and Database[entity].attachment.useSoftPinning or false)
+		attachCollision   = (Database[entity] and Database[entity].attachment.collision      or true)
+		attachVertex      = (Database[entity] and Database[entity].attachment.vertex         or 0)
+		attachFixedRot    = (Database[entity] and Database[entity].attachment.fixedRot       or true)
 	end
 
 	Database[entity] = GetLiveEntityProperties(entity)
@@ -491,6 +499,10 @@ function AddEntityToDatabase(entity, name, attachment)
 	Database[entity].attachment.pitch = attachPitch
 	Database[entity].attachment.roll = attachRoll
 	Database[entity].attachment.yaw = attachYaw
+	Database[entity].attachment.useSoftPinning = attachSoftPinning
+	Database[entity].attachment.collision = attachCollision
+	Database[entity].attachment.vertex = attachVertex
+	Database[entity].attachment.fixedRot = attachFixedRot
 
 	Database[entity].lightsIntensity = lightsIntensity
 	Database[entity].lightsColour = lightsColour
@@ -1286,10 +1298,10 @@ function RemoveDeletedEntity(x, y, z, hash)
 	end
 end
 
-function AttachEntity(from, to, bone, x, y, z, pitch, roll, yaw)
+function AttachEntity(from, to, bone, x, y, z, pitch, roll, yaw, useSoftPinning, collision, vertex, fixedRot)
 	local boneIndex = GetBoneIndex(to, bone)
 
-	AttachEntityToEntity(from, to, boneIndex, x, y, z, pitch, roll, yaw, false, false, true, false, 0, true, false, false)
+	AttachEntityToEntity(from, to, boneIndex, x, y, z, pitch, roll, yaw, false, useSoftPinning, collision, false, vertex, fixedRot, false, false)
 
 	if EntityIsInDatabase(from) then
 		AddEntityToDatabase(from, nil, {
@@ -1300,7 +1312,11 @@ function AttachEntity(from, to, bone, x, y, z, pitch, roll, yaw)
 			z = z,
 			pitch = pitch,
 			roll = roll,
-			yaw = yaw
+			yaw = yaw,
+			useSoftPinning = useSoftPinning,
+			collision = collision,
+			vertex = vertex,
+			fixedRot = fixedRot
 		})
 	end
 end
@@ -1416,12 +1432,16 @@ function LoadDatabase(db, relative, replace)
 			local pitch = spawn.props.attachment.pitch * 1.0
 			local roll  = spawn.props.attachment.roll * 1.0
 			local yaw   = spawn.props.attachment.yaw * 1.0
+			local useSoftPinning = spawn.props.attachment.useSoftPinning
+			local collision = spawn.props.attachment.collision
+			local vertex = spawn.props.attachment.vertex
+			local fixedRot = spawn.props.attachment.fixedRot
 
 			if type(bone) == 'number' then
 				bone = FindBoneName(to, bone)
 			end
 
-			AttachEntity(from, to, bone, x, y, z, pitch, roll, yaw)
+			AttachEntity(from, to, bone, x, y, z, pitch, roll, yaw, useSoftPinning, collision, vertex, fixedRot)
 
 			AddEntityToDatabase(from, nil, {
 				to = to,
@@ -1431,7 +1451,11 @@ function LoadDatabase(db, relative, replace)
 				z = z,
 				pitch = pitch,
 				roll = roll,
-				yaw = yaw
+				yaw = yaw,
+				useSoftPinning = useSoftPinning,
+				collision = collision,
+				vertex = vertex,
+				fixedRot = fixedRot
 			})
 		end
 	end
@@ -1564,7 +1588,7 @@ function CloneEntity(entity)
 	end
 
 	if clone and props.attachment and props.attachment.to ~= 0 then
-		AttachEntity(clone, props.attachment.to, props.attachment.bone, props.attachment.x, props.attachment.y, props.attachment.z, props.attachment.pitch, props.attachment.roll, props.attachment.yaw)
+		AttachEntity(clone, props.attachment.to, props.attachment.bone, props.attachment.x, props.attachment.y, props.attachment.z, props.attachment.pitch, props.attachment.roll, props.attachment.yaw, props.attachment.useSoftPinning, props.attachment.collision, props.attachment.vertex, props.attachment.fixedRot)
 	end
 
 	return clone
@@ -1786,6 +1810,10 @@ RegisterNUICallback('attachTo', function(data, cb)
 		local from = data.from
 		local to = data.to
 		local bone = data.bone
+		local useSoftPinning = data.useSoftPinning
+		local collision = data.collision
+		local vertex = data.vertex
+		local fixedRot = data.fixedRot
 
 		if not to then
 			local props = GetEntityProperties(from)
@@ -1818,7 +1846,7 @@ RegisterNUICallback('attachTo', function(data, cb)
 		end
 
 		RequestControl(from)
-		AttachEntity(from, to, bone, x, y, z, pitch, roll, yaw)
+		AttachEntity(from, to, bone, x, y, z, pitch, roll, yaw, useSoftPinning, collision, vertex, fixedRot)
 	end
 
 	cb({})
@@ -2767,7 +2795,15 @@ function MainSpoonerUpdates()
 				RequestControl(entity)
 
 				if Database[entity] and Database[entity].attachment.to > 0 then
-					AttachEntity(entity, Database[entity].attachment.to, Database[entity].attachment.bone, ex2, ey2, ez2, epitch2, eroll2, eyaw2)
+					AttachEntity(entity,
+						Database[entity].attachment.to,
+						Database[entity].attachment.bone,
+						ex2, ey2, ez2,
+						epitch2, eroll2, eyaw2,
+						Database[entity].attachment.useSoftPinning,
+						Database[entity].attachment.collision,
+						Database[entity].attachment.vertex,
+						Database[entity].attachment.fixedRot)
 				else
 					if posChanged then
 						SetEntityCoordsNoOffset(entity, ex2, ey2, ez2)
