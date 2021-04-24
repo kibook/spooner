@@ -2477,4 +2477,10 @@ window.addEventListener('load', function() {
 			});
 		}, handle);
 	});
+
+	document.getElementById('properties-focus').addEventListener('click', function(event) {
+		sendMessage('focusEntity', {
+			handle: currentEntity()
+		});
+	});
 });

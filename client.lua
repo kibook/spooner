@@ -12,6 +12,8 @@ local PlaceOnGround = false
 local CurrentSpawn
 local ShowControls = true
 local KeepSelfInDb = true
+local FocusTarget
+local FocusTargetPos
 
 local SpoonerPrompts = UipromptGroup:new("Spooner", false)
 
@@ -71,6 +73,7 @@ Permissions.properties.clone = false
 Permissions.properties.attachments = false
 Permissions.properties.lights = false
 Permissions.properties.registerAsNetworked = false
+Permissions.properties.focus = false
 
 Permissions.properties.ped = {}
 Permissions.properties.ped.changeModel = false
@@ -195,6 +198,10 @@ function EnableSpoonerMode()
 	SetCamRot(Cam, pitch, roll, yaw, 2)
 	SetCamFov(Cam, fov)
 	RenderScriptCams(true, true, 500, true, true)
+
+	if FocusTarget then
+		FocusEntity(FocusTarget)
+	end
 
 	SendNUIMessage({
 		type = 'showSpoonerHud'
@@ -2328,7 +2335,11 @@ end)
 
 RegisterNUICallback('selectEntity', function(data, cb)
 	if CanModifyEntity(data.handle) then
-		AttachedEntity = data.handle
+		if AttachedEntity == data.handle then
+			AttachedEntity = nil
+		else
+			AttachedEntity = data.handle
+		end
 	end
 	cb({})
 end)
@@ -2409,6 +2420,34 @@ RegisterNUICallback('pedGoToEntity', function(data, cb)
 	cb({})
 end)
 
+function FocusEntity(entity)
+	FocusTarget = entity
+	FocusTargetPos = GetEntityCoords(entity)
+	StopCamPointing(Cam)
+	PointCamAtEntity(Cam, entity)
+end
+
+function UnfocusEntity()
+	FocusTarget = nil
+	StopCamPointing(Cam)
+end
+
+function TryFocusEntity(handle)
+	if Permissions.properties.focus then
+		FocusEntity(handle)
+	end
+end
+
+RegisterNUICallback('focusEntity', function(data, cb)
+	if FocusTarget == data.handle then
+		UnfocusEntity()
+	else
+		TryFocusEntity(data.handle)
+	end
+
+	cb({})
+end)
+
 -- Temporary function to migrate old kvs keys of DBs to the new kvs key format
 function MigrateOldSavedDbs()
 	local handle = StartFindKvp("")
@@ -2471,6 +2510,8 @@ function MainSpoonerUpdates()
 
 		if AttachedEntity then
 			entity = AttachedEntity
+		elseif FocusTarget then
+			entity = FocusTarget
 		end
 
 		SendNUIMessage({
@@ -2710,6 +2751,14 @@ function MainSpoonerUpdates()
 				AttachedEntity = CloneEntity(entity)
 			end
 
+			if CheckControls(IsDisabledControlJustPressed, 0, Config.FocusControl) then
+				if FocusTarget then
+					UnfocusEntity()
+				else
+					TryFocusEntity(entity)
+				end
+			end
+
 			local ex1, ey1, ez1, epitch1, eroll1, eyaw1
 
 			if Database[entity] and Database[entity].attachment.to > 0 then
@@ -2860,8 +2909,20 @@ function MainSpoonerUpdates()
 			end
 		end
 
-		SetCamCoord(Cam, x2, y2, z2)
-		SetCamRot(Cam, pitch2, 0.0, yaw2)
+		if FocusTarget then
+			if DoesEntityExist(FocusTarget) then
+				local currentPos = GetEntityCoords(FocusTarget)
+
+				SetCamCoord(Cam, vector3(x2, y2, z2) + (currentPos - FocusTargetPos))
+
+				FocusTargetPos = currentPos
+			else
+				UnfocusEntity()
+			end
+		else
+			SetCamCoord(Cam, x2, y2, z2)
+			SetCamRot(Cam, pitch2, 0.0, yaw2)
+		end
 	end
 end
 

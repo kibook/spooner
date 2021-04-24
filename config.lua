@@ -34,6 +34,7 @@ Config.HelpMenuControl = {`INPUT_WHISTLE_HORSEBACK`, `INPUT_WHISTLE`} -- H
 Config.CloneControl = `INPUT_INTERACT_ANIMAL` -- G
 Config.SpeedModeControl = `INPUT_RELOAD` -- R
 Config.ToggleControlsControl = `INPUT_SELECT_QUICKSELECT_SIDEARMS_LEFT` -- 1
+Config.FocusControl = `INPUT_PC_FREE_LOOK` -- Alt
 
 -- Maximum movement speed
 Config.MaxSpeed = 1.00
