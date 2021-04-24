@@ -1426,19 +1426,31 @@ function LoadDatabase(db, relative, replace)
 			local from  = handles[spawn.entity]
 			local to    = spawn.props.attachment.to == -1 and PlayerPedId() or handles[spawn.props.attachment.to]
 			local bone  = spawn.props.attachment.bone
-			local x     = spawn.props.attachment.x * 1.0
-			local y     = spawn.props.attachment.y * 1.0
-			local z     = spawn.props.attachment.z * 1.0
-			local pitch = spawn.props.attachment.pitch * 1.0
-			local roll  = spawn.props.attachment.roll * 1.0
-			local yaw   = spawn.props.attachment.yaw * 1.0
+			local x     = spawn.props.attachment.x + 0.0
+			local y     = spawn.props.attachment.y + 0.0
+			local z     = spawn.props.attachment.z + 0.0
+			local pitch = spawn.props.attachment.pitch + 0.0
+			local roll  = spawn.props.attachment.roll + 0.0
+			local yaw   = spawn.props.attachment.yaw + 0.0
 			local useSoftPinning = spawn.props.attachment.useSoftPinning
 			local collision = spawn.props.attachment.collision
-			local vertex = spawn.props.attachment.vertex
+			local vertex = spawn.props.attachment.vertex or 0
 			local fixedRot = spawn.props.attachment.fixedRot
 
 			if type(bone) == 'number' then
 				bone = FindBoneName(to, bone)
+			end
+
+			if useSoftPinning == nil then
+				useSoftPinning = true
+			end
+
+			if collision == nil then
+				collision = true
+			end
+
+			if fixedRot == nil then
+				fixedRot = true
 			end
 
 			AttachEntity(from, to, bone, x, y, z, pitch, roll, yaw, useSoftPinning, collision, vertex, fixedRot)
