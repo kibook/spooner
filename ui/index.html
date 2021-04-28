@@ -15,6 +15,7 @@
 				<div>Speed: <span id="speed"></span></div>
 				<div>Mouse Adjust: <span id="adjust-mode"></span> - Speed: <span id="adjust-speed"></span></div>
 				<div>Rotate: <span id="rotate-mode"></span> - Speed: <span id="rotate-speed"></span></div>
+				<div id="focus-info" style="display: none">Focus: <span id="focus-target"></span> (<span id="focus-mode"></span>)</div>
 				<div id="place-on-ground-container">Snap to Ground: <span id="place-on-ground"></span></div>
 				<div id="controls">
 					<div id="basic-controls" class="control-set">
@@ -49,6 +50,10 @@
 						<div class="control-and-help">
 							<div class="control">R</div>
 							<div class="control-help">Select Speed</div>
+						</div>
+						<div class="control-and-help">
+							<div class="control">c</div>
+							<div class="control-help">Focus Mode</div>
 						</div>
 						<div class="control-and-help">
 							<div class="control">H</div>
@@ -105,6 +110,10 @@
 						<div class="control-and-help">
 							<div class="control">b</div>
 							<div class="control-help">Focus</div>
+						</div>
+						<div class="control-and-help">
+							<div class="control">c</div>
+							<div class="control-help">Focus Mode</div>
 						</div>
 						<div class="control-and-help">
 							<div>[RMB]</div>
@@ -736,6 +745,20 @@
 					<tr>
 						<td class="control">G</td>
 						<td><strong>Clone</strong> selected entity</td>
+					</tr>
+					<tr>
+						<td class="control">b</td>
+						<td><strong>Focus</strong> on selected entity, attaching the spooner cam to it</td>
+					</tr>
+					<tr>
+						<td class="control">c</td>
+						<td>
+							Toggle <strong>Focus Mode</strong>:
+							<ul>
+								<li><strong>Fixed</strong>: Camera pivots around the focused entity</li>
+								<li><strong>Free</strong>: Camera can be rotated freely</li>
+							</ul>
+						</td>
 					</tr>
 					<tr>
 						<td><span class="control">vu</span> Mouse wheel</td>

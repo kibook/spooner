@@ -176,6 +176,16 @@ function updateSpoonerHud(data) {
 			document.querySelector('#entity-type').innerHTML = 'Entity';
 			break;
 	}
+
+	var focusInfo = document.getElementById('focus-info');
+
+	if (data.focusTarget) {
+		document.getElementById('focus-target').innerHTML = data.focusTarget.toString(16);
+		document.getElementById('focus-mode').innerHTML = data.freeFocus ? 'Free' : 'Fixed';
+		focusInfo.style.display = 'block';
+	} else {
+		focusInfo.style.display = 'none';
+	}
 }
 
 function openSpawnMenu() {

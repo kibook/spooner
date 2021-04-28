@@ -14,6 +14,7 @@ local ShowControls = true
 local KeepSelfInDb = true
 local FocusTarget
 local FocusTargetPos
+local FreeFocus = false
 
 local SpoonerPrompts = UipromptGroup:new("Spooner", false)
 
@@ -2423,8 +2424,11 @@ end)
 function FocusEntity(entity)
 	FocusTarget = entity
 	FocusTargetPos = GetEntityCoords(entity)
-	StopCamPointing(Cam)
-	PointCamAtEntity(Cam, entity)
+
+	if not FreeFocus then
+		StopCamPointing(Cam)
+		PointCamAtEntity(Cam, entity)
+	end
 end
 
 function UnfocusEntity()
@@ -2510,7 +2514,7 @@ function MainSpoonerUpdates()
 
 		if AttachedEntity then
 			entity = AttachedEntity
-		elseif FocusTarget then
+		elseif FocusTarget and not FreeFocus then
 			entity = FocusTarget
 		end
 
@@ -2535,7 +2539,9 @@ function MainSpoonerUpdates()
 			camX = string.format('%.2f', x2),
 			camY = string.format('%.2f', y2),
 			camZ = string.format('%.2f', z2),
-			camHeading = string.format('%.2f', yaw2)
+			camHeading = string.format('%.2f', yaw2),
+			focusTarget = FocusTarget,
+			freeFocus = FreeFocus
 		})
 
 		if CheckControls(IsDisabledControlPressed, 0, Config.IncreaseSpeedControl) then
@@ -2739,6 +2745,24 @@ function MainSpoonerUpdates()
 			PlaceOnGround = not PlaceOnGround
 		end
 
+		if CheckControls(IsDisabledControlJustPressed, 0, Config.FocusControl) then
+			if not entity or FocusTarget == entity then
+				UnfocusEntity()
+			else
+				TryFocusEntity(entity)
+			end
+		end
+
+		if FocusTarget and CheckControls(IsDisabledControlJustPressed, 0, Config.ToggleFocusModeControl) then
+			if FreeFocus then
+				PointCamAtEntity(Cam, FocusTarget)
+				FreeFocus = false
+			else
+				StopCamPointing(Cam)
+				FreeFocus = true
+			end
+		end
+
 		if entity and CanModifyEntity(entity) then
 			local posChanged = false
 			local rotChanged = false
@@ -2749,14 +2773,6 @@ function MainSpoonerUpdates()
 
 			if CheckControls(IsDisabledControlJustPressed, 0, Config.CloneControl) then
 				AttachedEntity = CloneEntity(entity)
-			end
-
-			if CheckControls(IsDisabledControlJustPressed, 0, Config.FocusControl) then
-				if FocusTarget then
-					UnfocusEntity()
-				else
-					TryFocusEntity(entity)
-				end
 			end
 
 			local ex1, ey1, ez1, epitch1, eroll1, eyaw1
@@ -2921,8 +2937,9 @@ function MainSpoonerUpdates()
 			end
 		else
 			SetCamCoord(Cam, x2, y2, z2)
-			SetCamRot(Cam, pitch2, 0.0, yaw2)
 		end
+
+		SetCamRot(Cam, pitch2, 0.0, yaw2)
 	end
 end
 
