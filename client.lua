@@ -2999,7 +2999,7 @@ function UpdateDbEntities()
 				end
 			end
 
-			if properties.attachment.to ~= 0 then
+			if properties.attachment.bone then
 				if Permissions.properties.attachments then
 					if not DetachPrompt:isEnabled() then
 						DetachPrompt:setEnabledAndVisible(true)
