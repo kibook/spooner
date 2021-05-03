@@ -2405,7 +2405,13 @@ function TryGoToWaypoint(handle)
 		local coords = GetWaypointCoords()
 		local groundZ = GetHeightmapBottomZForPosition(coords.x, coords.y)
 
-		TaskGoToCoordAnyMeans(handle, coords.x, coords.y, groundZ, 1.0, 0, 0, 0, 0.5)
+		local vehicle = GetVehiclePedIsIn(handle, false)
+
+		if vehicle == 0 then
+			TaskGoToCoordAnyMeans(handle, coords.x, coords.y, groundZ, 1.0, 0, 0, 0, 0.5)
+		else
+			TaskVehicleDriveToCoord(handle, vehicle, coords.x, coords.y, groundZ, 2.0, 0, GetEntityModel(vehicle), 67108864, 0.5, 0.0)
+		end
 	end
 end
 
@@ -2417,7 +2423,14 @@ end)
 function TryPedGoToEntity(handle, entity)
 	if Permissions.properties.ped.goToEntity and CanModifyEntity(handle) then
 		RequestControl(handle)
-		TaskGoToEntity(handle, entity, -1, 1.0, 1.0, 0.0, 0)
+
+		local vehicle = GetVehiclePedIsIn(handle, false)
+
+		if vehicle == 0 then
+			TaskGoToEntity(handle, entity, -1, 1.0, 1.0, 0.0, 0)
+		else
+			TaskVehicleDriveToCoord(handle, vehicle, GetEntityCoords(entity), 2.0, 0, GetEntityModel(vehicle), 67108864, 0.5, 0.0)
+		end
 	end
 end
 
