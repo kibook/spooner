@@ -2335,6 +2335,16 @@ window.addEventListener('load', function() {
 		}, handle);
 	});
 
+	document.getElementById('properties-enter-vehicle').addEventListener('click', function(event) {
+		var handle = currentEntity();
+		openEntitySelect('ped-options-menu', function(entity) {
+			sendMessage('enterVehicle', {
+				handle: handle,
+				entity: entity
+			});
+		}, handle);
+	});
+
 	document.getElementById('properties-register-as-networked').addEventListener('click', function(event) {
 		sendMessage('registerAsNetworked', {
 			handle: currentEntity()

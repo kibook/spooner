@@ -85,6 +85,7 @@ Permissions.properties.ped.animation = false
 Permissions.properties.ped.clearTasks = false
 Permissions.properties.ped.weapon = false
 Permissions.properties.ped.mount = false
+Permissions.properties.ped.enterVehicle = false
 Permissions.properties.ped.resurrect = false
 Permissions.properties.ped.ai = false
 Permissions.properties.ped.knockOffProps = false
@@ -2457,6 +2458,21 @@ RegisterNUICallback('focusEntity', function(data, cb)
 		TryFocusEntity(data.handle)
 	end
 
+	cb({})
+end)
+
+function TryEnterVehicle(handle, entity)
+	if Permissions.properties.ped.enterVehicle and CanModifyEntity(handle) then
+		if IsVehicleSeatFree(entity, -1) then
+			TaskWarpPedIntoVehicle(handle, entity, -1)
+		else
+			TaskWarpPedIntoVehicle(handle, entity, -2)
+		end
+	end
+end
+
+RegisterNUICallback('enterVehicle', function(data, cb)
+	TryEnterVehicle(data.handle, data.entity)
 	cb({})
 end)
 
