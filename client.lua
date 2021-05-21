@@ -2208,7 +2208,7 @@ RegisterNUICallback('playAnimation', function(data, cb)
 		local blendOutSpeed = data.blendOutSpeed and data.blendOutSpeed * 1.0 or 1.0
 		local duration = data.duration and data.duraction or -1
 		local flag = data.flag and data.flag or 1
-		local playbackRate = data.playbackRate and data.playbackRate * 1.0 or 1.0
+		local playbackRate = data.playbackRate and data.playbackRate * 1.0 or 0.0
 
 		RequestControl(data.handle)
 
