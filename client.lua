@@ -3126,7 +3126,7 @@ end)
 -- warnings.
 CreateThread(function()
 	while true do
-		if collectgarbage("count") > 50000 then
+		if collectgarbage("count") > 45000 then
 			print("Collecting garbage...")
 			collectgarbage()
 		end
