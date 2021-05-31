@@ -1671,20 +1671,40 @@ function ConvertDatabaseToMapEditorXml(creator, database)
 	return xml
 end
 
-function ToQuaternion(pitch, roll, yaw)
-	local cp = math.cos(pitch * 0.5)
-	local sp = math.sin(pitch * 0.5)
-	local cr = math.cos(pitch * 0.5)
-	local sr = math.sin(pitch * 0.5)
-	local cy = math.cos(pitch * 0.5)
-	local sy = math.sin(pitch * 0.5)
+local function normalizeEulerAngle(angle)
+	while angle > 360 do
+		angle = angle - 360
+	end
 
-	return {
-		w = cr * cp * cy + sr * sp * sy,
-		x = sr * cp * cy - cr * sp * sy,
-		y = cr * sp * cy + sr * cp * sy,
-		z = cr * cp * sy - sr * sp * cy
-	}
+	while angle < 0 do
+		angle = angle + 360
+	end
+
+	return angle
+end
+
+local function toQuaternion(pitch, roll, yaw)
+	local rot = -vector3(roll, pitch, yaw)
+
+	local p = math.rad(rot.y)
+	local r = math.rad(rot.z)
+	local y = math.rad(rot.x)
+
+	local cy = math.cos(y * 0.5)
+	local sy = math.sin(y * 0.5)
+	local cr = math.cos(r * 0.5)
+	local sr = math.sin(r * 0.5)
+	local cp = math.cos(p * 0.5)
+	local sp = math.sin(p * 0.5)
+
+	local q = {}
+
+	q.x = cy * sp * cr + sy * cp * sr
+	q.y = sy * cp * cr - cy * sp * sr
+	q.z = cy * cp * sr - sy * sp * cr
+	q.w = cy * cp * cr + sy * sp * sr
+
+	return q
 end
 
 function ConvertDatabaseToYmap(database)
@@ -1693,7 +1713,7 @@ function ConvertDatabaseToYmap(database)
 	local entitiesXml = '\t<entities>\n'
 
 	for entity, properties in pairs(database.spawn) do
-		local q = ToQuaternion(properties.pitch, properties.roll, properties.yaw)
+		local q = toQuaternion(properties.pitch, properties.roll, properties.yaw)
 
 		if not minX or properties.x < minX then
 			minX = properties.x
@@ -1719,14 +1739,16 @@ function ConvertDatabaseToYmap(database)
 
 	entitiesXml = entitiesXml .. '\t</entities>\n'
 
-	local xml = '<CMapData>\n'
+	local xml = '<?xml version="1.0"?>\n<CMapData>\n\t<flags value="2"/>\n\t<contentFlags value="65"/>\n'
 
-	xml = xml .. string.format('\t<streamingExtentsMin x="%f" y="%f" z="%f"/>\n', minX - 400, minY - 400, minZ - 400)
-	xml = xml .. string.format('\t<streamingExtentsMax x="%f" y="%f" z="%f"/>\n', maxX + 400, maxY + 400, maxZ + 400)
-	xml = xml .. string.format('\t<entitiesExtentsMin x="%f" y="%f" z="%f"/>\n', minX, minY, minZ)
-	xml = xml .. string.format('\t<entitiesExtentsMax x="%f" y="%f" z="%f"/>\n', maxX, maxY, maxZ)
+	if minX and minY and minZ and maxX and maxY and maxZ then
+		xml = xml .. string.format('\t<streamingExtentsMin x="%f" y="%f" z="%f"/>\n', minX - 400, minY - 400, minZ - 400)
+		xml = xml .. string.format('\t<streamingExtentsMax x="%f" y="%f" z="%f"/>\n', maxX + 400, maxY + 400, maxZ + 400)
+		xml = xml .. string.format('\t<entitiesExtentsMin x="%f" y="%f" z="%f"/>\n', minX, minY, minZ)
+		xml = xml .. string.format('\t<entitiesExtentsMax x="%f" y="%f" z="%f"/>\n', maxX, maxY, maxZ)
 
-	xml = xml .. entitiesXml
+		xml = xml .. entitiesXml
+	end
 
 	xml = xml .. '</CMapData>'
 
