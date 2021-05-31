@@ -1650,7 +1650,7 @@ RegisterNUICallback('repairVehicle', function(data, cb)
 end)
 
 function ConvertDatabaseToMapEditorXml(creator, database)
-	local xml = '<Map>\n\t<MapMeta Creator="' .. creator .. '"/>\n'
+	local xml = '<?xml version="1.0"?>\n<Map>\n\t<MapMeta Creator="' .. creator .. '"/>\n'
 
 	for _, properties in ipairs(database.delete) do
 		xml = xml .. string.format('\t<DeletedObject Hash="%s" Position_x="%s" Position_y="%s" Position_z="%s"/>\n', properties.model, properties.x, properties.y, properties.z)
