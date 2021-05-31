@@ -1722,7 +1722,21 @@ function ConvertDatabaseToYmap(database)
 			maxZ = properties.z
 		end
 
-		entitiesXml = entitiesXml .. string.format('\t\t<Item type="CEntityDef">\n\t\t\t<archetypeName>%s</archetypeName>\n\t\t\t<position x="%f" y="%f" z="%f"/>\n\t\t\t<rotation w="%f" x="%f" y="%f" z="%f"/>\n\t\t</Item>\n', properties.name, properties.x, properties.y, properties.z, q.w, q.x, q.y, q.z)
+		entitiesXml = entitiesXml .. '\t\t<Item type="CEntityDef">\n'
+		entitiesXml = entitiesXml .. '\t\t\t<archetypeName>' .. properties.name .. '</archetypeName>\n'
+		entitiesXml = entitiesXml .. '\t\t\t<flags value="1572865"/>\n'
+		entitiesXml = entitiesXml .. string.format('\t\t\t<position x="%f" y="%f" z="%f"/>\n', properties.x, properties.y, properties.z)
+		entitiesXml = entitiesXml .. string.format('\t\t\t<rotation w="%f" x="%f" y="%f" z="%f"/>\n', q.w, q.x, q.y, q.z)
+		entitiesXml = entitiesXml .. '\t\t\t<scaleXY value="1"/>\n'
+		entitiesXml = entitiesXml .. '\t\t\t<scaleZ value="1"/>\n'
+		entitiesXml = entitiesXml .. '\t\t\t<parentIndex value="-1"/>\n'
+		entitiesXml = entitiesXml .. '\t\t\t<lodDist value="500"/>\n'
+		entitiesXml = entitiesXml .. '\t\t\t<childLodDist value="500"/>\n'
+		entitiesXml = entitiesXml .. '\t\t\t<lodLevel>LODTYPES_DEPTH_HD</lodLevel>\n'
+		entitiesXml = entitiesXml .. '\t\t\t<numChildren value="0"/>\n'
+		entitiesXml = entitiesXml .. '\t\t\t<ambientOcclusionMultiplier value="255"/>\n'
+		entitiesXml = entitiesXml .. '\t\t\t<artificialAmbientOcclusion value="255"/>\n'
+		entitiesXml = entitiesXml .. '\t\t</Item>\n'
 	end
 
 	entitiesXml = entitiesXml .. '\t</entities>\n'
