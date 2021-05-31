@@ -1671,18 +1671,6 @@ function ConvertDatabaseToMapEditorXml(creator, database)
 	return xml
 end
 
-local function normalizeEulerAngle(angle)
-	while angle > 360 do
-		angle = angle - 360
-	end
-
-	while angle < 0 do
-		angle = angle + 360
-	end
-
-	return angle
-end
-
 local function toQuaternion(pitch, roll, yaw)
 	local rot = -vector3(roll, pitch, yaw)
 
