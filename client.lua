@@ -2968,11 +2968,11 @@ function MainSpoonerUpdates()
 							SetEntityCoordsNoOffset(AttachedEntity, ex2, ey2, ez2 - axisY)
 						elseif AdjustMode == 3 then
 							if RotateMode == 0 then
-								SetEntityRotation(AttachedEntity, epitch2 - axisX * Config.SpeedLr, eroll2, eyaw2)
+								SetEntityRotation(AttachedEntity, epitch2 - axisX * Config.SpeedLr, eroll2, eyaw2, 2)
 							elseif RotateMode == 1 then
-								SetEntityRotation(AttachedEntity, epitch2, eroll2 - axisX * Config.SpeedLr, eyaw2)
+								SetEntityRotation(AttachedEntity, epitch2, eroll2 - axisX * Config.SpeedLr, eyaw2, 2)
 							else
-								SetEntityRotation(AttachedEntity, epitch2, eroll2, eyaw2 - axisX * Config.SpeedLr)
+								SetEntityRotation(AttachedEntity, epitch2, eroll2, eyaw2 - axisX * Config.SpeedLr, 2)
 							end
 						end
 					elseif AdjustMode == 4 then
