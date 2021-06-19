@@ -18,3 +18,8 @@ h2 {
 h3 {
 	font-family: "Chinese Rocks";
 }
+
+.object.selected {
+	background-color: red;
+	color: white
+}
