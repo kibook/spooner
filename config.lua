@@ -3,7 +3,7 @@ Config = {}
 Config.isRDR = not TerraingridActivate
 
 -- Configurable controls
-if Config.IsRDR then
+if Config.isRDR then
 	Config.IncreaseSpeedControl   = {`INPUT_CREATOR_LT`, `INPUT_PREV_WEAPON`} -- Page Up, Mouse Wheel Up
 	Config.DecreaseSpeedControl   = {`INPUT_CREATOR_RT`, `INPUT_NEXT_WEAPON`} -- Page Down, Mouse Wheel Down
 	Config.UpControl              = `INPUT_JUMP` -- Spacebar
