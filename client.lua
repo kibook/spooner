@@ -16,19 +16,23 @@ local FocusTarget
 local FocusTargetPos
 local FreeFocus = false
 
-local SpoonerPrompts = UipromptGroup:new("Spooner", false)
+local SpoonerPrompts, ClearTasksPrompt, DetachPrompt
 
-local ClearTasksPrompt = Uiprompt:new(`INPUT_INTERACT_NEG`, "Clear Tasks", SpoonerPrompts)
-ClearTasksPrompt:setHoldMode(true)
-ClearTasksPrompt:setOnHoldModeJustCompleted(function()
-	TryClearTasks(PlayerPedId())
-end)
+if Config.isRDR then
+	SpoonerPrompts = UipromptGroup:new("Spooner", false)
 
-local DetachPrompt = Uiprompt:new(`INPUT_INTERACT_LEAD_ANIMAL`, "Detach", SpoonerPrompts)
-DetachPrompt:setHoldMode(true)
-DetachPrompt:setOnHoldModeJustCompleted(function()
-	TryDetach(PlayerPedId())
-end)
+	ClearTasksPrompt = Uiprompt:new(`INPUT_INTERACT_NEG`, "Clear Tasks", SpoonerPrompts)
+	ClearTasksPrompt:setHoldMode(true)
+	ClearTasksPrompt:setOnHoldModeJustCompleted(function()
+	       TryClearTasks(PlayerPedId())
+	end)
+
+	DetachPrompt = Uiprompt:new(`INPUT_INTERACT_LEAD_ANIMAL`, "Detach", SpoonerPrompts)
+	DetachPrompt:setHoldMode(true)
+	DetachPrompt:setOnHoldModeJustCompleted(function()
+	       TryDetach(PlayerPedId())
+	end)
+end
 
 local StoreDeleted = false
 local DeletedEntities = {}
@@ -714,7 +718,12 @@ function SpawnPed(props)
 		return nil
 	end
 
-	local ped = CreatePed_2(props.model, props.x, props.y, props.z, 0.0, true, false)
+	local ped
+	if Config.isRDR then
+		ped = CreatePed_2(props.model, props.x, props.y, props.z, 0.0, true, false)
+	else
+		ped = CreatePed(0, props.model, props.x, props.y, props.z, 0.0, true, false)
+	end
 
 	SetModelAsNoLongerNeeded(props.model)
 
@@ -1244,7 +1253,13 @@ end
 
 function PlaceOnGroundProperly(entity)
 	local r1 = GetEntityRotation(entity, 2)
-	PlaceEntityOnGroundProperly(entity, false)
+
+	if Config.isRDR then
+		PlaceEntityOnGroundProperly(entity, false)
+	else
+		PlaceObjectOnGroundProperly(entity, false)
+	end
+
 	local r2 = GetEntityRotation(entity, 2)
 	SetEntityRotation(entity, r2.x, r2.y, r1.z, 2)
 end
@@ -2651,8 +2666,8 @@ function MainSpoonerUpdates()
 			z2 = z2 - Speed
 		end
 
-		local axisX = GetDisabledControlNormal(0, 0xA987235F)
-		local axisY = GetDisabledControlNormal(0, 0xD2047988)
+		local axisX = GetDisabledControlNormal(0, Config.LookLrControl)
+		local axisY = GetDisabledControlNormal(0, Config.LookUdControl)
 
 		if axisX ~= 0.0 or axisY ~= 0.0 then
 			yaw2 = yaw2 + axisX * -1.0 * Config.SpeedUd
@@ -3012,7 +3027,9 @@ CreateThread(function()
 	while true do
 		MainSpoonerUpdates()
 
-		SpoonerPrompts:handleEvents()
+		if Config.isRDR then
+			SpoonerPrompts:handleEvents()
+		end
 
 		Wait(0)
 	end
@@ -3045,43 +3062,47 @@ function UpdateDbEntities()
 		end
 
 		-- Show prompts for certain spooner shortcuts on your own ped
-		if entity == playerPed then
-			if properties.scenario or properties.animation then
-				if Permissions.properties.ped.clearTasks then
-					if not ClearTasksPrompt:isEnabled() then
-						ClearTasksPrompt:setEnabledAndVisible(true)
-					end
+		if Config.isRDR then
+			if entity == playerPed then
+				if properties.scenario or properties.animation then
+					if Permissions.properties.ped.clearTasks then
+						if not ClearTasksPrompt:isEnabled() then
+							ClearTasksPrompt:setEnabledAndVisible(true)
+						end
 
-					enableSpoonerPrompts = true
-				end
-			else
-				if ClearTasksPrompt:isEnabled() then
-					ClearTasksPrompt:setEnabledAndVisible(false)
-				end
-			end
-
-			if properties.attachment.bone then
-				if Permissions.properties.attachments then
-					if not DetachPrompt:isEnabled() then
-						DetachPrompt:setEnabledAndVisible(true)
+						enableSpoonerPrompts = true
 					end
-					enableSpoonerPrompts = true
+				else
+					if ClearTasksPrompt:isEnabled() then
+						ClearTasksPrompt:setEnabledAndVisible(false)
+					end
 				end
-			else
-				if DetachPrompt:isEnabled() then
-					DetachPrompt:setEnabledAndVisible(false)
+
+				if properties.attachment.bone then
+					if Permissions.properties.attachments then
+						if not DetachPrompt:isEnabled() then
+							DetachPrompt:setEnabledAndVisible(true)
+						end
+						enableSpoonerPrompts = true
+					end
+				else
+					if DetachPrompt:isEnabled() then
+						DetachPrompt:setEnabledAndVisible(false)
+					end
 				end
 			end
 		end
 	end
 
-	if enableSpoonerPrompts then
-		if not SpoonerPrompts:isActive() then
-			SpoonerPrompts:setActive(true)
-		end
-	else
-		if SpoonerPrompts:isActive() then
-			SpoonerPrompts:setActive(false)
+	if Config.isRDR then
+		if enableSpoonerPrompts then
+			if not SpoonerPrompts:isActive() then
+				SpoonerPrompts:setActive(true)
+			end
+		else
+			if SpoonerPrompts:isActive() then
+				SpoonerPrompts:setActive(false)
+			end
 		end
 	end
 end
