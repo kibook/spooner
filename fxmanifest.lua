@@ -4,7 +4,6 @@ files {
 	"ui/index.html",
 	"ui/style.css",
 	"ui/script.js",
-	"ui/chineserocks.ttf",
 	"ui/keyboard.ttf"
 }
 
@@ -19,8 +18,14 @@ server_scripts {
 }
 
 -- RedM
+--[[
 game "rdr3"
 rdr3_warning "I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships."
+
+files {
+	"ui/chineserocks.ttf",
+	"ui/rdr3.css"
+}
 
 client_scripts {
 	"@uiprompt/uiprompt.lua",
@@ -39,10 +44,16 @@ client_scripts {
 
 	"client.lua"
 }
+]]
 
 -- FiveM
 --[[
 game "gta5"
+
+files {
+	"ui/pricedown.otf",
+	"ui/gta5.css"
+}
 
 client_scripts {
 	"data/gta5/animations.lua",

@@ -1,9 +1,4 @@
 @font-face {
-	font-family: "Chinese Rocks";
-	src: url("chineserocks.ttf");
-}
-
-@font-face {
 	font-family: "212 Keyboard";
 	src: url("keyboard.ttf");
 }
@@ -33,7 +28,6 @@ button {
 	background-color: rgba(0, 0, 0, 0.5);
 	color: white;
 	border: solid 1px white;
-	font-family: "Chinese Rocks";
 	font-size: 2vh;
 }
 
@@ -329,19 +323,16 @@ td {
 h1 {
 	font-size: 3vh;
 	color: #b00;
-	font-family: "Chinese Rocks";
 	font-weight: normal;
 }
 
 h2 {
 	font-size: 2.5vh;
-	font-family: "Chinese Rocks";
 	font-weight: normal;
 }
 
 h3 {
 	font-size: 2vh;
-	font-family: "Chinese Rocks";
 	font-weight: normal;
 }
 

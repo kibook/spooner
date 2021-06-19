@@ -1,0 +1,20 @@
+@font-face {
+	font-family: "Pricedown";
+	src: url("pricedown.otf");
+}
+
+button {
+	font-family: "Pricedown";
+}
+
+h1 {
+	font-family: "Pricedown";
+}
+
+h2 {
+	font-family: "Pricedown";
+}
+
+h3 {
+	font-family: "Pricedown";
+}
