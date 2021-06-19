@@ -1,6 +1,6 @@
-# RedM Object Spooner
+# Spooner
 
-Tool for spawning, placing, and removing entities in RedM, inspired by Menyoo's Object Spooner.
+Tool for spawning, placing, and removing entities, inspired by Menyoo's Object Spooner.
 
 # Features
 
@@ -14,7 +14,7 @@ Tool for spawning, placing, and removing entities in RedM, inspired by Menyoo's 
 
 # Example
 
-[![Object Spooner Example](https://i.imgur.com/HLzNYUIm.jpg)](https://imgur.com/HLzNYUI)
+[![Spooner Example](https://i.imgur.com/HLzNYUIm.jpg)](https://imgur.com/HLzNYUI)
 
 # Requirements
 
