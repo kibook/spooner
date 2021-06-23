@@ -38,6 +38,21 @@ function sendMessage(name, params) {
 	});
 }
 
+function copyToClipboard(text) {
+	var e = document.createElement('textarea');
+	e.textContent = text;
+	document.body.appendChild(e);
+
+	var selection = document.getSelection();
+	selection.removeAllRanges();
+
+	e.select();
+	document.execCommand('copy');
+
+	selection.removeAllRanges();
+	e.remove();
+}
+
 function showSpoonerHud() {
 	document.querySelector('#hud').style.display = 'block';
 }
@@ -2502,5 +2517,37 @@ window.addEventListener('load', function() {
 		sendMessage('focusEntity', {
 			handle: currentEntity()
 		});
+	});
+
+	document.getElementById('copy-position').addEventListener('click', function(event) {
+		var x = document.getElementById('properties-x').value;
+		var y = document.getElementById('properties-y').value;
+		var z = document.getElementById('properties-z').value;
+
+		copyToClipboard(x + ', ' + y + ', ' + z)
+	});
+
+	document.getElementById('copy-rotation').addEventListener('click', function(event) {
+		var p = document.getElementById('properties-pitch').value;
+		var r = document.getElementById('properties-roll').value;
+		var y = document.getElementById('properties-yaw').value;
+
+		copyToClipboard(p + ', ' + r + ', ' + y);
+	});
+
+	document.getElementById('copy-attachment-position').addEventListener('click', function(event) {
+		var x = document.getElementById('attachment-x').value;
+		var y = document.getElementById('attachment-y').value;
+		var z = document.getElementById('attachment-z').value;
+
+		copyToClipboard(x + ', ' + y + ', ' + z)
+	});
+
+	document.getElementById('copy-attachment-rotation').addEventListener('click', function(event) {
+		var p = document.getElementById('attachment-pitch').value;
+		var r = document.getElementById('attachment-roll').value;
+		var y = document.getElementById('attachment-yaw').value;
+
+		copyToClipboard(p + ', ' + r + ', ' + y);
 	});
 });

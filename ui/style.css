@@ -409,6 +409,10 @@ textarea {
 	align-items: center;
 }
 
+.copy-button {
+	grid-column: 2;
+}
+
 #object-database-stats {
 	font-size: 1.25vh;
 	border-bottom: 1px solid white;
