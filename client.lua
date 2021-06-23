@@ -360,9 +360,7 @@ function GetPlayerFromPed(ped)
 end
 
 function GetBoneIndex(entity, bone)
-	if not bone then
-		return 0
-	elseif type(bone) == 'number' then
+	if type(bone) == 'number' then
 		return bone
 	else
 		return GetEntityBoneIndexByName(entity, bone)
@@ -1323,6 +1321,10 @@ function RemoveDeletedEntity(x, y, z, hash)
 end
 
 function AttachEntity(from, to, bone, x, y, z, pitch, roll, yaw, useSoftPinning, collision, vertex, fixedRot)
+	if not bone then
+		bone = 0
+	end
+
 	local boneIndex = GetBoneIndex(to, bone)
 
 	AttachEntityToEntity(from, to, boneIndex, x, y, z, pitch, roll, yaw, false, useSoftPinning, collision, false, vertex, fixedRot, false, false)
