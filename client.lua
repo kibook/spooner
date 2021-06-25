@@ -1269,7 +1269,13 @@ function PlaceOnGroundProperly(entity)
 	if Config.isRDR then
 		PlaceEntityOnGroundProperly(entity, false)
 	else
-		PlaceObjectOnGroundProperly(entity, false)
+		local type = GetEntityType(entity)
+
+		if type == 2 then
+			SetVehicleOnGroundProperly(entity)
+		elseif type == 3 then
+			PlaceObjectOnGroundProperly(entity, false)
+		end
 	end
 
 	local r2 = GetEntityRotation(entity, 2)
