@@ -2113,7 +2113,12 @@ end)
 RegisterNUICallback('giveWeapon', function(data, cb)
 	if Permissions.properties.ped.weapon and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
-		GiveWeaponToPed_2(data.handle, GetHashKey(data.weapon), 500, true, false, 0, false, 0.5, 1.0, 0, false, 0.0, false)
+
+		if Config.isRDR then
+			GiveWeaponToPed_2(data.handle, GetHashKey(data.weapon), 500, true, false, 0, false, 0.5, 1.0, 0, false, 0.0, false)
+		else
+			GiveWeaponToPed(data.handle, GetHashKey(data.weapon), 500, true, false)
+		end
 
 		if Database[data.handle] then
 			table.insert(Database[data.handle].weapons, data.weapon)
