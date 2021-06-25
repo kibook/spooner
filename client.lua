@@ -363,18 +363,32 @@ function GetBoneIndex(entity, bone)
 	if type(bone) == 'number' then
 		return bone
 	else
-		return GetEntityBoneIndexByName(entity, bone)
+		if Config.isRDR then
+			return GetEntityBoneIndexByName(entity, bone)
+		else
+			return GetPedBoneIndex(entity, Bones[bone])
+		end
 	end
 end
 
 function FindBoneName(entity, boneIndex)
-	for _, boneName in ipairs(Bones) do
-		if GetEntityBoneIndexByName(entity, boneName) == boneIndex then
-			return boneName
+	if Config.isRDR then
+		for _, boneName in ipairs(Bones) do
+			if GetEntityBoneIndexByName(entity, boneName) == boneIndex then
+				return boneName
+			end
 		end
-	end
 
-	return boneIndex
+		return boneIndex
+	else
+		for boneName, boneId in pairs(Bones) do
+			if GetPedBoneIndex(entity, boneId) == boneIndex then
+				return boneName
+			end
+		end
+
+		return boneIndex
+	end
 end
 
 function GetPedConfigFlags(ped)
@@ -1557,6 +1571,20 @@ function GetFavourites()
 end
 
 RegisterNUICallback('init', function(data, cb)
+	local bones
+
+	if Config.isRDR then
+		bones = Bones
+	else
+		bones = {}
+
+		for boneName, _ in pairs(Bones) do
+			table.insert(bones, boneName)
+		end
+
+		table.sort(bones)
+	end
+
 	cb({
 		peds = json.encode(Peds),
 		vehicles = json.encode(Vehicles),
@@ -1566,7 +1594,7 @@ RegisterNUICallback('init', function(data, cb)
 		animations = json.encode(Animations),
 		propsets = json.encode(Propsets),
 		pickups = json.encode(Pickups),
-		bones = json.encode(Bones),
+		bones = json.encode(bones),
 		walkStyleBases = json.encode(WalkStyleBases),
 		walkStyles = json.encode(WalkStyles),
 		adjustSpeed = AdjustSpeed,
