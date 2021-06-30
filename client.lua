@@ -1739,9 +1739,11 @@ function ConvertDatabaseToYmap(database)
 			maxZ = properties.z
 		end
 
+		local flags = properties.isFrozen and '32' or '1572865'
+
 		entitiesXml = entitiesXml .. '\t\t<Item type="CEntityDef">\n'
 		entitiesXml = entitiesXml .. '\t\t\t<archetypeName>' .. properties.name .. '</archetypeName>\n'
-		entitiesXml = entitiesXml .. '\t\t\t<flags value="1572865"/>\n'
+		entitiesXml = entitiesXml .. '\t\t\t<flags value="' .. flags .. '"/>\n'
 		entitiesXml = entitiesXml .. string.format('\t\t\t<position x="%f" y="%f" z="%f"/>\n', properties.x, properties.y, properties.z)
 		entitiesXml = entitiesXml .. string.format('\t\t\t<rotation w="%f" x="%f" y="%f" z="%f"/>\n', q.w, q.x, q.y, q.z)
 		entitiesXml = entitiesXml .. '\t\t\t<scaleXY value="1"/>\n'
