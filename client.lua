@@ -306,7 +306,7 @@ function GetInView(x1, y1, z1, pitch, roll, yaw)
 
 	local retval, hit, endCoords, surfaceNormal, entityHit = GetShapeTestResult(StartShapeTestRay(x1, y1, z1, x2, y2, z2, -1, -1, 1))
 
-	if entityHit <= 0 then
+	if entityHit <= 0 or GetEntityType(entityHit) == 0 then
 		return endCoords, nil, 0
 	end
 
