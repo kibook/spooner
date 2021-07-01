@@ -1773,7 +1773,11 @@ function ConvertDatabaseToYmap(database)
 			maxZ = properties.z
 		end
 
-		local flags = properties.isFrozen and '32' or '1572865'
+		local flags = 1572865
+
+		if properties.isFrozen then
+			flags = flags + 32
+		end
 
 		entitiesXml = entitiesXml .. '\t\t<Item type="CEntityDef">\n'
 		entitiesXml = entitiesXml .. '\t\t\t<archetypeName>' .. properties.name .. '</archetypeName>\n'
