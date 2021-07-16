@@ -347,7 +347,7 @@ function GetModelName(model)
 		end
 	end
 
-	return string.format('%x', model)
+	return tostring(model)
 end
 
 function GetPlayerFromPed(ped)
