@@ -78,9 +78,9 @@ function updateSpoonerHud(data) {
 	
 	if (data.entity) {
 		if (data.netId) {
-			entityId.innerHTML = data.entity.toString(16) + ' [' + data.netId.toString(16) + ']';
+			entityId.innerHTML = data.entity.toString() + ' [' + data.netId.toString() + ']';
 		} else {
-			entityId.innerHTML = data.entity.toString(16);
+			entityId.innerHTML = data.entity.toString();
 		}
 		entityInfo.style.display = 'block';
 
@@ -195,7 +195,7 @@ function updateSpoonerHud(data) {
 	var focusInfo = document.getElementById('focus-info');
 
 	if (data.focusTarget) {
-		document.getElementById('focus-target').innerHTML = data.focusTarget.toString(16);
+		document.getElementById('focus-target').innerHTML = data.focusTarget.toString();
 		document.getElementById('focus-mode').innerHTML = data.freeFocus ? 'Free' : 'Fixed';
 		focusInfo.style.display = 'block';
 	} else {
@@ -990,15 +990,15 @@ function entityDisplayName(entity, props) {
 	if (props.exists) {
 		if (props.netId) {
 			if (props.playerName) {
-				return `${entity.toString(16)} [${props.netId.toString(16)}] ${props.name} (${props.playerName})`;
+				return `${entity.toString()} [${props.netId.toString()}] ${props.name} (${props.playerName})`;
 			} else {
-				return `${entity.toString(16)} [${props.netId.toString(16)}] ${props.name}`;
+				return `${entity.toString()} [${props.netId.toString()}] ${props.name}`;
 			}
 		} else {
-			return `${entity.toString(16)} ${props.name}`
+			return `${entity.toString()} ${props.name}`
 		}
 	} else {
-		return `(Invalid) ${entity.toString(16)} ${props.name}`
+		return `(Invalid) ${entity.toString()} ${props.name}`
 	}
 }
 
@@ -1129,12 +1129,12 @@ function updatePropertiesMenu(data) {
 	entity.setAttribute('data-handle', data.entity);
 	if (properties.netId) {
 		if (properties.playerName) {
-			entity.innerHTML = data.entity.toString(16) + ' [' + properties.netId.toString(16) + '] (' + properties.playerName + ')';
+			entity.innerHTML = data.entity.toString() + ' [' + properties.netId.toString() + '] (' + properties.playerName + ')';
 		} else {
-			entity.innerHTML = data.entity.toString(16) + ' [' + properties.netId.toString(16) + ']';
+			entity.innerHTML = data.entity.toString() + ' [' + properties.netId.toString() + ']';
 		}
 	} else {
-		entity.innerHTML = data.entity.toString(16);
+		entity.innerHTML = data.entity.toString();
 	}
 
 	document.querySelector('#properties-model').innerHTML = properties.name;
@@ -1398,7 +1398,7 @@ function openAttachToMenu(fromEntity, data) {
 		if (database[properties.attachment.to]) {
 			div.innerHTML = database[properties.attachment.to].name;
 		} else {
-			div.innerHTML = properties.attachment.to.toString(16);
+			div.innerHTML = properties.attachment.to.toString();
 		}
 		div.addEventListener('click', function(event) {
 			document.getElementById('attachment-options-menu').style.display = 'none';
