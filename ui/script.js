@@ -1438,8 +1438,6 @@ function openAttachToMenu(fromEntity, data) {
 function updatePermissions(data) {
 	var permissions = JSON.parse(data.permissions);
 
-	console.log(JSON.stringify(permissions.maxEntities));
-
 	document.getElementById('spawn-menu-peds').disabled = !permissions.spawn.ped;
 	document.getElementById('spawn-menu-vehicles').disabled = !permissions.spawn.vehicle;
 	document.getElementById('spawn-menu-objects').disabled = !permissions.spawn.object;
