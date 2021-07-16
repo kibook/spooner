@@ -462,3 +462,7 @@ textarea {
 #config-flag {
 	flex-grow: 1;
 }
+
+#add-to-db-options {
+	flex-grow: 1;
+}

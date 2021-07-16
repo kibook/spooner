@@ -1438,6 +1438,8 @@ function openAttachToMenu(fromEntity, data) {
 function updatePermissions(data) {
 	var permissions = JSON.parse(data.permissions);
 
+	console.log(JSON.stringify(permissions.maxEntities));
+
 	document.getElementById('spawn-menu-peds').disabled = !permissions.spawn.ped;
 	document.getElementById('spawn-menu-vehicles').disabled = !permissions.spawn.vehicle;
 	document.getElementById('spawn-menu-objects').disabled = !permissions.spawn.object;
@@ -1491,6 +1493,7 @@ function updatePermissions(data) {
 	document.getElementById('properties-vehicle-lights-on').disabled = !permissions.properties.vehicle.lights;
 	document.getElementById('properties-vehicle-lights-off').disabled = !permissions.properties.vehicle.lights;
 	document.getElementById('properties-register-as-networked').disabled = !permissions.properties.registerAsNetworked;
+	document.getElementById('add-to-db-btn').disabled = permissions.maxEntities || !permissions.modify.other;
 }
 
 function currentEntity() {
@@ -2549,5 +2552,24 @@ window.addEventListener('load', function() {
 		var y = document.getElementById('attachment-yaw').value;
 
 		copyToClipboard(p + ', ' + r + ', ' + y);
+	});
+
+	document.getElementById('add-to-db-btn').addEventListener('click', function(event) {
+		document.getElementById('object-database').style.display = 'none';
+		document.getElementById('add-to-db-menu').style.display = 'flex';
+	});
+
+	document.getElementById('add-to-db-menu-close').addEventListener('click', function(event) {
+		document.getElementById('add-to-db-menu').style.display = 'none';
+		document.getElementById('object-database').style.display = 'flex';
+	});
+
+	document.getElementById('add-custom-entity-btn').addEventListener('click', function(event) {
+		sendMessage('addCustomEntityToDatabase', {
+			handle: parseInt(document.getElementById('custom-entity-handle').value)
+		}).then(resp => resp.json()).then(resp => {
+			document.getElementById('add-to-db-menu').style.display = 'none';
+			openDatabase(resp);
+		});
 	});
 });
