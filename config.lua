@@ -41,6 +41,7 @@ if Config.isRDR then
 	Config.ToggleFocusModeControl = {`INPUT_DUCK`, `INPUT_HORSE_STOP`} -- Ctrl
 	Config.LookLrControl          = `INPUT_LOOK_LR`
 	Config.LookUdControl          = `INPUT_LOOK_UD`
+	Config.EntityHandlesControl   = `INPUT_MAP` -- M
 else
 	Config.IncreaseSpeedControl   = 15 -- Page Up, Mouse Wheel Up
 	Config.DecreaseSpeedControl   = 14 -- Page Down, Mouse Wheel Down
@@ -74,11 +75,12 @@ else
 	Config.HelpMenuControl        = 74 -- H
 	Config.CloneControl           = 58 -- G
 	Config.SpeedModeControl       = 45 -- R
-	Config.ToggleControlsControl  = 170 -- 1
+	Config.ToggleControlsControl  = 170 -- F3
 	Config.FocusControl           = 19 -- Alt
 	Config.ToggleFocusModeControl = 36 -- Ctrl
 	Config.LookLrControl          = 1
 	Config.LookUdControl          = 2
+	Config.EntityHandlesControl   = 244 -- M
 end
 
 -- Maximum movement speed
@@ -131,3 +133,6 @@ Config.MaxEntities = 10
 
 -- Whether to automatically remove all entities from players' databases when the resource is stopped
 Config.CleanUpOnStop = true
+
+-- Draw distance for entity handles
+Config.EntityHandleDrawDistance = 20.0
