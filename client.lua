@@ -1094,6 +1094,18 @@ RegisterNUICallback('addEntityToDatabase', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('addCustomEntityToDatabase', function(data, cb)
+	if not Permissions.maxEntities and Permissions.modify.other then
+		AddEntityToDatabase(data.handle)
+
+		if not KeepSelfInDb and data.handle == PlayerPedId() then
+			KeepSelfInDb = true
+		end
+	end
+
+	cb{database = json.encode(Database)}
+end)
+
 RegisterNUICallback('removeEntityFromDatabase', function(data, cb)
 	if not Permissions.maxEntities and Permissions.modify.other then
 		RemoveEntityFromDatabase(data.handle)
