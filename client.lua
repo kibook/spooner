@@ -15,6 +15,7 @@ local KeepSelfInDb = true
 local FocusTarget
 local FocusTargetPos
 local FreeFocus = false
+local showEntityHandles = false
 
 local SpoonerPrompts, ClearTasksPrompt, DetachPrompt
 
@@ -3072,6 +3073,107 @@ function MainSpoonerUpdates()
 	end
 end
 
+local entityEnumerator = {
+	__gc = function(enum)
+		if enum.destructor and enum.handle then
+			enum.destructor(enum.handle)
+		end
+		enum.destructor = nil
+		enum.handle = nil
+	end
+}
+
+local function enumerateEntities(firstFunc, nextFunc, endFunc)
+	return coroutine.wrap(function()
+		local iter, id = firstFunc()
+
+		if not id or id == 0 then
+			endFunc(iter)
+			return
+		end
+
+		local enum = {handle = iter, destructor = endFunc}
+		setmetatable(enum, entityEnumerator)
+
+		local next = true
+		repeat
+			coroutine.yield(id)
+			next, id = nextFunc(iter)
+		until not next
+
+		enum.destructor, enum.handle = nil, nil
+		endFunc(iter)
+	end)
+end
+
+local function enumeratePeds()
+	return enumerateEntities(FindFirstPed, FindNextPed, EndFindPed)
+end
+
+local function enumerateVehicles()
+	return enumerateEntities(FindFirstVehicle, FindNextVehicle, EndFindVehicle)
+end
+
+local function enumerateObjects()
+	return enumerateEntities(FindFirstObject, FindNextObject, EndFindObject)
+end
+
+local function drawText3d(x, y, z, text)
+	local onScreen, screenX, screenY = GetScreenCoordFromWorldCoord(x, y, z)
+
+	if onScreen then
+		SetTextScale(0.35, 0.35)
+
+		if Config.isRDR then
+			SetTextFontForCurrentCommand(1)
+			SetTextColor(255, 255, 255, 255)
+		else
+			SetTextFont(0)
+			SetTextColour(255, 255, 255, 255)
+		end
+
+		SetTextCentre(1)
+
+		if Config.isRDR then
+			DisplayText(CreateVarString(10, "LITERAL_STRING", text), screenX, screenY)
+		else
+			SetTextEntry("STRING")
+			AddTextComponentString(text)
+			DrawText(screenX, screenY)
+		end
+	end
+end
+
+local function drawEntityHandle(type, entity, camCoords)
+	local coords = GetEntityCoords(entity)
+
+	if #(camCoords - coords) <= Config.EntityHandleDrawDistance then
+		drawText3d(coords.x, coords.y, coords.z, type .. " " .. tostring(entity))
+	end
+end
+
+local function drawEntityHandles()
+	if IsDisabledControlJustPressed(0, Config.EntityHandlesControl) then
+		showEntityHandles = not showEntityHandles
+	end
+
+	if showEntityHandles and Cam then
+		local camCoords = GetCamCoord(Cam)
+
+		for ped in enumeratePeds() do
+			drawEntityHandle("ped", ped, camCoords)
+		end
+
+		for vehicle in enumerateVehicles() do
+			drawEntityHandle("vehicle", vehicle, camCoords)
+		end
+
+		for object in enumerateObjects() do
+			drawEntityHandle("object", object, camCoords)
+		end
+	end
+end
+
 CreateThread(function()
 	TriggerEvent('chat:addSuggestion', '/spooner', 'Toggle spooner mode', {})
 
@@ -3083,6 +3185,8 @@ CreateThread(function()
 		if Config.isRDR then
 			SpoonerPrompts:handleEvents()
 		end
+
+		drawEntityHandles()
 
 		Wait(0)
 	end
