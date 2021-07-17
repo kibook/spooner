@@ -3155,23 +3155,25 @@ local function drawEntityHandle(type, entity, camCoords)
 end
 
 local function drawEntityHandles()
-	if IsDisabledControlJustPressed(0, Config.EntityHandlesControl) then
-		showEntityHandles = not showEntityHandles
-	end
-
-	if showEntityHandles and Cam then
-		local camCoords = GetCamCoord(Cam)
-
-		for ped in enumeratePeds() do
-			drawEntityHandle("ped", ped, camCoords)
+	if Cam then
+		if IsDisabledControlJustPressed(0, Config.EntityHandlesControl) then
+			showEntityHandles = not showEntityHandles
 		end
 
-		for vehicle in enumerateVehicles() do
-			drawEntityHandle("vehicle", vehicle, camCoords)
-		end
+		if showEntityHandles then
+			local camCoords = GetCamCoord(Cam)
 
-		for object in enumerateObjects() do
-			drawEntityHandle("object", object, camCoords)
+			for ped in enumeratePeds() do
+				drawEntityHandle("ped", ped, camCoords)
+			end
+
+			for vehicle in enumerateVehicles() do
+				drawEntityHandle("vehicle", vehicle, camCoords)
+			end
+
+			for object in enumerateObjects() do
+				drawEntityHandle("object", object, camCoords)
+			end
 		end
 	end
 end
