@@ -1765,48 +1765,50 @@ function ConvertDatabaseToYmap(database)
 	local entitiesXml = '\t<entities>\n'
 
 	for entity, properties in pairs(database.spawn) do
-		local q = toQuaternion(properties.pitch, properties.roll, properties.yaw)
+		if properties.type == 3 then
+			local q = toQuaternion(properties.pitch, properties.roll, properties.yaw)
 
-		if not minX or properties.x < minX then
-			minX = properties.x
-		end
-		if not maxX or properties.x > maxX then
-			maxX = properties.x
-		end
-		if not minY or properties.y < minY then
-			minY = properties.y
-		end
-		if not maxY or properties.y > maxY then
-			maxY = properties.y
-		end
-		if not minZ or properties.z < minZ then
-			minZ = properties.z
-		end
-		if not maxZ or properties.z > maxZ then
-			maxZ = properties.z
-		end
+			if not minX or properties.x < minX then
+				minX = properties.x
+			end
+			if not maxX or properties.x > maxX then
+				maxX = properties.x
+			end
+			if not minY or properties.y < minY then
+				minY = properties.y
+			end
+			if not maxY or properties.y > maxY then
+				maxY = properties.y
+			end
+			if not minZ or properties.z < minZ then
+				minZ = properties.z
+			end
+			if not maxZ or properties.z > maxZ then
+				maxZ = properties.z
+			end
 
-		local flags = 1572865
+			local flags = 1572865
 
-		if properties.isFrozen then
-			flags = flags + 32
+			if properties.isFrozen then
+				flags = flags + 32
+			end
+
+			entitiesXml = entitiesXml .. '\t\t<Item type="CEntityDef">\n'
+			entitiesXml = entitiesXml .. '\t\t\t<archetypeName>' .. properties.name .. '</archetypeName>\n'
+			entitiesXml = entitiesXml .. '\t\t\t<flags value="' .. flags .. '"/>\n'
+			entitiesXml = entitiesXml .. string.format('\t\t\t<position x="%f" y="%f" z="%f"/>\n', properties.x, properties.y, properties.z)
+			entitiesXml = entitiesXml .. string.format('\t\t\t<rotation w="%f" x="%f" y="%f" z="%f"/>\n', q.w, q.x, q.y, q.z)
+			entitiesXml = entitiesXml .. '\t\t\t<scaleXY value="1"/>\n'
+			entitiesXml = entitiesXml .. '\t\t\t<scaleZ value="1"/>\n'
+			entitiesXml = entitiesXml .. '\t\t\t<parentIndex value="-1"/>\n'
+			entitiesXml = entitiesXml .. '\t\t\t<lodDist value="500"/>\n'
+			entitiesXml = entitiesXml .. '\t\t\t<childLodDist value="500"/>\n'
+			entitiesXml = entitiesXml .. '\t\t\t<lodLevel>LODTYPES_DEPTH_HD</lodLevel>\n'
+			entitiesXml = entitiesXml .. '\t\t\t<numChildren value="0"/>\n'
+			entitiesXml = entitiesXml .. '\t\t\t<ambientOcclusionMultiplier value="255"/>\n'
+			entitiesXml = entitiesXml .. '\t\t\t<artificialAmbientOcclusion value="255"/>\n'
+			entitiesXml = entitiesXml .. '\t\t</Item>\n'
 		end
-
-		entitiesXml = entitiesXml .. '\t\t<Item type="CEntityDef">\n'
-		entitiesXml = entitiesXml .. '\t\t\t<archetypeName>' .. properties.name .. '</archetypeName>\n'
-		entitiesXml = entitiesXml .. '\t\t\t<flags value="' .. flags .. '"/>\n'
-		entitiesXml = entitiesXml .. string.format('\t\t\t<position x="%f" y="%f" z="%f"/>\n', properties.x, properties.y, properties.z)
-		entitiesXml = entitiesXml .. string.format('\t\t\t<rotation w="%f" x="%f" y="%f" z="%f"/>\n', q.w, q.x, q.y, q.z)
-		entitiesXml = entitiesXml .. '\t\t\t<scaleXY value="1"/>\n'
-		entitiesXml = entitiesXml .. '\t\t\t<scaleZ value="1"/>\n'
-		entitiesXml = entitiesXml .. '\t\t\t<parentIndex value="-1"/>\n'
-		entitiesXml = entitiesXml .. '\t\t\t<lodDist value="500"/>\n'
-		entitiesXml = entitiesXml .. '\t\t\t<childLodDist value="500"/>\n'
-		entitiesXml = entitiesXml .. '\t\t\t<lodLevel>LODTYPES_DEPTH_HD</lodLevel>\n'
-		entitiesXml = entitiesXml .. '\t\t\t<numChildren value="0"/>\n'
-		entitiesXml = entitiesXml .. '\t\t\t<ambientOcclusionMultiplier value="255"/>\n'
-		entitiesXml = entitiesXml .. '\t\t\t<artificialAmbientOcclusion value="255"/>\n'
-		entitiesXml = entitiesXml .. '\t\t</Item>\n'
 	end
 
 	entitiesXml = entitiesXml .. '\t</entities>\n'
