@@ -2570,4 +2570,15 @@ window.addEventListener('load', function() {
 			openDatabase(resp);
 		});
 	});
+
+	document.getElementById('properties-attack').addEventListener('click', function(event) {
+		let handle = currentEntity();
+
+		openEntitySelect('ped-options-menu', function(entity) {
+			sendMessage('attackPed', {
+				handle: handle,
+				ped: entity
+			});
+		}, handle);
+	});
 });

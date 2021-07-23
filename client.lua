@@ -103,6 +103,7 @@ Permissions.properties.ped.scale = false
 Permissions.properties.ped.configFlags = false
 Permissions.properties.ped.goToWaypoint = false
 Permissions.properties.ped.goToEntity = false
+Permissions.properties.ped.attack = false
 
 Permissions.properties.vehicle = {}
 Permissions.properties.vehicle.repair = false
@@ -1717,6 +1718,14 @@ RegisterNUICallback('repairVehicle', function(data, cb)
 		SetVehicleFixed(data.handle)
 	end
 	cb({})
+end)
+
+RegisterNUICallback('attackPed', function(data, cb)
+	if Permissions.properties.ped.attack and CanModifyEntity(data.handle) then
+		RequestControl(data.handle)
+		TaskCombatPed(data.handle, data.ped)
+	end
+	cb {}
 end)
 
 function ConvertDatabaseToMapEditorXml(creator, database)
