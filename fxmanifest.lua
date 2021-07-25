@@ -1,5 +1,7 @@
 fx_version "adamant"
 
+dependency "logmanager"
+
 files {
 	"ui/index.html",
 	"ui/style.css",
