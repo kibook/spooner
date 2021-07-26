@@ -719,6 +719,14 @@ function PlayAnimation(ped, anim)
 	return true
 end
 
+local function startScenario(ped, scenario)
+	if Config.isRDR then
+		TaskStartScenarioInPlace(ped, GetHashKey(scenario), -1)
+	else
+		TaskStartScenarioInPlace(ped, scenario, -1)
+	end
+end
+
 function SpawnPed(props)
 	if not Permissions.spawn.ped then
 		return nil
@@ -772,7 +780,7 @@ function SpawnPed(props)
 
 	if props.scenario then
 		Wait(500)
-		TaskStartScenarioInPlace(ped, GetHashKey(props.scenario), -1)
+		startScenario(ped, props.scenario)
 	end
 
 	if props.blockNonTemporaryEvents then
@@ -2060,7 +2068,7 @@ end)
 RegisterNUICallback('performScenario', function(data, cb)
 	if Permissions.properties.ped.scenario and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
-		TaskStartScenarioInPlace(data.handle, GetHashKey(data.scenario), 0, true)
+		startScenario(data.handle, data.scenario)
 
 		if Database[data.handle] then
 			Database[data.handle].animation = nil
@@ -3239,7 +3247,7 @@ function UpdateDbEntities()
 			local hash = GetHashKey(properties.scenario)
 
 			if not IsPedUsingScenarioHash(entity, hash) then
-				TaskStartScenarioInPlace(entity, hash, -1)
+				startScenario(entity, properties.scenario)
 			end
 		elseif properties.animation then
 			if not IsEntityPlayingAnim(entity, properties.animation.dict, properties.animation.name, properties.animation.flag) then
