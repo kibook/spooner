@@ -781,7 +781,11 @@ function SpawnPed(props)
 
 	if props.weapons then
 		for _, weapon in ipairs(props.weapons) do
-			GiveWeaponToPed_2(ped, GetHashKey(weapon), 500, true, false, 0, false, 0.5, 1.0, 0, false, 0.0, false)
+			if Config.isRDR then
+				GiveWeaponToPed_2(ped, GetHashKey(weapon), 500, true, false, 0, false, 0.5, 1.0, 0, false, 0.0, false)
+			else
+				GiveWeaponToPed(ped, GetHashKey(weapon), 500, false, true)
+			end
 		end
 	end
 
@@ -2159,7 +2163,7 @@ RegisterNUICallback('giveWeapon', function(data, cb)
 		if Config.isRDR then
 			GiveWeaponToPed_2(data.handle, GetHashKey(data.weapon), 500, true, false, 0, false, 0.5, 1.0, 0, false, 0.0, false)
 		else
-			GiveWeaponToPed(data.handle, GetHashKey(data.weapon), 500, true, false)
+			GiveWeaponToPed(data.handle, GetHashKey(data.weapon), 500, false, true)
 		end
 
 		if Database[data.handle] then
