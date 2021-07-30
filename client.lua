@@ -609,8 +609,8 @@ function SetWalkStyle(ped, base, style)
 	end
 end
 
-local function log(action)
-	exports.logmanager:log(GetCurrentResourceName(), action)
+local function log(message, coords)
+	exports.logmanager:log{resource = GetCurrentResourceName(), message = message, coords = coords}
 end
 
 function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, isVisible, lightsIntensity, lightsColour, lightsType)
@@ -660,7 +660,7 @@ function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, 
 
 	AddEntityToDatabase(object, name)
 
-	log(("Spawned object %s at (%.2f, %.2f, %.2f)"):format(name, x, y, z))
+	log(("Spawned object %s"):format(name), vector3(x, y, z))
 
 	return object
 end
@@ -704,7 +704,7 @@ function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collisionDisabled,
 
 	AddEntityToDatabase(veh, name)
 
-	log(("Spawned vehicle %s at (%.2f, %.2f, %.2f)"):format(name, x, y, z))
+	log(("Spawned vehicle %s"):format(name), vector3(x, y, z))
 
 	return veh
 end
@@ -828,7 +828,7 @@ function SpawnPed(props)
 	Database[ped].walkStyle = props.walkStyle
 	Database[ped].scale = props.scale
 
-	log(("Spawned ped %s at (%.2f, %.2f, %.2f)"):format(props.name, props.x, props.y, props.z))
+	log(("Spawned ped %s"):format(props.name), vector3(props.x, props.y, props.z))
 
 	return ped
 end
@@ -889,7 +889,7 @@ function SpawnPropset(name, model, x, y, z, heading)
 
 	DeletePropset(propset, false, false)
 
-	log(("Spawned propset %s at (%.2f, %.2f, %.2f)"):format(name, x, y, z))
+	log(("Spawned propset %s"):format(name), vector3(x, y, z))
 
 	return nil
 end
@@ -917,7 +917,7 @@ function SpawnPickup(name, model, x, y, z)
 	Database[pickup].model = model
 	Database[pickup].type = 5
 
-	log(("Spawned pickup %s at (%.2f, %.2f, %.2f)"):format(name, x, y, z))
+	log(("Spawned pickup %s"):format(name), vector3(x, y, z))
 
 	return pickup
 end
@@ -989,7 +989,7 @@ function RemoveEntity(entity)
 
 	local entityTypeName = ({"ped", "vehicle", "object", "propset", "pickup"})[entityType] or "entity"
 
-	log(("Deleted %s %s at (%.2f, %.2f, %.2f)"):format(entityTypeName, modelName, coords.x, coords.y, coords.z))
+	log(("Deleted %s %s"):format(entityTypeName, modelName), coords)
 
 	RemoveEntityFromDatabase(entity)
 end
