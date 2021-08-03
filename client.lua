@@ -610,7 +610,7 @@ function SetWalkStyle(ped, base, style)
 end
 
 local function log(message, coords)
-	exports.logmanager:log{resource = GetCurrentResourceName(), message = message, coords = coords}
+	exports.logmanager:log{message = message, coords = coords}
 end
 
 function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, isVisible, lightsIntensity, lightsColour, lightsType)
