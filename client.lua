@@ -429,7 +429,7 @@ function GetLiveEntityProperties(entity)
 		isSelf = entity == PlayerPedId(),
 		playerName = player and GetPlayerName(player),
 		weapons = {},
-		isFrozen = IsEntityFrozen(entity),
+		isFrozen = Config.isRDR and IsEntityFrozen(entity) or false,
 		isVisible = IsEntityVisible(entity),
 		pedConfigFlags = type == 1 and GetPedConfigFlags(entity) or nil,
 		attachment = {
@@ -503,6 +503,8 @@ function AddEntityToDatabase(entity, name, attachment)
 		attachFixedRot    = (Database[entity] and Database[entity].attachment.fixedRot       or true)
 	end
 
+	local isFrozen = Database[entity] and Database[entity].isFrozen
+
 	Database[entity] = GetLiveEntityProperties(entity)
 
 	if name then
@@ -545,6 +547,10 @@ function AddEntityToDatabase(entity, name, attachment)
 	Database[entity].walkStyle = walkStyle
 
 	Database[entity].scale = scale
+
+	if not Config.isRDR then
+		Database[entity].isFrozen = isFrozen
+	end
 
 	return Database[entity]
 end
@@ -656,6 +662,10 @@ function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, 
 
 	AddEntityToDatabase(object, name)
 
+	if not Config.isRDR and Database[object] then
+		Database[object].isFrozen = true
+	end
+
 	return object
 end
 
@@ -697,6 +707,10 @@ function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collisionDisabled,
 	end
 
 	AddEntityToDatabase(veh, name)
+
+	if not Config.isRDR and Database[veh] then
+		Database[veh].isFrozen = collisionDisabled
+	end
 
 	return veh
 end
@@ -819,6 +833,10 @@ function SpawnPed(props)
 	Database[ped].weapons = props.weapons
 	Database[ped].walkStyle = props.walkStyle
 	Database[ped].scale = props.scale
+
+	if not Config.isRDR and Database[ped] then
+		Database[ped].isFrozen = props.collisionDisabled
+	end
 
 	return ped
 end
@@ -1134,6 +1152,10 @@ RegisterNUICallback('freezeEntity', function(data, cb)
 	if Permissions.properties.freeze and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		FreezeEntityPosition(data.handle, true)
+
+		if not Config.isRDR and Database[data.handle] then
+			Database[data.handle].isFrozen = true
+		end
 	end
 	cb({})
 end)
@@ -1142,6 +1164,10 @@ RegisterNUICallback('unfreezeEntity', function(data, cb)
 	if Permissions.properties.freeze and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		FreezeEntityPosition(data.handle, false)
+
+		if not Config.isRDR and Database[data.handle] then
+			Database[data.handle].isFrozen = false
+		end
 	end
 	cb({})
 end)
