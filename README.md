@@ -20,11 +20,13 @@ Tool for spawning, placing, and removing entities, inspired by Menyoo's Object S
 
 - [uiprompt](https://github.com/kibook/redm-uiprompt)
 
-# Install
+# Installation
 
 1. Place in the resources directory.
 
-2. Add the following to server.cfg:
+2. Edit fxmanifest.lua and set the `gameName` variable to either `"gta5"` (for FiveM) or `"rdr3"` (for RedM).
+
+3. Add the following to server.cfg:
 
    ```
 	 exec path/to/spooner/permissions.cfg
@@ -34,6 +36,10 @@ Tool for spawning, placing, and removing entities, inspired by Menyoo's Object S
 	 The path to permissions.cfg depends on where in the resources directory the resource is installed.
 
 	 The name of the resource folder must be `spooner`, otherwise players' saved databases will not be accessible.
+
+4. Restart the server.
+
+# Permissions
 
 The default permissions give full access to the object spooner to all players. You can limit which players can use the spooner or what parts they can access by modifying `permissions.cfg`.
 
