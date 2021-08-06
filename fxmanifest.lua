@@ -32,6 +32,8 @@ server_scripts {
 }
 
 if gameName == "rdr3" then
+	dependency "uiprompt"
+
 	files {
 		"ui/chineserocks.ttf",
 		"ui/rdr3.css"
