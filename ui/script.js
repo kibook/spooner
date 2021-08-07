@@ -1727,7 +1727,6 @@ window.addEventListener('load', function() {
 	});
 
 	document.querySelector('#player-model-spawn-by-name').addEventListener('click', function(event) {
-		document.querySelector('#player-model-menu').style.display = 'none';
 		setPlayerModel(document.querySelector('#player-model-search-filter').value);
 	});
 
