@@ -2542,6 +2542,11 @@ window.addEventListener('load', function() {
 
 		copyToClipboard(x + ', ' + y + ', ' + z)
 	});
+	
+	document.getElementById('copy-model-name').addEventListener('click', function(event) {
+               var modelname = document.getElementById('properties-model').innerText;
+               copyToClipboard(modelname)
+       });
 
 	document.getElementById('copy-attachment-rotation').addEventListener('click', function(event) {
 		var p = document.getElementById('attachment-pitch').value;
