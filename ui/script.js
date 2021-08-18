@@ -2542,7 +2542,7 @@ window.addEventListener('load', function() {
 
 		copyToClipboard(x + ', ' + y + ', ' + z)
 	});
-	
+
 	document.getElementById('copy-model-name').addEventListener('click', function(event) {
                var modelname = document.getElementById('properties-model').innerText;
                copyToClipboard(modelname)
