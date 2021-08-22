@@ -2423,9 +2423,6 @@ window.addEventListener('load', function() {
 			case 'map-editor-xml':
 				importButton.disabled = true;
 				break;
-			case 'ymap':
-				importButton.disabled = true;
-				break;
 			case 'propplacer':
 				importButton.disabled = true;
 				break;
