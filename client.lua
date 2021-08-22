@@ -1541,6 +1541,15 @@ function LoadDatabase(db, relative, replace)
 	end
 
 	for _, spawn in ipairs(spawns) do
+		if spawn.props.quaternion then
+			local x = spawn.props.quaternion.x
+			local y = spawn.props.quaternion.y
+			local z = spawn.props.quaternion.z
+			local w = -spawn.props.quaternion.w
+
+			SetEntityQuaternion(handles[spawn.entity], x, y, z, w)
+		end
+
 		if spawn.props.attachment and spawn.props.attachment.to ~= 0 then
 			local from  = handles[spawn.entity]
 			local to    = spawn.props.attachment.to == -1 and PlayerPedId() or handles[spawn.props.attachment.to]
@@ -1931,6 +1940,68 @@ function RestoreDbs(content)
 	end
 end
 
+local function loadYmap(xml)
+	local curElem, isEntity
+
+	local db = {}
+	local i = 0
+	local key = "0"
+
+	local parser = SLAXML:parser {
+		startElement = function(name, nsURI, nsPrefix)
+			curElem = name
+		end,
+		attribute = function(name, value, nsURI, nsPrefix)
+			if name == "type" and value == "CEntityDef" then
+				isEntity = true
+				db[key] = {
+					quaternion = {},
+					x = 0.0,
+					y = 0.0,
+					z = 0.0,
+					pitch = 0.0,
+					roll = 0.0,
+					yaw = 0.0
+				}
+			elseif curElem == "position" then
+				value = (tonumber(value) or 0) + 0.0
+				if name == "x" then
+					db[key].x = value
+				elseif name == "y" then
+					db[key].y = value
+				elseif name == "z" then
+					db[key].z = value
+				end
+			elseif curElem == "rotation" then
+				db[key].quaternion[name] = (tonumber(value) or 0) + 0.0
+			elseif isEntity and curElem == "flags" and name == "value" then
+				value = tonumber(value) or 0
+				db[key].isFrozen = (value & 32) == 32
+			end
+		end,
+		closeElement = function(name, nsURI)
+			if isEntity and name == "Item" then
+				isEntity = false
+				i = i + 1
+				key = tostring(i)
+			end
+			curElem = nil
+		end,
+		text = function(text, cdata)
+			if isEntity then
+				if curElem == "archetypeName" then
+					db[key].name = text
+					db[key].model = GetHashKey(text)
+				end
+			end
+		end
+	}
+
+	parser:parse(xml, {stripWhitespace=true})
+
+	LoadDatabase(db, false, false)
+end
+
 function ExportDatabase(format)
 	UpdateDatabase()
 
@@ -1958,6 +2029,8 @@ function ImportDatabase(format, content)
 		end
 	elseif format == 'backup' then
 		RestoreDbs(content)
+	elseif format == 'ymap' then
+		loadYmap(content)
 	end
 end
 
