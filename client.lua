@@ -15,20 +15,25 @@ local KeepSelfInDb = true
 local FocusTarget
 local FocusTargetPos
 local FreeFocus = false
+local showEntityHandles = false
 
-local SpoonerPrompts = UipromptGroup:new("Spooner", false)
+local SpoonerPrompts, ClearTasksPrompt, DetachPrompt
 
-local ClearTasksPrompt = Uiprompt:new(`INPUT_INTERACT_NEG`, "Clear Tasks", SpoonerPrompts)
-ClearTasksPrompt:setHoldMode(true)
-ClearTasksPrompt:setOnHoldModeJustCompleted(function()
-	TryClearTasks(PlayerPedId())
-end)
+if Config.isRDR then
+	SpoonerPrompts = UipromptGroup:new("Spooner", false)
 
-local DetachPrompt = Uiprompt:new(`INPUT_INTERACT_LEAD_ANIMAL`, "Detach", SpoonerPrompts)
-DetachPrompt:setHoldMode(true)
-DetachPrompt:setOnHoldModeJustCompleted(function()
-	TryDetach(PlayerPedId())
-end)
+	ClearTasksPrompt = Uiprompt:new(`INPUT_INTERACT_NEG`, "Clear Tasks", SpoonerPrompts)
+	ClearTasksPrompt:setHoldMode(true)
+	ClearTasksPrompt:setOnHoldModeJustCompleted(function()
+	       TryClearTasks(PlayerPedId())
+	end)
+
+	DetachPrompt = Uiprompt:new(`INPUT_INTERACT_LEAD_ANIMAL`, "Detach", SpoonerPrompts)
+	DetachPrompt:setHoldMode(true)
+	DetachPrompt:setOnHoldModeJustCompleted(function()
+	       TryDetach(PlayerPedId())
+	end)
+end
 
 local StoreDeleted = false
 local DeletedEntities = {}
@@ -85,6 +90,7 @@ Permissions.properties.ped.animation = false
 Permissions.properties.ped.clearTasks = false
 Permissions.properties.ped.weapon = false
 Permissions.properties.ped.mount = false
+Permissions.properties.ped.enterVehicle = false
 Permissions.properties.ped.resurrect = false
 Permissions.properties.ped.ai = false
 Permissions.properties.ped.knockOffProps = false
@@ -97,6 +103,7 @@ Permissions.properties.ped.scale = false
 Permissions.properties.ped.configFlags = false
 Permissions.properties.ped.goToWaypoint = false
 Permissions.properties.ped.goToEntity = false
+Permissions.properties.ped.attack = false
 
 Permissions.properties.vehicle = {}
 Permissions.properties.vehicle.repair = false
@@ -301,7 +308,7 @@ function GetInView(x1, y1, z1, pitch, roll, yaw)
 
 	local retval, hit, endCoords, surfaceNormal, entityHit = GetShapeTestResult(StartShapeTestRay(x1, y1, z1, x2, y2, z2, -1, -1, 1))
 
-	if entityHit <= 0 then
+	if entityHit <= 0 or GetEntityType(entityHit) == 0 then
 		return endCoords, nil, 0
 	end
 
@@ -341,7 +348,7 @@ function GetModelName(model)
 		end
 	end
 
-	return string.format('%x', model)
+	return tostring(model)
 end
 
 function GetPlayerFromPed(ped)
@@ -355,23 +362,35 @@ function GetPlayerFromPed(ped)
 end
 
 function GetBoneIndex(entity, bone)
-	if not bone then
-		return 0
-	elseif type(bone) == 'number' then
+	if type(bone) == 'number' then
 		return bone
 	else
-		return GetEntityBoneIndexByName(entity, bone)
+		if Config.isRDR then
+			return GetEntityBoneIndexByName(entity, bone)
+		else
+			return GetPedBoneIndex(entity, Bones[bone])
+		end
 	end
 end
 
 function FindBoneName(entity, boneIndex)
-	for _, boneName in ipairs(Bones) do
-		if GetEntityBoneIndexByName(entity, boneName) == boneIndex then
-			return boneName
+	if Config.isRDR then
+		for _, boneName in ipairs(Bones) do
+			if GetEntityBoneIndexByName(entity, boneName) == boneIndex then
+				return boneName
+			end
 		end
-	end
 
-	return boneIndex
+		return boneIndex
+	else
+		for boneName, boneId in pairs(Bones) do
+			if GetPedBoneIndex(entity, boneId) == boneIndex then
+				return boneName
+			end
+		end
+
+		return boneIndex
+	end
 end
 
 function GetPedConfigFlags(ped)
@@ -410,7 +429,7 @@ function GetLiveEntityProperties(entity)
 		isSelf = entity == PlayerPedId(),
 		playerName = player and GetPlayerName(player),
 		weapons = {},
-		isFrozen = IsEntityFrozen(entity),
+		isFrozen = Config.isRDR and IsEntityFrozen(entity) or false,
 		isVisible = IsEntityVisible(entity),
 		pedConfigFlags = type == 1 and GetPedConfigFlags(entity) or nil,
 		attachment = {
@@ -484,6 +503,8 @@ function AddEntityToDatabase(entity, name, attachment)
 		attachFixedRot    = (Database[entity] and Database[entity].attachment.fixedRot       or true)
 	end
 
+	local isFrozen = Database[entity] and Database[entity].isFrozen
+
 	Database[entity] = GetLiveEntityProperties(entity)
 
 	if name then
@@ -526,6 +547,10 @@ function AddEntityToDatabase(entity, name, attachment)
 	Database[entity].walkStyle = walkStyle
 
 	Database[entity].scale = scale
+
+	if not Config.isRDR then
+		Database[entity].isFrozen = isFrozen
+	end
 
 	return Database[entity]
 end
@@ -637,6 +662,10 @@ function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, 
 
 	AddEntityToDatabase(object, name)
 
+	if not Config.isRDR and Database[object] then
+		Database[object].isFrozen = true
+	end
+
 	return object
 end
 
@@ -679,6 +708,10 @@ function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collisionDisabled,
 
 	AddEntityToDatabase(veh, name)
 
+	if not Config.isRDR and Database[veh] then
+		Database[veh].isFrozen = collisionDisabled
+	end
+
 	return veh
 end
 
@@ -700,6 +733,14 @@ function PlayAnimation(ped, anim)
 	return true
 end
 
+local function startScenario(ped, scenario)
+	if Config.isRDR then
+		TaskStartScenarioInPlace(ped, GetHashKey(scenario), -1)
+	else
+		TaskStartScenarioInPlace(ped, scenario, -1)
+	end
+end
+
 function SpawnPed(props)
 	if not Permissions.spawn.ped then
 		return nil
@@ -713,7 +754,12 @@ function SpawnPed(props)
 		return nil
 	end
 
-	local ped = CreatePed_2(props.model, props.x, props.y, props.z, 0.0, true, false)
+	local ped
+	if Config.isRDR then
+		ped = CreatePed_2(props.model, props.x, props.y, props.z, 0.0, true, false)
+	else
+		ped = CreatePed(0, props.model, props.x, props.y, props.z, 0.0, true, false)
+	end
 
 	SetModelAsNoLongerNeeded(props.model)
 
@@ -748,7 +794,7 @@ function SpawnPed(props)
 
 	if props.scenario then
 		Wait(500)
-		TaskStartScenarioInPlace(ped, GetHashKey(props.scenario), -1)
+		startScenario(ped, props.scenario)
 	end
 
 	if props.blockNonTemporaryEvents then
@@ -757,7 +803,11 @@ function SpawnPed(props)
 
 	if props.weapons then
 		for _, weapon in ipairs(props.weapons) do
-			GiveWeaponToPed_2(ped, GetHashKey(weapon), 500, true, false, 0, false, 0.5, 1.0, 0, false, 0.0, false)
+			if Config.isRDR then
+				GiveWeaponToPed_2(ped, GetHashKey(weapon), 500, true, false, 0, false, 0.5, 1.0, 0, false, 0.0, false)
+			else
+				GiveWeaponToPed(ped, GetHashKey(weapon), 500, false, true)
+			end
 		end
 	end
 
@@ -783,6 +833,10 @@ function SpawnPed(props)
 	Database[ped].weapons = props.weapons
 	Database[ped].walkStyle = props.walkStyle
 	Database[ped].scale = props.scale
+
+	if not Config.isRDR and Database[ped] then
+		Database[ped].isFrozen = props.collisionDisabled
+	end
 
 	return ped
 end
@@ -1071,6 +1125,18 @@ RegisterNUICallback('addEntityToDatabase', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('addCustomEntityToDatabase', function(data, cb)
+	if not Permissions.maxEntities and Permissions.modify.other then
+		AddEntityToDatabase(data.handle)
+
+		if not KeepSelfInDb and data.handle == PlayerPedId() then
+			KeepSelfInDb = true
+		end
+	end
+
+	cb{database = json.encode(Database)}
+end)
+
 RegisterNUICallback('removeEntityFromDatabase', function(data, cb)
 	if not Permissions.maxEntities and Permissions.modify.other then
 		RemoveEntityFromDatabase(data.handle)
@@ -1086,6 +1152,10 @@ RegisterNUICallback('freezeEntity', function(data, cb)
 	if Permissions.properties.freeze and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		FreezeEntityPosition(data.handle, true)
+
+		if not Config.isRDR and Database[data.handle] then
+			Database[data.handle].isFrozen = true
+		end
 	end
 	cb({})
 end)
@@ -1094,6 +1164,10 @@ RegisterNUICallback('unfreezeEntity', function(data, cb)
 	if Permissions.properties.freeze and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
 		FreezeEntityPosition(data.handle, false)
+
+		if not Config.isRDR and Database[data.handle] then
+			Database[data.handle].isFrozen = false
+		end
 	end
 	cb({})
 end)
@@ -1243,7 +1317,19 @@ end
 
 function PlaceOnGroundProperly(entity)
 	local r1 = GetEntityRotation(entity, 2)
-	PlaceEntityOnGroundProperly(entity, false)
+
+	if Config.isRDR then
+		PlaceEntityOnGroundProperly(entity, false)
+	else
+		local type = GetEntityType(entity)
+
+		if type == 2 then
+			SetVehicleOnGroundProperly(entity)
+		elseif type == 3 then
+			PlaceObjectOnGroundProperly(entity, false)
+		end
+	end
+
 	local r2 = GetEntityRotation(entity, 2)
 	SetEntityRotation(entity, r2.x, r2.y, r1.z, 2)
 end
@@ -1307,6 +1393,10 @@ function RemoveDeletedEntity(x, y, z, hash)
 end
 
 function AttachEntity(from, to, bone, x, y, z, pitch, roll, yaw, useSoftPinning, collision, vertex, fixedRot)
+	if not bone then
+		bone = 0
+	end
+
 	local boneIndex = GetBoneIndex(to, bone)
 
 	AttachEntityToEntity(from, to, boneIndex, x, y, z, pitch, roll, yaw, false, useSoftPinning, collision, false, vertex, fixedRot, false, false)
@@ -1430,6 +1520,15 @@ function LoadDatabase(db, relative, replace)
 	end
 
 	for _, spawn in ipairs(spawns) do
+		if spawn.props.quaternion then
+			local x = spawn.props.quaternion.x
+			local y = spawn.props.quaternion.y
+			local z = spawn.props.quaternion.z
+			local w = -spawn.props.quaternion.w
+
+			SetEntityQuaternion(handles[spawn.entity], x, y, z, w)
+		end
+
 		if spawn.props.attachment and spawn.props.attachment.to ~= 0 then
 			local from  = handles[spawn.entity]
 			local to    = spawn.props.attachment.to == -1 and PlayerPedId() or handles[spawn.props.attachment.to]
@@ -1539,6 +1638,20 @@ function GetFavourites()
 end
 
 RegisterNUICallback('init', function(data, cb)
+	local bones
+
+	if Config.isRDR then
+		bones = Bones
+	else
+		bones = {}
+
+		for boneName, _ in pairs(Bones) do
+			table.insert(bones, boneName)
+		end
+
+		table.sort(bones)
+	end
+
 	cb({
 		peds = json.encode(Peds),
 		vehicles = json.encode(Vehicles),
@@ -1548,7 +1661,7 @@ RegisterNUICallback('init', function(data, cb)
 		animations = json.encode(Animations),
 		propsets = json.encode(Propsets),
 		pickups = json.encode(Pickups),
-		bones = json.encode(Bones),
+		bones = json.encode(bones),
 		walkStyleBases = json.encode(WalkStyleBases),
 		walkStyles = json.encode(WalkStyles),
 		adjustSpeed = AdjustSpeed,
@@ -1648,8 +1761,16 @@ RegisterNUICallback('repairVehicle', function(data, cb)
 	cb({})
 end)
 
+RegisterNUICallback('attackPed', function(data, cb)
+	if Permissions.properties.ped.attack and CanModifyEntity(data.handle) then
+		RequestControl(data.handle)
+		TaskCombatPed(data.handle, data.ped)
+	end
+	cb {}
+end)
+
 function ConvertDatabaseToMapEditorXml(creator, database)
-	local xml = '<Map>\n\t<MapMeta Creator="' .. creator .. '"/>\n'
+	local xml = '<?xml version="1.0"?>\n<Map>\n\t<MapMeta Creator="' .. creator .. '"/>\n'
 
 	for _, properties in ipairs(database.delete) do
 		xml = xml .. string.format('\t<DeletedObject Hash="%s" Position_x="%s" Position_y="%s" Position_z="%s"/>\n', properties.model, properties.x, properties.y, properties.z)
@@ -1670,20 +1791,28 @@ function ConvertDatabaseToMapEditorXml(creator, database)
 	return xml
 end
 
-function ToQuaternion(pitch, roll, yaw)
-	local cp = math.cos(pitch * 0.5)
-	local sp = math.sin(pitch * 0.5)
-	local cr = math.cos(pitch * 0.5)
-	local sr = math.sin(pitch * 0.5)
-	local cy = math.cos(pitch * 0.5)
-	local sy = math.sin(pitch * 0.5)
+local function toQuaternion(pitch, roll, yaw)
+	local rot = -vector3(roll, pitch, yaw)
 
-	return {
-		w = cr * cp * cy + sr * sp * sy,
-		x = sr * cp * cy - cr * sp * sy,
-		y = cr * sp * cy + sr * cp * sy,
-		z = cr * cp * sy - sr * sp * cy
-	}
+	local p = math.rad(rot.y)
+	local r = math.rad(rot.z)
+	local y = math.rad(rot.x)
+
+	local cy = math.cos(y * 0.5)
+	local sy = math.sin(y * 0.5)
+	local cr = math.cos(r * 0.5)
+	local sr = math.sin(r * 0.5)
+	local cp = math.cos(p * 0.5)
+	local sp = math.sin(p * 0.5)
+
+	local q = {}
+
+	q.x = cy * sp * cr + sy * cp * sr
+	q.y = sy * cp * cr - cy * sp * sr
+	q.z = cy * cp * sr - sy * sp * cr
+	q.w = cy * cp * cr + sy * sp * sr
+
+	return q
 end
 
 function ConvertDatabaseToYmap(database)
@@ -1692,40 +1821,64 @@ function ConvertDatabaseToYmap(database)
 	local entitiesXml = '\t<entities>\n'
 
 	for entity, properties in pairs(database.spawn) do
-		local q = ToQuaternion(properties.pitch, properties.roll, properties.yaw)
+		if properties.type == 3 then
+			local q = toQuaternion(properties.pitch, properties.roll, properties.yaw)
 
-		if not minX or properties.x < minX then
-			minX = properties.x
-		end
-		if not maxX or properties.x > maxX then
-			maxX = properties.x
-		end
-		if not minY or properties.y < minY then
-			minY = properties.y
-		end
-		if not maxY or properties.y > maxY then
-			maxY = properties.y
-		end
-		if not minZ or properties.z < minZ then
-			minZ = properties.z
-		end
-		if not maxZ or properties.z > maxZ then
-			maxZ = properties.z
-		end
+			if not minX or properties.x < minX then
+				minX = properties.x
+			end
+			if not maxX or properties.x > maxX then
+				maxX = properties.x
+			end
+			if not minY or properties.y < minY then
+				minY = properties.y
+			end
+			if not maxY or properties.y > maxY then
+				maxY = properties.y
+			end
+			if not minZ or properties.z < minZ then
+				minZ = properties.z
+			end
+			if not maxZ or properties.z > maxZ then
+				maxZ = properties.z
+			end
 
-		entitiesXml = entitiesXml .. string.format('\t\t<Item type="CEntityDef">\n\t\t\t<archetypeName>%s</archetypeName>\n\t\t\t<position x="%f" y="%f" z="%f"/>\n\t\t\t<rotation w="%f" x="%f" y="%f" z="%f"/>\n\t\t</Item>\n', properties.name, properties.x, properties.y, properties.z, q.w, q.x, q.y, q.z)
+			local flags = 1572865
+
+			if properties.isFrozen then
+				flags = flags + 32
+			end
+
+			entitiesXml = entitiesXml .. '\t\t<Item type="CEntityDef">\n'
+			entitiesXml = entitiesXml .. '\t\t\t<archetypeName>' .. properties.name .. '</archetypeName>\n'
+			entitiesXml = entitiesXml .. '\t\t\t<flags value="' .. flags .. '"/>\n'
+			entitiesXml = entitiesXml .. string.format('\t\t\t<position x="%f" y="%f" z="%f"/>\n', properties.x, properties.y, properties.z)
+			entitiesXml = entitiesXml .. string.format('\t\t\t<rotation w="%f" x="%f" y="%f" z="%f"/>\n', q.w, q.x, q.y, q.z)
+			entitiesXml = entitiesXml .. '\t\t\t<scaleXY value="1"/>\n'
+			entitiesXml = entitiesXml .. '\t\t\t<scaleZ value="1"/>\n'
+			entitiesXml = entitiesXml .. '\t\t\t<parentIndex value="-1"/>\n'
+			entitiesXml = entitiesXml .. '\t\t\t<lodDist value="500"/>\n'
+			entitiesXml = entitiesXml .. '\t\t\t<childLodDist value="500"/>\n'
+			entitiesXml = entitiesXml .. '\t\t\t<lodLevel>LODTYPES_DEPTH_HD</lodLevel>\n'
+			entitiesXml = entitiesXml .. '\t\t\t<numChildren value="0"/>\n'
+			entitiesXml = entitiesXml .. '\t\t\t<ambientOcclusionMultiplier value="255"/>\n'
+			entitiesXml = entitiesXml .. '\t\t\t<artificialAmbientOcclusion value="255"/>\n'
+			entitiesXml = entitiesXml .. '\t\t</Item>\n'
+		end
 	end
 
 	entitiesXml = entitiesXml .. '\t</entities>\n'
 
-	local xml = '<CMapData>\n'
+	local xml = '<?xml version="1.0"?>\n<CMapData>\n\t<flags value="2"/>\n\t<contentFlags value="65"/>\n'
 
-	xml = xml .. string.format('\t<streamingExtentsMin x="%f" y="%f" z="%f"/>\n', minX - 400, minY - 400, minZ - 400)
-	xml = xml .. string.format('\t<streamingExtentsMax x="%f" y="%f" z="%f"/>\n', maxX + 400, maxY + 400, maxZ + 400)
-	xml = xml .. string.format('\t<entitiesExtentsMin x="%f" y="%f" z="%f"/>\n', minX, minY, minZ)
-	xml = xml .. string.format('\t<entitiesExtentsMax x="%f" y="%f" z="%f"/>\n', maxX, maxY, maxZ)
+	if minX and minY and minZ and maxX and maxY and maxZ then
+		xml = xml .. string.format('\t<streamingExtentsMin x="%f" y="%f" z="%f"/>\n', minX - 400, minY - 400, minZ - 400)
+		xml = xml .. string.format('\t<streamingExtentsMax x="%f" y="%f" z="%f"/>\n', maxX + 400, maxY + 400, maxZ + 400)
+		xml = xml .. string.format('\t<entitiesExtentsMin x="%f" y="%f" z="%f"/>\n', minX, minY, minZ)
+		xml = xml .. string.format('\t<entitiesExtentsMax x="%f" y="%f" z="%f"/>\n', maxX, maxY, maxZ)
 
-	xml = xml .. entitiesXml
+		xml = xml .. entitiesXml
+	end
 
 	xml = xml .. '</CMapData>'
 
@@ -1766,6 +1919,68 @@ function RestoreDbs(content)
 	end
 end
 
+local function loadYmap(xml)
+	local curElem, isEntity
+
+	local db = {}
+	local i = 0
+	local key = "0"
+
+	local parser = SLAXML:parser {
+		startElement = function(name, nsURI, nsPrefix)
+			curElem = name
+		end,
+		attribute = function(name, value, nsURI, nsPrefix)
+			if name == "type" and value == "CEntityDef" then
+				isEntity = true
+				db[key] = {
+					quaternion = {},
+					x = 0.0,
+					y = 0.0,
+					z = 0.0,
+					pitch = 0.0,
+					roll = 0.0,
+					yaw = 0.0
+				}
+			elseif curElem == "position" then
+				value = (tonumber(value) or 0) + 0.0
+				if name == "x" then
+					db[key].x = value
+				elseif name == "y" then
+					db[key].y = value
+				elseif name == "z" then
+					db[key].z = value
+				end
+			elseif curElem == "rotation" then
+				db[key].quaternion[name] = (tonumber(value) or 0) + 0.0
+			elseif isEntity and curElem == "flags" and name == "value" then
+				value = tonumber(value) or 0
+				db[key].isFrozen = (value & 32) == 32
+			end
+		end,
+		closeElement = function(name, nsURI)
+			if isEntity and name == "Item" then
+				isEntity = false
+				i = i + 1
+				key = tostring(i)
+			end
+			curElem = nil
+		end,
+		text = function(text, cdata)
+			if isEntity then
+				if curElem == "archetypeName" then
+					db[key].name = text
+					db[key].model = GetHashKey(text)
+				end
+			end
+		end
+	}
+
+	parser:parse(xml, {stripWhitespace=true})
+
+	LoadDatabase(db, false, false)
+end
+
 function ExportDatabase(format)
 	UpdateDatabase()
 
@@ -1793,6 +2008,8 @@ function ImportDatabase(format, content)
 		end
 	elseif format == 'backup' then
 		RestoreDbs(content)
+	elseif format == 'ymap' then
+		loadYmap(content)
 	end
 end
 
@@ -1944,7 +2161,7 @@ end)
 RegisterNUICallback('performScenario', function(data, cb)
 	if Permissions.properties.ped.scenario and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
-		TaskStartScenarioInPlace(data.handle, GetHashKey(data.scenario), 0, true)
+		startScenario(data.handle, data.scenario)
 
 		if Database[data.handle] then
 			Database[data.handle].animation = nil
@@ -2043,7 +2260,12 @@ end)
 RegisterNUICallback('giveWeapon', function(data, cb)
 	if Permissions.properties.ped.weapon and CanModifyEntity(data.handle) then
 		RequestControl(data.handle)
-		GiveWeaponToPed_2(data.handle, GetHashKey(data.weapon), 500, true, false, 0, false, 0.5, 1.0, 0, false, 0.0, false)
+
+		if Config.isRDR then
+			GiveWeaponToPed_2(data.handle, GetHashKey(data.weapon), 500, true, false, 0, false, 0.5, 1.0, 0, false, 0.0, false)
+		else
+			GiveWeaponToPed(data.handle, GetHashKey(data.weapon), 500, false, true)
+		end
 
 		if Database[data.handle] then
 			table.insert(Database[data.handle].weapons, data.weapon)
@@ -2207,7 +2429,7 @@ RegisterNUICallback('playAnimation', function(data, cb)
 		local blendOutSpeed = data.blendOutSpeed and data.blendOutSpeed * 1.0 or 1.0
 		local duration = data.duration and data.duraction or -1
 		local flag = data.flag and data.flag or 1
-		local playbackRate = data.playbackRate and data.playbackRate * 1.0 or 1.0
+		local playbackRate = data.playbackRate and data.playbackRate * 1.0 or 0.0
 
 		RequestControl(data.handle)
 
@@ -2404,7 +2626,13 @@ function TryGoToWaypoint(handle)
 		local coords = GetWaypointCoords()
 		local groundZ = GetHeightmapBottomZForPosition(coords.x, coords.y)
 
-		TaskGoToCoordAnyMeans(handle, coords.x, coords.y, groundZ, 1.0, 0, 0, 0, 0.5)
+		local vehicle = GetVehiclePedIsIn(handle, false)
+
+		if vehicle == 0 then
+			TaskGoToCoordAnyMeans(handle, coords.x, coords.y, groundZ, 1.0, 0, 0, 0, 0.5)
+		else
+			TaskVehicleDriveToCoord(handle, vehicle, coords.x, coords.y, groundZ, 2.0, 0, GetEntityModel(vehicle), 67108864, 0.5, 0.0)
+		end
 	end
 end
 
@@ -2416,7 +2644,14 @@ end)
 function TryPedGoToEntity(handle, entity)
 	if Permissions.properties.ped.goToEntity and CanModifyEntity(handle) then
 		RequestControl(handle)
-		TaskGoToEntity(handle, entity, -1, 1.0, 1.0, 0.0, 0)
+
+		local vehicle = GetVehiclePedIsIn(handle, false)
+
+		if vehicle == 0 then
+			TaskGoToEntity(handle, entity, -1, 1.0, 1.0, 0.0, 0)
+		else
+			TaskVehicleDriveToCoord(handle, vehicle, GetEntityCoords(entity), 2.0, 0, GetEntityModel(vehicle), 67108864, 0.5, 0.0)
+		end
 	end
 end
 
@@ -2457,6 +2692,21 @@ RegisterNUICallback('focusEntity', function(data, cb)
 		TryFocusEntity(data.handle)
 	end
 
+	cb({})
+end)
+
+function TryEnterVehicle(handle, entity)
+	if Permissions.properties.ped.enterVehicle and CanModifyEntity(handle) then
+		if IsVehicleSeatFree(entity, -1) then
+			TaskWarpPedIntoVehicle(handle, entity, -1)
+		else
+			TaskWarpPedIntoVehicle(handle, entity, -2)
+		end
+	end
+end
+
+RegisterNUICallback('enterVehicle', function(data, cb)
+	TryEnterVehicle(data.handle, data.entity)
 	cb({})
 end)
 
@@ -2598,8 +2848,8 @@ function MainSpoonerUpdates()
 			z2 = z2 - Speed
 		end
 
-		local axisX = GetDisabledControlNormal(0, 0xA987235F)
-		local axisY = GetDisabledControlNormal(0, 0xD2047988)
+		local axisX = GetDisabledControlNormal(0, Config.LookLrControl)
+		local axisY = GetDisabledControlNormal(0, Config.LookUdControl)
 
 		if axisX ~= 0.0 or axisY ~= 0.0 then
 			yaw2 = yaw2 + axisX * -1.0 * Config.SpeedUd
@@ -2915,11 +3165,11 @@ function MainSpoonerUpdates()
 							SetEntityCoordsNoOffset(AttachedEntity, ex2, ey2, ez2 - axisY)
 						elseif AdjustMode == 3 then
 							if RotateMode == 0 then
-								SetEntityRotation(AttachedEntity, epitch2 - axisX * Config.SpeedLr, eroll2, eyaw2)
+								SetEntityRotation(AttachedEntity, epitch2 - axisX * Config.SpeedLr, eroll2, eyaw2, 2)
 							elseif RotateMode == 1 then
-								SetEntityRotation(AttachedEntity, epitch2, eroll2 - axisX * Config.SpeedLr, eyaw2)
+								SetEntityRotation(AttachedEntity, epitch2, eroll2 - axisX * Config.SpeedLr, eyaw2, 2)
 							else
-								SetEntityRotation(AttachedEntity, epitch2, eroll2, eyaw2 - axisX * Config.SpeedLr)
+								SetEntityRotation(AttachedEntity, epitch2, eroll2, eyaw2 - axisX * Config.SpeedLr, 2)
 							end
 						end
 					elseif AdjustMode == 4 then
@@ -2951,6 +3201,109 @@ function MainSpoonerUpdates()
 	end
 end
 
+local entityEnumerator = {
+	__gc = function(enum)
+		if enum.destructor and enum.handle then
+			enum.destructor(enum.handle)
+		end
+		enum.destructor = nil
+		enum.handle = nil
+	end
+}
+
+local function enumerateEntities(firstFunc, nextFunc, endFunc)
+	return coroutine.wrap(function()
+		local iter, id = firstFunc()
+
+		if not id or id == 0 then
+			endFunc(iter)
+			return
+		end
+
+		local enum = {handle = iter, destructor = endFunc}
+		setmetatable(enum, entityEnumerator)
+
+		local next = true
+		repeat
+			coroutine.yield(id)
+			next, id = nextFunc(iter)
+		until not next
+
+		enum.destructor, enum.handle = nil, nil
+		endFunc(iter)
+	end)
+end
+
+local function enumeratePeds()
+	return enumerateEntities(FindFirstPed, FindNextPed, EndFindPed)
+end
+
+local function enumerateVehicles()
+	return enumerateEntities(FindFirstVehicle, FindNextVehicle, EndFindVehicle)
+end
+
+local function enumerateObjects()
+	return enumerateEntities(FindFirstObject, FindNextObject, EndFindObject)
+end
+
+local function drawText3d(x, y, z, text)
+	local onScreen, screenX, screenY = GetScreenCoordFromWorldCoord(x, y, z)
+
+	if onScreen then
+		SetTextScale(0.35, 0.35)
+
+		if Config.isRDR then
+			SetTextFontForCurrentCommand(1)
+			SetTextColor(255, 255, 255, 255)
+		else
+			SetTextFont(0)
+			SetTextColour(255, 255, 255, 255)
+		end
+
+		SetTextCentre(1)
+
+		if Config.isRDR then
+			DisplayText(CreateVarString(10, "LITERAL_STRING", text), screenX, screenY)
+		else
+			SetTextEntry("STRING")
+			AddTextComponentString(text)
+			DrawText(screenX, screenY)
+		end
+	end
+end
+
+local function drawEntityHandle(type, entity, camCoords)
+	local coords = GetEntityCoords(entity)
+
+	if #(camCoords - coords) <= Config.EntityHandleDrawDistance then
+		drawText3d(coords.x, coords.y, coords.z, type .. " " .. tostring(entity))
+	end
+end
+
+local function drawEntityHandles()
+	if Cam then
+		if IsDisabledControlJustPressed(0, Config.EntityHandlesControl) then
+			showEntityHandles = not showEntityHandles
+		end
+
+		if showEntityHandles then
+			local camCoords = GetCamCoord(Cam)
+
+			for ped in enumeratePeds() do
+				drawEntityHandle("ped", ped, camCoords)
+			end
+
+			for vehicle in enumerateVehicles() do
+				drawEntityHandle("vehicle", vehicle, camCoords)
+			end
+
+			for object in enumerateObjects() do
+				drawEntityHandle("object", object, camCoords)
+			end
+		end
+	end
+end
+
 CreateThread(function()
 	TriggerEvent('chat:addSuggestion', '/spooner', 'Toggle spooner mode', {})
 
@@ -2959,7 +3312,11 @@ CreateThread(function()
 	while true do
 		MainSpoonerUpdates()
 
-		SpoonerPrompts:handleEvents()
+		if Config.isRDR then
+			SpoonerPrompts:handleEvents()
+		end
+
+		drawEntityHandles()
 
 		Wait(0)
 	end
@@ -2983,7 +3340,7 @@ function UpdateDbEntities()
 			local hash = GetHashKey(properties.scenario)
 
 			if not IsPedUsingScenarioHash(entity, hash) then
-				TaskStartScenarioInPlace(entity, hash, -1)
+				startScenario(entity, properties.scenario)
 			end
 		elseif properties.animation then
 			if not IsEntityPlayingAnim(entity, properties.animation.dict, properties.animation.name, properties.animation.flag) then
@@ -2992,43 +3349,47 @@ function UpdateDbEntities()
 		end
 
 		-- Show prompts for certain spooner shortcuts on your own ped
-		if entity == playerPed then
-			if properties.scenario or properties.animation then
-				if Permissions.properties.ped.clearTasks then
-					if not ClearTasksPrompt:isEnabled() then
-						ClearTasksPrompt:setEnabledAndVisible(true)
-					end
+		if Config.isRDR then
+			if entity == playerPed then
+				if properties.scenario or properties.animation then
+					if Permissions.properties.ped.clearTasks then
+						if not ClearTasksPrompt:isEnabled() then
+							ClearTasksPrompt:setEnabledAndVisible(true)
+						end
 
-					enableSpoonerPrompts = true
-				end
-			else
-				if ClearTasksPrompt:isEnabled() then
-					ClearTasksPrompt:setEnabledAndVisible(false)
-				end
-			end
-
-			if properties.attachment.bone then
-				if Permissions.properties.attachments then
-					if not DetachPrompt:isEnabled() then
-						DetachPrompt:setEnabledAndVisible(true)
+						enableSpoonerPrompts = true
 					end
-					enableSpoonerPrompts = true
+				else
+					if ClearTasksPrompt:isEnabled() then
+						ClearTasksPrompt:setEnabledAndVisible(false)
+					end
 				end
-			else
-				if DetachPrompt:isEnabled() then
-					DetachPrompt:setEnabledAndVisible(false)
+
+				if properties.attachment.bone then
+					if Permissions.properties.attachments then
+						if not DetachPrompt:isEnabled() then
+							DetachPrompt:setEnabledAndVisible(true)
+						end
+						enableSpoonerPrompts = true
+					end
+				else
+					if DetachPrompt:isEnabled() then
+						DetachPrompt:setEnabledAndVisible(false)
+					end
 				end
 			end
 		end
 	end
 
-	if enableSpoonerPrompts then
-		if not SpoonerPrompts:isActive() then
-			SpoonerPrompts:setActive(true)
-		end
-	else
-		if SpoonerPrompts:isActive() then
-			SpoonerPrompts:setActive(false)
+	if Config.isRDR then
+		if enableSpoonerPrompts then
+			if not SpoonerPrompts:isActive() then
+				SpoonerPrompts:setActive(true)
+			end
+		else
+			if SpoonerPrompts:isActive() then
+				SpoonerPrompts:setActive(false)
+			end
 		end
 	end
 end

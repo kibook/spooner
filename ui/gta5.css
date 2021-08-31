@@ -1,0 +1,34 @@
+@font-face {
+	font-family: "Pricedown";
+	src: url("pricedown.otf");
+}
+
+::selection {
+	background-color: #00d;
+}
+
+button:hover:enabled, button:focus:enabled {
+	background-color: rgba(0, 0, 255, 0.5);
+}
+
+button:active:enabled {
+	background-color: white;
+	color: black;
+}
+
+h1 {
+	font-family: "Pricedown";
+}
+
+h2 {
+	font-family: "Pricedown";
+}
+
+h3 {
+	font-family: "Pricedown";
+}
+
+.object.selected {
+	background-color: blue;
+	color: white;
+}

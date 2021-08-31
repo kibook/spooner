@@ -3,7 +3,8 @@
 		<title>Spooner</title>
 		<script src="https://kit.fontawesome.com/5537a772c3.js" crossorigin="anonymous"></script>
 		<link rel="stylesheet" href="style.css">
-		<script src="objects.js"></script>
+		<link rel="stylesheet" href="gta5.css">
+		<link rel="stylesheet" href="rdr3.css">
 		<script src="script.js"></script>
 	</head>
 	<body>
@@ -54,6 +55,10 @@
 						<div class="control-and-help">
 							<div class="control">c</div>
 							<div class="control-help">Focus Mode</div>
+						</div>
+						<div class="control-and-help">
+							<div class="control">M</div>
+							<div class="control-help">Entity Handles</div>
 						</div>
 						<div class="control-and-help">
 							<div class="control">H</div>
@@ -200,8 +205,17 @@
 				<div class="object-database-stat">Obj: <span id="object-database-total-objects"></span></div>
 			</div>
 			<div id="object-database-list" class="list"></div>
+			<button id="add-to-db-btn">Add to DB</button>
 			<button id="object-database-delete-all-btn">Delete All</button>
 			<button id="object-database-close-btn">Close</button>
+		</div>
+		<div id="add-to-db-menu" class="menu">
+			<div id="add-to-db-options">
+				<span>Handle:</span>
+				<input id="custom-entity-handle">
+				<button id="add-custom-entity-btn">Add</button>
+			</div>
+			<button id="add-to-db-menu-close">Back</button>
 		</div>
 		<div id="attachment-options-menu" class="menu">
 			<button id="attachment-options-detach">Detach</button>
@@ -233,6 +247,9 @@
 							<div class="input-label">Z</div>
 							<input type="number" class="set-attach adjust-input" id="attachment-z" step="0.01">
 						</div>
+						<button id="copy-attachment-position" class="copy-button">
+							<i class="fas fa-clipboard"></i>
+						</button>
 					</div>
 				</div>
 				<div class="property">
@@ -254,6 +271,9 @@
 							<div class="input-label">Yaw</div>
 							<input type="number" class="set-attach rotate-input" id="attachment-yaw" step="1.0" min="-359" max="359">
 						</div>
+						<button id="copy-attachment-rotation" class="copy-button">
+							<i class="fas fa-clipboard"></i>
+						</button>
 					</div>
 				</div>
 				<div class="attachment-option">
@@ -285,9 +305,12 @@
 				<div class="value" id="properties-menu-entity-id"></div>
 			</div>
 			<div id="properties" class="list">
-				<div class="property">
+				<div class="property" id="properties-model-container">
 					<div class="label">Model</div>
 					<div class="value" id="properties-model"></div>
+					<button id="copy-model-name" class="copy-button">
+						<i class="fas fa-clipboard" aria-hidden="true"></i>
+					</button>
 				</div>
 				<div class="property multiple">
 					<button id="properties-select">Select</button>
@@ -320,6 +343,9 @@
 							<div class="input-label">Z</div>
 							<input type="number" class="set-coords adjust-input" id="properties-z" step="0.01">
 						</div>
+						<button id="copy-position" class="copy-button">
+							<i class="fas fa-clipboard"></i>
+						</button>
 					</div>
 				</div>
 				<div class="property multiple">
@@ -345,6 +371,9 @@
 							<div class="input-label">Yaw</div>
 							<input type="number" class="set-rotation rotate-input" id="properties-yaw" min="-359" max="359" step="1">
 						</div>
+						<button id="copy-rotation" class="copy-button">
+							<i class="fas fa-clipboard"></i>
+						</button>
 					</div>
 				</div>
 				<div class="property">
@@ -430,6 +459,9 @@
 					<button id="properties-set-on-mount">Set On Mount</button>
 				</div>
 				<div class="property">
+					<button id="properties-enter-vehicle">Enter Vehicle</button>
+				</div>
+				<div class="property">
 					<button id="properties-resurrect-ped">Resurrect</button>
 				</div>
 				<div class="property multiple">
@@ -460,6 +492,9 @@
 				</div>
 				<div class="property">
 					<button id="properties-go-to-entity">Go To Entity</button>
+				</div>
+				<div class="property">
+					<button id="properties-attack">Attack</button>
 				</div>
 				<div class="property local">
 					<div class="label">Scale (local)</div>
@@ -611,7 +646,7 @@
 				</div>
 				<div class="property">
 					<div class="label">Playback Rate</div>
-					<input type="number" id="animation-playback-rate" value="1.0">
+					<input type="number" id="animation-playback-rate" value="0.0">
 				</div>
 			</div>
 			<button id="animation-stop">Stop Animation</button>
@@ -761,6 +796,10 @@
 						</td>
 					</tr>
 					<tr>
+						<td class="control">M</td>
+						<td>Toggle <strong>entity handles</strong></td>
+					</tr>
+					<tr>
 						<td><span class="control">vu</span> Mouse wheel</td>
 						<td>Increase/Decrease currently selected <strong>speed</strong></td>
 					</tr>
@@ -840,7 +879,7 @@
 						<td>Ymap</th>
 						<td>Native map format used by GTA V/RDR2</td>
 						<td>Yes</td>
-						<td>No</td>
+						<td>Yes</td>
 					</tr>
 					<tr>
 						<td>propplacer JSON</td>

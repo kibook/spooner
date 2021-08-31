@@ -38,6 +38,21 @@ function sendMessage(name, params) {
 	});
 }
 
+function copyToClipboard(text) {
+	var e = document.createElement('textarea');
+	e.textContent = text;
+	document.body.appendChild(e);
+
+	var selection = document.getSelection();
+	selection.removeAllRanges();
+
+	e.select();
+	document.execCommand('copy');
+
+	selection.removeAllRanges();
+	e.remove();
+}
+
 function showSpoonerHud() {
 	document.querySelector('#hud').style.display = 'block';
 }
@@ -63,9 +78,9 @@ function updateSpoonerHud(data) {
 	
 	if (data.entity) {
 		if (data.netId) {
-			entityId.innerHTML = data.entity.toString(16) + ' [' + data.netId.toString(16) + ']';
+			entityId.innerHTML = data.entity.toString() + ' [' + data.netId.toString() + ']';
 		} else {
-			entityId.innerHTML = data.entity.toString(16);
+			entityId.innerHTML = data.entity.toString();
 		}
 		entityInfo.style.display = 'block';
 
@@ -180,7 +195,7 @@ function updateSpoonerHud(data) {
 	var focusInfo = document.getElementById('focus-info');
 
 	if (data.focusTarget) {
-		document.getElementById('focus-target').innerHTML = data.focusTarget.toString(16);
+		document.getElementById('focus-target').innerHTML = data.focusTarget.toString();
 		document.getElementById('focus-mode').innerHTML = data.freeFocus ? 'Free' : 'Fixed';
 		focusInfo.style.display = 'block';
 	} else {
@@ -975,15 +990,15 @@ function entityDisplayName(entity, props) {
 	if (props.exists) {
 		if (props.netId) {
 			if (props.playerName) {
-				return `${entity.toString(16)} [${props.netId.toString(16)}] ${props.name} (${props.playerName})`;
+				return `${entity.toString()} [${props.netId.toString()}] ${props.name} (${props.playerName})`;
 			} else {
-				return `${entity.toString(16)} [${props.netId.toString(16)}] ${props.name}`;
+				return `${entity.toString()} [${props.netId.toString()}] ${props.name}`;
 			}
 		} else {
-			return `${entity.toString(16)} ${props.name}`
+			return `${entity.toString()} ${props.name}`
 		}
 	} else {
-		return `(Invalid) ${entity.toString(16)} ${props.name}`
+		return `(Invalid) ${entity.toString()} ${props.name}`
 	}
 }
 
@@ -1114,12 +1129,12 @@ function updatePropertiesMenu(data) {
 	entity.setAttribute('data-handle', data.entity);
 	if (properties.netId) {
 		if (properties.playerName) {
-			entity.innerHTML = data.entity.toString(16) + ' [' + properties.netId.toString(16) + '] (' + properties.playerName + ')';
+			entity.innerHTML = data.entity.toString() + ' [' + properties.netId.toString() + '] (' + properties.playerName + ')';
 		} else {
-			entity.innerHTML = data.entity.toString(16) + ' [' + properties.netId.toString(16) + ']';
+			entity.innerHTML = data.entity.toString() + ' [' + properties.netId.toString() + ']';
 		}
 	} else {
-		entity.innerHTML = data.entity.toString(16);
+		entity.innerHTML = data.entity.toString();
 	}
 
 	document.querySelector('#properties-model').innerHTML = properties.name;
@@ -1383,7 +1398,7 @@ function openAttachToMenu(fromEntity, data) {
 		if (database[properties.attachment.to]) {
 			div.innerHTML = database[properties.attachment.to].name;
 		} else {
-			div.innerHTML = properties.attachment.to.toString(16);
+			div.innerHTML = properties.attachment.to.toString();
 		}
 		div.addEventListener('click', function(event) {
 			document.getElementById('attachment-options-menu').style.display = 'none';
@@ -1476,6 +1491,7 @@ function updatePermissions(data) {
 	document.getElementById('properties-vehicle-lights-on').disabled = !permissions.properties.vehicle.lights;
 	document.getElementById('properties-vehicle-lights-off').disabled = !permissions.properties.vehicle.lights;
 	document.getElementById('properties-register-as-networked').disabled = !permissions.properties.registerAsNetworked;
+	document.getElementById('add-to-db-btn').disabled = permissions.maxEntities || !permissions.modify.other;
 }
 
 function currentEntity() {
@@ -1711,7 +1727,6 @@ window.addEventListener('load', function() {
 	});
 
 	document.querySelector('#player-model-spawn-by-name').addEventListener('click', function(event) {
-		document.querySelector('#player-model-menu').style.display = 'none';
 		setPlayerModel(document.querySelector('#player-model-search-filter').value);
 	});
 
@@ -2335,6 +2350,16 @@ window.addEventListener('load', function() {
 		}, handle);
 	});
 
+	document.getElementById('properties-enter-vehicle').addEventListener('click', function(event) {
+		var handle = currentEntity();
+		openEntitySelect('ped-options-menu', function(entity) {
+			sendMessage('enterVehicle', {
+				handle: handle,
+				entity: entity
+			});
+		}, handle);
+	});
+
 	document.getElementById('properties-register-as-networked').addEventListener('click', function(event) {
 		sendMessage('registerAsNetworked', {
 			handle: currentEntity()
@@ -2396,9 +2421,6 @@ window.addEventListener('load', function() {
 				importButton.disabled = false;
 				break;
 			case 'map-editor-xml':
-				importButton.disabled = true;
-				break;
-			case 'ymap':
 				importButton.disabled = true;
 				break;
 			case 'propplacer':
@@ -2492,5 +2514,72 @@ window.addEventListener('load', function() {
 		sendMessage('focusEntity', {
 			handle: currentEntity()
 		});
+	});
+
+	document.getElementById('copy-position').addEventListener('click', function(event) {
+		var x = document.getElementById('properties-x').value;
+		var y = document.getElementById('properties-y').value;
+		var z = document.getElementById('properties-z').value;
+
+		copyToClipboard(x + ', ' + y + ', ' + z)
+	});
+
+	document.getElementById('copy-rotation').addEventListener('click', function(event) {
+		var p = document.getElementById('properties-pitch').value;
+		var r = document.getElementById('properties-roll').value;
+		var y = document.getElementById('properties-yaw').value;
+
+		copyToClipboard(p + ', ' + r + ', ' + y);
+	});
+
+	document.getElementById('copy-attachment-position').addEventListener('click', function(event) {
+		var x = document.getElementById('attachment-x').value;
+		var y = document.getElementById('attachment-y').value;
+		var z = document.getElementById('attachment-z').value;
+
+		copyToClipboard(x + ', ' + y + ', ' + z)
+	});
+
+	document.getElementById('copy-model-name').addEventListener('click', function(event) {
+               var modelname = document.getElementById('properties-model').innerText;
+               copyToClipboard(modelname)
+       });
+
+	document.getElementById('copy-attachment-rotation').addEventListener('click', function(event) {
+		var p = document.getElementById('attachment-pitch').value;
+		var r = document.getElementById('attachment-roll').value;
+		var y = document.getElementById('attachment-yaw').value;
+
+		copyToClipboard(p + ', ' + r + ', ' + y);
+	});
+
+	document.getElementById('add-to-db-btn').addEventListener('click', function(event) {
+		document.getElementById('object-database').style.display = 'none';
+		document.getElementById('add-to-db-menu').style.display = 'flex';
+	});
+
+	document.getElementById('add-to-db-menu-close').addEventListener('click', function(event) {
+		document.getElementById('add-to-db-menu').style.display = 'none';
+		document.getElementById('object-database').style.display = 'flex';
+	});
+
+	document.getElementById('add-custom-entity-btn').addEventListener('click', function(event) {
+		sendMessage('addCustomEntityToDatabase', {
+			handle: parseInt(document.getElementById('custom-entity-handle').value)
+		}).then(resp => resp.json()).then(resp => {
+			document.getElementById('add-to-db-menu').style.display = 'none';
+			openDatabase(resp);
+		});
+	});
+
+	document.getElementById('properties-attack').addEventListener('click', function(event) {
+		let handle = currentEntity();
+
+		openEntitySelect('ped-options-menu', function(entity) {
+			sendMessage('attackPed', {
+				handle: handle,
+				ped: entity
+			});
+		}, handle);
 	});
 });
