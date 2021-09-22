@@ -219,6 +219,7 @@ Peds = {
 	"A_C_Horse_Thoroughbred_ReverseDappleBlack",
 	"A_C_Horse_Turkoman_DarkBay",
 	"A_C_Horse_Turkoman_Gold",
+	"A_C_Horse_Turkoman_Perlino",
 	"A_C_Horse_Turkoman_Silver",
 	"A_C_Horse_Winter02_01",
 	"A_C_IguanaDesert_01",
