@@ -1087,7 +1087,8 @@ RegisterNUICallback('createTempobj', function(data, cb)
 	end
 	local spawnPos, entity, distance = getCamCoords()
 	entity = SpawnObject(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, true, nil, nil, nil)
-	tempobjec = entity
+	tempobjec = entity	
+	cb({})
 end)
 RegisterNUICallback('closeObjectMenu', function(data, cb)
 	if data.modelName and (Permissions.spawn.byName or Contains(Objects, data.modelName)) then
@@ -2011,7 +2012,7 @@ local function loadYmap(xml)
 	}
 
 	parser:parse(xml, {stripWhitespace=true})
-	
+
 	LoadDatabase(db, false, false)
 end
 
