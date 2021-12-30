@@ -29,13 +29,11 @@ Tool for spawning, placing, and removing entities, inspired by Menyoo's Object S
 3. Add the following to server.cfg:
 
    ```
-	 exec path/to/spooner/permissions.cfg
-	 ensure spooner
-	 ```
+   exec @spooner/permissions.cfg
+   start spooner
+   ```
 
-	 The path to permissions.cfg depends on where in the resources directory the resource is installed.
-
-	 The name of the resource folder must be `spooner`, otherwise players' saved databases will not be accessible.
+   The name of the resource folder must be `spooner`, otherwise players' saved databases will not be accessible.
 
 4. Restart the server.
 
