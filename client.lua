@@ -761,6 +761,10 @@ function SpawnPed(props)
 	local ped
 	if Config.isRDR then
 		ped = CreatePed_2(props.model, props.x, props.y, props.z, 0.0, true, false)
+		Wait(300)
+		SetEntityHealth(ped, 0, 0)
+		SetEntityHealth(ped, -10, 0)
+		SetEntityHealth(ped, -1000, 0)
 	else
 		ped = CreatePed(0, props.model, props.x, props.y, props.z, 0.0, true, false)
 	end
@@ -1087,7 +1091,7 @@ RegisterNUICallback('createTempobj', function(data, cb)
 	end
 	local spawnPos, entity, distance = getCamCoords()
 	entity = SpawnObject(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, true, nil, nil, nil)
-	tempobjec = entity	
+	tempobjec = entity
 	cb({})
 end)
 RegisterNUICallback('closeObjectMenu', function(data, cb)
@@ -1560,10 +1564,8 @@ function LoadDatabase(db, relative, replace)
 			local y = spawn.props.quaternion.y
 			local z = spawn.props.quaternion.z
 			local w = -spawn.props.quaternion.w
-
 			SetEntityQuaternion(handles[spawn.entity], x, y, z, w)
 		end
-
 		if spawn.props.attachment and spawn.props.attachment.to ~= 0 then
 			local from  = handles[spawn.entity]
 			local to    = spawn.props.attachment.to == -1 and PlayerPedId() or handles[spawn.props.attachment.to]
@@ -2835,6 +2837,11 @@ function MainSpoonerUpdates()
 			camX = string.format('%.2f', x2),
 			camY = string.format('%.2f', y2),
 			camZ = string.format('%.2f', z2),
+			
+			camrotX = string.format('%.2f', pitch2),
+			camrotY = string.format('%.2f', roll2),
+			camrotZ = string.format('%.2f', yaw2), 
+			
 			camHeading = string.format('%.2f', yaw2),
 			focusTarget = FocusTarget,
 			freeFocus = FreeFocus

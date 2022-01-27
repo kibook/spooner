@@ -161,6 +161,9 @@ function updateSpoonerHud(data) {
 	document.getElementById('cam-x').innerHTML = data.camX;
 	document.getElementById('cam-y').innerHTML = data.camY;
 	document.getElementById('cam-z').innerHTML = data.camZ;
+	document.getElementById('cam-rot-x').innerHTML = data.camrotX;
+	document.getElementById('cam-rot-y').innerHTML = data.camrotY;
+	document.getElementById('cam-rot-z').innerHTML = data.camrotZ;
 	document.getElementById('cam-heading').innerHTML = data.camHeading;
 	document.getElementById('cursor-x').innerHTML = data.cursorX;
 	document.getElementById('cursor-y').innerHTML = data.cursorY;
@@ -2565,6 +2568,17 @@ window.addEventListener('load', function() {
 		var z = document.getElementById('properties-z').value;
 
 		copyToClipboard(x + ', ' + y + ', ' + z)
+	});
+	
+	
+	document.getElementById('copy-cam-coord').addEventListener('click', function(event) {
+		var x = document.getElementById('cam-x').innerText;
+		var y = document.getElementById('cam-y').innerText;
+		var z = document.getElementById('cam-z').innerText;
+		var rx = document.getElementById('cam-rot-x').innerText;
+		var ry = document.getElementById('cam-rot-y').innerText;
+		var rz = document.getElementById('cam-rot-z').innerText;
+		copyToClipboard(x + ', ' + y + ', ' + z +' - Rot : '+ rx+', '+ry+', '+rz)
 	});
 
 	document.getElementById('copy-rotation').addEventListener('click', function(event) {
