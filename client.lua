@@ -197,6 +197,10 @@ function PlaceEntityOnGroundProperly(entity, p1)
 	return Citizen.InvokeNative(0x9587913B9E772D29, entity, p1)
 end
 
+function IsModelAnObject(model)
+	return Citizen.InvokeNative(0x274EE1B90CFA669E, model)
+end
+
 function EnableSpoonerMode()
 	local x, y, z = table.unpack(GetGameplayCamCoord())
 	local pitch, roll, yaw = table.unpack(GetGameplayCamRot(2))
@@ -628,6 +632,10 @@ function SpawnObject(name, model, x, y, z, pitch, roll, yaw, collisionDisabled, 
 		return nil
 	end
 
+	if not IsModelAnObject(model) then
+		return nil
+	end
+
 	if not LoadModel(model) then
 		return nil
 	end
@@ -681,6 +689,10 @@ function SpawnVehicle(name, model, x, y, z, pitch, roll, yaw, collisionDisabled,
 	end
 
 	if IsDatabaseFull() then
+		return nil
+	end
+
+	if not IsModelAVehicle(model) then
 		return nil
 	end
 
@@ -755,6 +767,10 @@ function SpawnPed(props)
 	end
 
 	if IsDatabaseFull() then
+		return nil
+	end
+
+	if not IsModelAPed(props.model) then
 		return nil
 	end
 
