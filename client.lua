@@ -725,8 +725,12 @@ function PlayAnimation(ped, anim)
 	while not HasAnimDictLoaded(anim.dict) do
 		Wait(0)
 	end
-
-	TaskPlayAnim(ped, anim.dict, anim.name, anim.blendInSpeed, anim.blendOutSpeed, anim.duration, anim.flag, anim.playbackRate, false, false, false, '', false)
+	if IsEntityAPed(ped) then
+		TaskPlayAnim(ped, anim.dict, anim.name, anim.blendInSpeed, anim.blendOutSpeed, anim.duration, anim.flag, anim.playbackRate, false, false, false, '', false)
+	else
+		PlayEntityAnim(ped, anim.name, anim.dict, 1.0, false, true,false,0.0,32768)
+		--PlayEntityAnim(ped, anim.name, anim.dict, 1.0, false, false,false,1.0,2.0)
+	end
 
 	RemoveAnimDict(anim.dict)
 
@@ -757,6 +761,7 @@ function SpawnPed(props)
 	local ped
 	if Config.isRDR then
 		ped = CreatePed_2(props.model, props.x, props.y, props.z, 0.0, true, false)
+		Wait(300)
 	else
 		ped = CreatePed(0, props.model, props.x, props.y, props.z, 0.0, true, false)
 	end
@@ -1055,13 +1060,44 @@ RegisterNUICallback('closeVehicleMenu', function(data, cb)
 	cb({})
 end)
 
+local tempobjec = nil
+
+function getCamCoords()
+	local x1, y1, z1 = table.unpack(GetCamCoord(Cam))
+	local pitch1, roll1, yaw1 = table.unpack(GetCamRot(Cam, 2))
+
+	local x2 = x1
+	local y2 = y1
+	local z2 = z1
+	local pitch2 = pitch1
+	local roll2 = roll1
+	local yaw2 = yaw1
+
+	local spawnPos, entity, distance = GetInView(x2, y2, z2, pitch2, roll2, yaw2)
+	return spawnPos, entity, distance
+end
+
+RegisterNUICallback('createTempobj', function(data, cb)
+	CurrentSpawn = {
+		modelName = data.modelName,
+		type = 3
+	}
+	if tempobjec then
+		DeleteEntity(tempobjec)
+		tempobjec = nil
+	end
+	local spawnPos, entity, distance = getCamCoords()
+	entity = SpawnObject(CurrentSpawn.modelName, GetHashKey(CurrentSpawn.modelName), spawnPos.x, spawnPos.y, spawnPos.z, 0.0, 0.0, yaw2, false, true, nil, nil, nil)
+	tempobjec = entity
+	cb({})
+end)
 RegisterNUICallback('closeObjectMenu', function(data, cb)
 	if data.modelName and (Permissions.spawn.byName or Contains(Objects, data.modelName)) then
 		CurrentSpawn = {
 			modelName = data.modelName,
 			type = 3
 		}
-	end
+	end	
 	SetNuiFocus(false, false)
 	cb({})
 end)
@@ -1525,10 +1561,8 @@ function LoadDatabase(db, relative, replace)
 			local y = spawn.props.quaternion.y
 			local z = spawn.props.quaternion.z
 			local w = -spawn.props.quaternion.w
-
 			SetEntityQuaternion(handles[spawn.entity], x, y, z, w)
 		end
-
 		if spawn.props.attachment and spawn.props.attachment.to ~= 0 then
 			local from  = handles[spawn.entity]
 			local to    = spawn.props.attachment.to == -1 and PlayerPedId() or handles[spawn.props.attachment.to]
@@ -1963,7 +1997,7 @@ local function loadYmap(xml)
 				isEntity = false
 				i = i + 1
 				key = tostring(i)
-			end
+				end
 			curElem = nil
 		end,
 		text = function(text, cdata)
@@ -2175,8 +2209,11 @@ end)
 function TryClearTasks(handle)
 	if Permissions.properties.ped.clearTasks and CanModifyEntity(handle) then
 		RequestControl(handle)
-		ClearPedTasks(handle)
-
+		if IsEntityAPed(handle) then
+			ClearPedTasks(handle)
+		else
+			StopEntityAnim(handle)
+		end
 		if Database[handle] then
 			Database[handle].scenario = nil
 			Database[handle].animation = nil
@@ -2797,6 +2834,11 @@ function MainSpoonerUpdates()
 			camX = string.format('%.2f', x2),
 			camY = string.format('%.2f', y2),
 			camZ = string.format('%.2f', z2),
+			
+			camrotX = string.format('%.2f', pitch2),
+			camrotY = string.format('%.2f', roll2),
+			camrotZ = string.format('%.2f', yaw2), 
+			
 			camHeading = string.format('%.2f', yaw2),
 			focusTarget = FocusTarget,
 			freeFocus = FreeFocus

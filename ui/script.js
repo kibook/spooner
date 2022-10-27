@@ -8,10 +8,13 @@ var propsets = [];
 var pickups = [];
 var walkStyleBases = [];
 var walkStyles = [];
+var lastanim = "";
+var lastscenario = "";
 
 var lastSpawnMenu = -1;
 
 var propertiesMenuUpdate;
+
 
 const favouriteTypes = [
 	'peds',
@@ -158,6 +161,9 @@ function updateSpoonerHud(data) {
 	document.getElementById('cam-x').innerHTML = data.camX;
 	document.getElementById('cam-y').innerHTML = data.camY;
 	document.getElementById('cam-z').innerHTML = data.camZ;
+	document.getElementById('cam-rot-x').innerHTML = data.camrotX;
+	document.getElementById('cam-rot-y').innerHTML = data.camrotY;
+	document.getElementById('cam-rot-z').innerHTML = data.camrotZ;
 	document.getElementById('cam-heading').innerHTML = data.camHeading;
 	document.getElementById('cursor-x').innerHTML = data.cursorX;
 	document.getElementById('cursor-y').innerHTML = data.cursorY;
@@ -309,6 +315,28 @@ function closeVehicleMenu(selected) {
 	}
 }
 
+function createTempobj(selected){
+	if (selected) {
+		var name = selected.getAttribute('data-model');
+
+		sendMessage('createTempobj', {
+			modelName: name
+		});
+
+		document.querySelectorAll('#object-list .object').forEach(e => {
+			if (favourites.objects[e.getAttribute('data-model')]) {
+				e.className = 'object favourite';
+			} else {
+				e.className = 'object';
+			}
+		});
+		selected.className = 'object selected';
+	} else {
+		document.querySelector('#spawn-menu').style.display = 'flex';
+		lastSpawnMenu = -1;
+	}
+}
+
 function closeObjectMenu(selected) {
 	document.querySelector('#object-menu').style.display = 'none';
 
@@ -395,6 +423,7 @@ function performScenario(scenario) {
 		handle: currentEntity(),
 		scenario: scenario.getAttribute('data-scenario')
 	});
+	lastscenario = scenario.getAttribute('data-scenario');
 }
 
 function giveWeapon(weapon) {
@@ -659,7 +688,7 @@ function populateObjectList(filter) {
 			div.innerHTML = name;
 
 			div.addEventListener('click', function(event) {
-				closeObjectMenu(this);
+				createTempobj(this);
 			});
 
 			if (isFav) {
@@ -818,6 +847,7 @@ function populateAnimationList(filter) {
 
 		div.addEventListener('click', function() {
 			playAnimation(this);
+			lastanim = this.innerText;
 		});
 
 		if (isFav) {
@@ -1137,7 +1167,7 @@ function updatePropertiesMenu(data) {
 		entity.innerHTML = data.entity.toString();
 	}
 
-	document.querySelector('#properties-model').innerHTML = properties.name;
+	document.querySelector('#properties-model').innerHTML = properties.name + " - " + properties.model;
 
 	setFieldIfInactive('properties-x', properties.x);
 	setFieldIfInactive('properties-y', properties.y);
@@ -2261,6 +2291,11 @@ window.addEventListener('load', function() {
 		});
 	});
 
+	document.querySelector('#properties-animation-for-entity').addEventListener('click', function(event) {
+		document.querySelector('#properties-menu').style.display = 'none';
+		document.querySelector('#animation-menu').style.display = 'flex';
+	});
+	
 	document.querySelector('#properties-animation').addEventListener('click', function(event) {
 		document.querySelector('#ped-options-menu').style.display = 'none';
 		document.querySelector('#animation-menu').style.display = 'flex';
@@ -2423,6 +2458,9 @@ window.addEventListener('load', function() {
 			case 'map-editor-xml':
 				importButton.disabled = true;
 				break;
+			case 'ymap':
+				importButton.disabled = true;
+				break;
 			case 'propplacer':
 				importButton.disabled = true;
 				break;
@@ -2455,6 +2493,14 @@ window.addEventListener('load', function() {
 		sendMessage('clonePed', {
 			handle: currentEntity()
 		});
+	});
+	
+	document.getElementById('copyanim').addEventListener('click', function(event) {
+		copyToClipboard(lastanim)
+	});
+
+	document.getElementById('copscenario').addEventListener('click', function(event) {
+		copyToClipboard(lastscenario)
 	});
 
 	document.getElementById('properties-config-flags').addEventListener('click', function(event) {
@@ -2523,6 +2569,17 @@ window.addEventListener('load', function() {
 
 		copyToClipboard(x + ', ' + y + ', ' + z)
 	});
+	
+	
+	document.getElementById('copy-cam-coord').addEventListener('click', function(event) {
+		var x = document.getElementById('cam-x').innerText;
+		var y = document.getElementById('cam-y').innerText;
+		var z = document.getElementById('cam-z').innerText;
+		var rx = document.getElementById('cam-rot-x').innerText;
+		var ry = document.getElementById('cam-rot-y').innerText;
+		var rz = document.getElementById('cam-rot-z').innerText;
+		copyToClipboard(x + ', ' + y + ', ' + z +' - Rot : '+ rx+', '+ry+', '+rz)
+	});
 
 	document.getElementById('copy-rotation').addEventListener('click', function(event) {
 		var p = document.getElementById('properties-pitch').value;
@@ -2539,11 +2596,10 @@ window.addEventListener('load', function() {
 
 		copyToClipboard(x + ', ' + y + ', ' + z)
 	});
-
 	document.getElementById('copy-model-name').addEventListener('click', function(event) {
-               var modelname = document.getElementById('properties-model').innerText;
-               copyToClipboard(modelname)
-       });
+		var modelname = document.getElementById('properties-model').innerText;
+		copyToClipboard(modelname)
+	});
 
 	document.getElementById('copy-attachment-rotation').addEventListener('click', function(event) {
 		var p = document.getElementById('attachment-pitch').value;

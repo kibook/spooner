@@ -235,11 +235,6 @@ input:disabled {
 	content: ": ";
 }
 
-#properties-model-container {
-	display: flex;
-	gap: 0.5em;
-}
-
 .property {
 	padding: 0.5vh 0;
 }

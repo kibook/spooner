@@ -8,7 +8,7 @@
 		<script src="script.js"></script>
 	</head>
 	<body>
-		<div id="hud">
+		<div id="hud" style="width:25%">
 			<div id="crosshair" class="inactive">+</div>
 			<div id="info">
 				<div id="entity-info"><span id="entity-type"></span>: <span id="entity-id"></span> (<span id="model-name"></span>) <span id="entity-net-id"></span></div>
@@ -134,7 +134,16 @@
 					<div>Y: <span id="cam-y"></span></div>
 					<div>Z: <span id="cam-z"></span></div>
 					<div>Heading: <span id="cam-heading"></span></div>
-				</div>
+				</div>	
+				<div id="cam-info">
+					<div>Camera - Rot:</div>
+					<div>X: <span id="cam-rot-x"></span></div>
+					<div>Y: <span id="cam-rot-y"></span></div>
+					<div>Z: <span id="cam-rot-z"></span></div>
+				</div>					
+				<button id="copy-cam-coord" class="copy-button" style="width: 100%;">
+					<i class="fas fa-clipboard" aria-hidden="true"></i>
+				</button>
 				<div id="cursor-info">
 					<div>Cursor:</div>
 					<div>X: <span id="cursor-x"></span></div>
@@ -143,7 +152,7 @@
 				</div>
 			</div>
 		</div>
-		<div id="spawn-menu" class="menu">
+		<div id="spawn-menu" style="width:25%" class="menu">
 			<div id="spawn-categories">
 				<div class="spawn-category">
 					<button id="spawn-menu-peds">Peds</button>
@@ -163,7 +172,7 @@
 			</div>
 			<button id="spawn-menu-close">Close</button>
 		</div>
-		<div id="ped-menu" class="menu">
+		<div id="ped-menu" style="width:25%" class="menu">
 			<div id="ped-search" class="search">
 				<input type="text" id="ped-search-filter" class="search-filter" value="">
 				<button id="favourite-peds" class="favourites">
@@ -174,7 +183,7 @@
 			<button id="ped-spawn-by-name" class="spawn-by-name">Spawn By Name</button>
 			<button id="ped-menu-close-btn">Back</button>
 		</div>
-		<div id="vehicle-menu" class="menu">
+		<div id="vehicle-menu" style="width:25%" class="menu">
 			<div id="vehicle-search" class="search">
 				<input type="text" id="vehicle-search-filter" class="search-filter" value="">
 				<button id="favourite-vehicles" class="favourites">
@@ -185,7 +194,7 @@
 			<button id="vehicle-spawn-by-name" class="spawn-by-name">Spawn By Name</button>
 			<button id="vehicle-menu-close-btn">Back</button>
 		</div>
-		<div id="object-menu" class="menu">
+		<div id="object-menu" style="width:25%" class="menu">
 			<div id="object-search" class="search">
 				<input type="text" id="object-search-filter" class="search-filter" value="">
 				<button id="favourite-objects" class="favourites">
@@ -196,7 +205,7 @@
 			<button id="object-spawn-by-name" class="spawn-by-name">Spawn By Name</button>
 			<button id="object-menu-close-btn">Back</button>
 		</div>
-		<div id="object-database" class="menu">
+		<div id="object-database" style="width:25%" class="menu">
 			<div id="object-database-stats">
 				<div class="object-database-stat">All: <span id="object-database-total-entities"></span></div>
 				<div class="object-database-stat">Net: <span id="object-database-total-networked"></span></div>
@@ -209,7 +218,7 @@
 			<button id="object-database-delete-all-btn">Delete All</button>
 			<button id="object-database-close-btn">Close</button>
 		</div>
-		<div id="add-to-db-menu" class="menu">
+		<div id="add-to-db-menu" style="width:25%" class="menu">
 			<div id="add-to-db-options">
 				<span>Handle:</span>
 				<input id="custom-entity-handle">
@@ -217,7 +226,7 @@
 			</div>
 			<button id="add-to-db-menu-close">Back</button>
 		</div>
-		<div id="attachment-options-menu" class="menu">
+		<div id="attachment-options-menu" style="width:25%" class="menu">
 			<button id="attachment-options-detach">Detach</button>
 			<div id="attach-to-list" class="list"></div>
 			<div>
@@ -299,16 +308,16 @@
 			</div>
 			<button id="attachment-options-menu-close">Back</button>
 		</div>
-		<div id="properties-menu" class="menu">
+		<div id="properties-menu" style="width:25%" class="menu">
 			<div id="properties-menu-entity">
 				<div class="label">Properties for <span id="properties-menu-entity-type"></span></div>
 				<div class="value" id="properties-menu-entity-id"></div>
 			</div>
 			<div id="properties" class="list">
-				<div class="property" id="properties-model-container">
+				<div class="property" style="display: flex;">
 					<div class="label">Model</div>
 					<div class="value" id="properties-model"></div>
-					<button id="copy-model-name" class="copy-button">
+					<button id="copy-model-name" class="copy-button" style="margin-left: 15px;">
 						<i class="fas fa-clipboard" aria-hidden="true"></i>
 					</button>
 				</div>
@@ -413,6 +422,7 @@
 				</div>
 				<div class="property object-property">
 					<button id="properties-lights-options">Light Options</button>
+					<button id="properties-animation-for-entity">Animtaions For Entity</button>
 				</div>
 				<div class="property">
 					<button id="properties-register-as-networked">Register as Networked</button>
@@ -424,7 +434,7 @@
 			</div>
 			<button id="properties-menu-close-btn">Close</button>
 		</div>
-		<div id="ped-options-menu" class="menu">
+		<div id="ped-options-menu" style="width:25%" class="menu">
 			<div id="ped-options" class="list">
 				<div class="property player-property">
 					<button id="properties-player-model">Change Model</button>
@@ -506,8 +516,8 @@
 			</div>
 			<button id="ped-options-menu-close">Back</button>
 		</div>
-		<div id="entity-select-menu" class="menu"></div>
-		<div id="walk-style-menu" class="menu">
+		<div id="entity-select-menu" style="width:25%" class="menu"></div>
+		<div id="walk-style-menu" style="width:25%" class="menu">
 			<div id="walk-style-search" class="search">
 				<input type="text" id="walk-style-search-filter" class="search-filter" value="">
 				<button id="favourite-walk-styles" class="favourites">
@@ -517,7 +527,7 @@
 			<div id="walk-style-list" class="list"></div>
 			<button id="walk-style-menu-close">Back</button>
 		</div>
-		<div id="weapon-menu" class="menu">
+		<div id="weapon-menu" style="width:25%" class="menu">
 			<div id="weapon-search" class="search">
 				<input type="text" id="weapon-search-filter" class="search-filter" value="">
 				<button id="favourite-weapons" class="favourites">
@@ -527,7 +537,7 @@
 			<div id="weapon-list" class="list"></div>
 			<button id="weapon-menu-close">Back</button>
 		</div>
-		<div id="vehicle-options-menu" class="menu">
+		<div id="vehicle-options-menu" style="width:25%" class="menu">
 			<div id="vehicle-options" class="list">
 				<div class="property">
 					<button id="properties-repair-vehicle">Repair Vehicle</button>
@@ -546,7 +556,7 @@
 			</div>
 			<button id="vehicle-options-menu-close">Back</button>
 		</div>
-		<div id="scenario-menu" class="menu">
+		<div id="scenario-menu" style="width:25%" class="menu">
 			<div id="scenario-search" class="search">
 				<input type="text" id="scenario-search-filter" class="search-filter" value="">
 				<button id="favourite-scenarios" class="favourites">
@@ -554,10 +564,11 @@
 				</button>
 			</div>
 			<div id="scenario-list" class="list"></div>
+			<button id="copscenario">Copy Selected Scenario</button>
 			<button id="scenario-stop">Stop Scenario</button>
 			<button id="scenario-menu-close">Back</button>
 		</div>
-		<div id="save-load-db-menu" class="menu">
+		<div id="save-load-db-menu" style="width:25%" class="menu">
 			<div id="db-list" class="list"></div>
 			<div id="load-db-options">
 				<div>
@@ -580,7 +591,7 @@
 			<button id="import-export-db-btn">Import/Export</button>
 			<button id="save-load-db-menu-close-btn">Close</button>
 		</div>
-		<div id="import-export-db">
+		<div id="import-export-db" style="width:25%">
 			<div id="import-export-controls">
 				<select id="import-export-format">
 					<option value="spooner-db-json">Spooner DB JSON</option>
@@ -596,7 +607,7 @@
 			<textarea id="import-export-content" spellcheck="false"></textarea>
 			<button id="import-export-db-close">Close</button>
 		</div>
-		<div id="lights-options-menu" class="menu">
+		<div id="lights-options-menu" style="width:25%" class="menu">
 			<div id="lights-options" class="list">
 				<div class="property">
 					<div class="label">Intensity (local)</div>
@@ -615,7 +626,7 @@
 			</div>
 			<button id="lights-options-menu-close">Back</button>
 		</div>
-		<div id="animation-menu" class="menu">
+		<div id="animation-menu" style="width:25%" class="menu">
 			<div id="animation-search" class="search">
 				<input type="text" id="animation-search-filter" class="search-filter" value="">
 				<button id="favourite-animations" class="favourites">
@@ -625,6 +636,7 @@
 			<div id="animation-list" class="list"></div>
 			<div id="animation-settings">
 				<div class="property">
+					<button id="copyanim">Copy Selected Anims</button>
 					<div class="label">Max Search Results (Total Results: <span id="animation-search-total-results"></span>)</div>
 					<input type="number" id="animation-search-max-results" value="1000" min="1" step="1">
 				</div>
@@ -652,7 +664,7 @@
 			<button id="animation-stop">Stop Animation</button>
 			<button id="animation-menu-close">Back</button>
 		</div>
-		<div id="propset-menu" class="menu">
+		<div id="propset-menu" style="width:25%" class="menu">
 			<div id="propset-search" class="search">
 				<input type="text" id="propset-search-filter" class="search-filter" value="">
 				<button id="favourite-propsets" class="favourites">
@@ -663,7 +675,7 @@
 			<button id="propset-spawn-by-name" class="spawn-by-name">Spawn By Name</button>
 			<button id="propset-menu-close-btn">Back</button>
 		</div>
-		<div id="pickup-menu" class="menu">
+		<div id="pickup-menu" style="width:25%" class="menu">
 			<div id="pickup-search" class="search">
 				<input type="text" id="pickup-search-filter" class="search-filter" value="">
 				<button id="favourite-pickups" class="favourites">
@@ -674,7 +686,7 @@
 			<button id="pickup-spawn-by-name" class="spawn-by-name">Spawn By Name</button>
 			<button id="pickup-menu-close-btn">Back</button>
 		</div>
-		<div id="player-model-menu" class="menu">
+		<div id="player-model-menu" style="width:25%" class="menu">
 			<div id="player-model-search" class="search">
 				<input type="text" id="player-model-search-filter" class="search-filter" value="">
 				<button id="favourite-player-models" class="favourites">
@@ -685,7 +697,7 @@
 			<button id="player-model-spawn-by-name" class="spawn-by-name">Spawn By Name</button>
 			<button id="player-model-menu-close-btn">Back</button>
 		</div>
-		<div id="config-flags-menu" class="menu">
+		<div id="config-flags-menu" style="width:25%"  class="menu">
 			<div id="config-flags-list" class="list"></div>
 			<div class="add-config-flag-container">
 				<div id="config-flag-label">Set flag:</div>
@@ -696,7 +708,7 @@
 			</div>
 			<button id="close-config-flags-menu">Back</button>
 		</div>
-		<div id="help-menu">
+		<div id="help-menu" style="width:25%">
 			<h1>Object Spooner Help</h1>
 			<div id="help-content">
 				<h2>Cursor colours</h2>
@@ -879,7 +891,7 @@
 						<td>Ymap</th>
 						<td>Native map format used by GTA V/RDR2</td>
 						<td>Yes</td>
-						<td>Yes</td>
+						<td>No</td>
 					</tr>
 					<tr>
 						<td>propplacer JSON</td>
