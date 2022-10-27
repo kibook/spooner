@@ -762,9 +762,6 @@ function SpawnPed(props)
 	if Config.isRDR then
 		ped = CreatePed_2(props.model, props.x, props.y, props.z, 0.0, true, false)
 		Wait(300)
-		SetEntityHealth(ped, 0, 0)
-		SetEntityHealth(ped, -10, 0)
-		SetEntityHealth(ped, -1000, 0)
 	else
 		ped = CreatePed(0, props.model, props.x, props.y, props.z, 0.0, true, false)
 	end
