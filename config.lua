@@ -43,8 +43,8 @@ if Config.isRDR then
 	Config.LookUdControl          = `INPUT_LOOK_UD`
 	Config.EntityHandlesControl   = `INPUT_MAP` -- M
 else
-	Config.IncreaseSpeedControl   = 15 -- Page Up, Mouse Wheel Up
-	Config.DecreaseSpeedControl   = 14 -- Page Down, Mouse Wheel Down
+	Config.IncreaseSpeedControl   = 208 -- Page Up
+	Config.DecreaseSpeedControl   = 207 -- Page Down
 	Config.UpControl              = 22 -- Spacebar
 	Config.DownControl            = 21 -- Shift
 	Config.ForwardControl         = 32 -- W
@@ -67,19 +67,19 @@ else
 	Config.SpawnMenuControl       = 23 -- F
 	Config.DbMenuControl          = 73 -- X
 	Config.PropMenuControl        = 37 -- Tab
-	Config.SaveLoadDbMenuControl  = 288 -- J
-	Config.AdjustModeControl      = 39 -- I
+	Config.SaveLoadDbMenuControl  = 288 -- F1
+	Config.AdjustModeControl      = 39 -- [
 	Config.PlaceOnGroundControl   = 81 -- U
-	Config.FreeAdjustModeControl  = 82 -- 8
-	Config.AdjustOffControl       = 84 -- 7
+	Config.FreeAdjustModeControl  = 82 -- .
+	Config.AdjustOffControl       = 84 -- -
 	Config.HelpMenuControl        = 74 -- H
 	Config.CloneControl           = 58 -- G
 	Config.SpeedModeControl       = 45 -- R
 	Config.ToggleControlsControl  = 170 -- F3
-	Config.FocusControl           = 19 -- Alt
-	Config.ToggleFocusModeControl = 36 -- Ctrl
-	Config.LookLrControl          = 1
-	Config.LookUdControl          = 2
+	Config.FocusControl           = 19 -- LAlt
+	Config.ToggleFocusModeControl = 36 -- LCtrl
+	Config.LookLrControl          = 1 -- MOUSE RIGHT
+	Config.LookUdControl          = 2 -- MOUSE DOWN
 	Config.EntityHandlesControl   = 244 -- M
 end
 
