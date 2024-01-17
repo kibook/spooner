@@ -15,6 +15,8 @@ local KeepSelfInDb = true
 local FocusTarget
 local FocusTargetPos
 local FreeFocus = false
+local MessageRate = 70
+local MessageInterval = true
 local showEntityHandles = false
 
 local SpoonerPrompts, ClearTasksPrompt, DetachPrompt
@@ -2767,32 +2769,38 @@ function MainSpoonerUpdates()
 		elseif FocusTarget and not FreeFocus then
 			entity = FocusTarget
 		end
-
-		SendNUIMessage({
-			type = 'updateSpoonerHud',
-			entity = entity,
-			netId = NetworkGetEntityIsNetworked(entity) and ObjToNet(entity),
-			entityType = GetSpoonerEntityType(entity),
-			modelName = GetModelName(GetSpoonerEntityModel(entity)),
-			attachedEntity = AttachedEntity,
-			speed = string.format('%.2f', Speed),
-			currentSpawn = CurrentSpawn and CurrentSpawn.modelName,
-			rotateMode = RotateMode,
-			adjustMode = AdjustMode,
-			speedMode = SpeedMode,
-			placeOnGround = PlaceOnGround,
-			adjustSpeed = AdjustSpeed,
-			rotateSpeed = RotateSpeed,
-			cursorX = string.format('%.2f', spawnPos.x),
-			cursorY = string.format('%.2f', spawnPos.y),
-			cursorZ = string.format('%.2f', spawnPos.z),
-			camX = string.format('%.2f', x2),
-			camY = string.format('%.2f', y2),
-			camZ = string.format('%.2f', z2),
-			camHeading = string.format('%.2f', yaw2),
-			focusTarget = FocusTarget,
-			freeFocus = FreeFocus
-		})
+        if MessageInterval then
+            MessageInterval = false
+            Citizen.CreateThread(function()
+                Citizen.Wait(MessageRate)
+                MessageInterval = true
+            end)
+			SendNUIMessage({
+				type = 'updateSpoonerHud',
+				entity = entity,
+				netId = NetworkGetEntityIsNetworked(entity) and ObjToNet(entity),
+				entityType = GetSpoonerEntityType(entity),
+				modelName = GetModelName(GetSpoonerEntityModel(entity)),
+				attachedEntity = AttachedEntity,
+				speed = string.format('%.2f', Speed),
+				currentSpawn = CurrentSpawn and CurrentSpawn.modelName,
+				rotateMode = RotateMode,
+				adjustMode = AdjustMode,
+				speedMode = SpeedMode,
+				placeOnGround = PlaceOnGround,
+				adjustSpeed = AdjustSpeed,
+				rotateSpeed = RotateSpeed,
+				cursorX = string.format('%.2f', spawnPos.x),
+				cursorY = string.format('%.2f', spawnPos.y),
+				cursorZ = string.format('%.2f', spawnPos.z),
+				camX = string.format('%.2f', x2),
+				camY = string.format('%.2f', y2),
+				camZ = string.format('%.2f', z2),
+				camHeading = string.format('%.2f', yaw2),
+				focusTarget = FocusTarget,
+				freeFocus = FreeFocus
+			})
+		end
 
 		if CheckControls(IsDisabledControlPressed, 0, Config.IncreaseSpeedControl) then
 			if SpeedMode == 0 then
