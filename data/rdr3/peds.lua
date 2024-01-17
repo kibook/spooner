@@ -1982,3 +1982,6 @@ Peds = {
 	"western_saddle_03",
 	"western_saddle_04",
 }
+
+PedsHashLookup = {}
+for _, name in ipairs(Peds) do PedsHashLookup[GetHashKey(name)] = name; end

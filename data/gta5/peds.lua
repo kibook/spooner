@@ -934,3 +934,6 @@ Peds = {
 	"U_M_Y_Ushi",
 	"U_M_Y_Zombie_01",
 }
+
+PedsHashLookup = {}
+for _, name in ipairs(Peds) do PedsHashLookup[GetHashKey(name)] = name; end

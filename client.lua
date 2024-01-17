@@ -324,29 +324,21 @@ function GetInView(x1, y1, z1, pitch, roll, yaw)
 end
 
 function GetModelName(model)
-	for _, name in ipairs(Peds) do
-		if model == GetHashKey(name) then
-			return name
-		end
-	end
+	if PedsHashLookup[model] then
+        return PedsHashLookup[model]
+    end
 
-	for _, name in ipairs(Vehicles) do
-		if model == GetHashKey(name) then
-			return name
-		end
-	end
+    if VehiclesHashLookup[model] then
+        return VehiclesHashLookup[model]
+    end
 
-	for _, name in ipairs(Objects) do
-		if model == GetHashKey(name) then
-			return name
-		end
-	end
+    if ObjectsHashLookup[model] then
+        return ObjectsHashLookup[model]
+    end
 
-	for _, name in ipairs(Pickups) do
-		if model == GetHashKey(name) then
-			return name
-		end
-	end
+    if PickupsHashLookup[model] then
+        return PickupsHashLookup[model]
+    end
 
 	return tostring(model)
 end

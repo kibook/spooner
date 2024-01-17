@@ -18503,3 +18503,6 @@ Objects = {
 	"xs3_prop_int_xmas_tree_01",
 	"zprop_bin_01a_old",
 }
+
+ObjectsHashLookup = {}
+for _, name in ipairs(Objects) do ObjectsHashLookup[GetHashKey(name)] = name; end
