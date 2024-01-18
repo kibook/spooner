@@ -16948,3 +16948,6 @@ Objects = {
 	"yarrow03_p",
 	"yarrow04_p",
 }
+
+ObjectsHashLookup = {}
+for _, name in ipairs(Objects) do ObjectsHashLookup[GetHashKey(name)] = name; end

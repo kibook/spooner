@@ -115,3 +115,6 @@ Vehicles = {
 	"wintercoalcar",
 	"winterSteamer",
 }
+
+VehiclesHashLookup = {}
+for _, name in ipairs(Vehicles) do VehiclesHashLookup[GetHashKey(name)] = name; end

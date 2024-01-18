@@ -758,3 +758,6 @@ Vehicles = {
 	"zr3803",
 	"Ztype",
 }
+
+VehiclesHashLookup = {}
+for _, name in ipairs(Vehicles) do VehiclesHashLookup[GetHashKey(name)] = name; end
