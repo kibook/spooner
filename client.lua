@@ -2771,8 +2771,8 @@ function MainSpoonerUpdates()
 		end
         if MessageInterval then
             MessageInterval = false
-            Citizen.CreateThread(function()
-                Citizen.Wait(MessageRate)
+            CreateThread(function()
+                Wait(MessageRate)
                 MessageInterval = true
             end)
 			SendNUIMessage({
